@@ -1,0 +1,17 @@
+{
+  "name": "dormouse",
+  "version": "0.0.1-alpha",
+  "description": "Javascript API for Dormouse",
+  "main": "dormouse.js",
+  "homepage": "http://dormou.se",
+  "keywords": ["crowdsourcing"],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/zahanm/node-dormouse.git"
+  },
+  "dependencies": {
+    "underscore": ">=1.1",
+    "browserify": ">=1.4"
+  },
+  "private": true
+}
