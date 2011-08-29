@@ -1,6 +1,6 @@
 
 var proto = require('./lib/prototype')
-  , sys = require('sys')
+  , util = require('util')
   , _ = require('underscore')._;
 
 var dm = Class.create({
@@ -9,14 +9,14 @@ var dm = Class.create({
   },
 
   out: function() {
-    console.log(sys.inspect(this.sname));
+    console.log(this.sname);
   }
 });
 
 var gm = Class.create(dm, {
   out: function($super) {
     console.log('called first');
-    $super();
+    $super.call(this);
   }
 });
 
