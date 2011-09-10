@@ -1,27 +1,10 @@
 
 var proto = require('./lib/prototype')
-  , util = require('util')
-  , _ = require('underscore')._;
+  , base = require('./lib/base').connection;
 
-var dm = Class.create({
-  initialize: function() {
-    this.sname = 'haha';
-  },
+var $dm = Class.create(base, tasks, {
 
-  out: function() {
-    console.log(this.sname);
-  }
 });
 
-var gm = Class.create(dm, {
-  out: function($super) {
-    console.log('called first');
-    $super.call(this);
-  }
-});
-
-var c = new gm();
-c.out();
-
-if (typeof window !== 'undefined' && !!window) { window.Class = Class; }
-if (exports) { exports.dormouse = dm; }
+if (window) { window.$dm = $dm; }
+if (exports) { exports.$dm = $dm; }
