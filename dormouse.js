@@ -6,5 +6,12 @@ var $dm = Class.create(base, tasks, {
 
 });
 
-if (window) { window.$dm = $dm; }
-if (exports) { exports.$dm = $dm; }
+// global on the server, window in the browser
+var root = this;
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = $dm;
+}
+else {
+    root.$dm = $dm;
+}
