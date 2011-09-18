@@ -1,9 +1,10 @@
 
 var proto = require('./lib/prototype')
-  , base = require('./lib/base').connection;
+  , base = require('./lib/base').connection
+  , tasks = require('./tasks').tasks;
 
 var $dm = Class.create(base, tasks, {
-
+  // tasks is a mixin
 });
 
 // global on the server, window in the browser

@@ -20,7 +20,10 @@ Task structure on API
  */
 var tasks = Class.create(connection, {
 
-  getTasks: function() {
+  /**
+   * ids = ids of tasks to fetch, optional
+   */
+  getTasks: function(ids, callback) {
     var get_path = path.join(DM_BASE, 'tasks.json')
       , args = [ get_path ].concat(arguments);
     return this.getIds.apply(this, args);
