@@ -11,7 +11,6 @@ var root = this;
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = $dm;
-}
-else {
+} else {
     root.$dm = $dm;
 }
