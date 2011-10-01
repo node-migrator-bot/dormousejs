@@ -9,6 +9,7 @@
     "type": "git",
     "url": "http://github.com/zahanm/node-dormouse.git"
   },
+  "lib": "lib",
   "dependencies": {
     "underscore": ">=1.1",
     "ender-js": ">=0.3",

@@ -1,9 +1,96 @@
 /*!
   * =============================================================
   * Ender: open module JavaScript framework (https://ender.no.de)
-  * Build: ender build underscore bean path
+  * Build: ender build ../ --output dormouse
   * =============================================================
   */
+
+/*!
+  * Ender: open module JavaScript framework (client-lib)
+  * copyright Dustin Diaz & Jacob Thornton 2011 (@ded @fat)
+  * http://ender.no.de
+  * License MIT
+  */
+!function (context) {
+
+  // a global object for node.js module compatiblity
+  // ============================================
+
+  context['global'] = context
+
+  // Implements simple module system
+  // losely based on CommonJS Modules spec v1.1.1
+  // ============================================
+
+  var modules = {}
+    , old = context.$
+
+  function require (identifier) {
+    var module = modules[identifier] || window[identifier]
+    if (!module) throw new Error("Requested module '" + identifier + "' has not been defined.")
+    return module
+  }
+
+  function provide (name, what) {
+    return (modules[name] = what)
+  }
+
+  context['provide'] = provide
+  context['require'] = require
+
+  // Implements Ender's $ global access object
+  // =========================================
+
+  function aug(o, o2) {
+    for (var k in o2) k != 'noConflict' && k != '_VERSION' && (o[k] = o2[k])
+    return o
+  }
+
+  function boosh(s, r, els) {
+    // string || node || nodelist || window
+    if (ender._select && (typeof s == 'string' || s.nodeName || s.length && 'item' in s || s == window)) {
+      els = ender._select(s, r)
+      els.selector = s
+    } else els = isFinite(s.length) ? s : [s]
+    return aug(els, boosh)
+  }
+
+  function ender(s, r) {
+    return boosh(s, r)
+  }
+
+  aug(ender, {
+      _VERSION: '0.3.4'
+    , fn: boosh // for easy compat to jQuery plugins
+    , ender: function (o, chain) {
+        aug(chain ? boosh : ender, o)
+      }
+    , _select: function (s, r) {
+        return (r || document).querySelectorAll(s)
+      }
+  })
+
+  aug(boosh, {
+    forEach: function (fn, scope, i) {
+      // opt out of native forEach so we can intentionally call our own scope
+      // defaulting to the current item and be able to return self
+      for (i = 0, l = this.length; i < l; ++i) i in this && fn.call(scope || this[i], this[i], i, this)
+      // return self for chaining
+      return this
+    },
+    $: ender // handy reference to self
+  })
+
+  ender.noConflict = function () {
+    context.$ = old
+    return this
+  }
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = ender
+  // use subscript notation as extern for Closure compilation
+  context['ender'] = context['$'] = context['ender'] || ender
+
+}(this);
 
 !function () {
 
@@ -1178,93 +1265,6 @@
 
 }();
 
-/*!
-  * Ender: open module JavaScript framework (client-lib)
-  * copyright Dustin Diaz & Jacob Thornton 2011 (@ded @fat)
-  * http://ender.no.de
-  * License MIT
-  */
-!function (context) {
-
-  // a global object for node.js module compatiblity
-  // ============================================
-
-  context['global'] = context
-
-  // Implements simple module system
-  // losely based on CommonJS Modules spec v1.1.1
-  // ============================================
-
-  var modules = {}
-    , old = context.$
-
-  function require (identifier) {
-    var module = modules[identifier] || window[identifier]
-    if (!module) throw new Error("Requested module '" + identifier + "' has not been defined.")
-    return module
-  }
-
-  function provide (name, what) {
-    return (modules[name] = what)
-  }
-
-  context['provide'] = provide
-  context['require'] = require
-
-  // Implements Ender's $ global access object
-  // =========================================
-
-  function aug(o, o2) {
-    for (var k in o2) k != 'noConflict' && k != '_VERSION' && (o[k] = o2[k])
-    return o
-  }
-
-  function boosh(s, r, els) {
-    // string || node || nodelist || window
-    if (ender._select && (typeof s == 'string' || s.nodeName || s.length && 'item' in s || s == window)) {
-      els = ender._select(s, r)
-      els.selector = s
-    } else els = isFinite(s.length) ? s : [s]
-    return aug(els, boosh)
-  }
-
-  function ender(s, r) {
-    return boosh(s, r)
-  }
-
-  aug(ender, {
-      _VERSION: '0.3.4'
-    , fn: context.$ && context.$.fn || {} // for easy compat to jQuery plugins
-    , ender: function (o, chain) {
-        aug(chain ? boosh : ender, o)
-      }
-    , _select: function (s, r) {
-        return (r || document).querySelectorAll(s)
-      }
-  })
-
-  aug(boosh, {
-    forEach: function (fn, scope, i) {
-      // opt out of native forEach so we can intentionally call our own scope
-      // defaulting to the current item and be able to return self
-      for (i = 0, l = this.length; i < l; ++i) i in this && fn.call(scope || this[i], this[i], i, this)
-      // return self for chaining
-      return this
-    },
-    $: ender // handy reference to self
-  })
-
-  ender.noConflict = function () {
-    context.$ = old
-    return this
-  }
-
-  if (typeof module !== 'undefined' && module.exports) module.exports = ender
-  // use subscript notation as extern for Closure compilation
-  context['ender'] = context['$'] = context['ender'] || ender
-
-}(this);
-
 !function () {
 
   var module = { exports: {} }, exports = module.exports;
@@ -1278,8 +1278,13 @@
     * dperini: https://github.com/dperini/nwevents
     * the entire mootools team: github.com/mootools/mootools-core
     */
-  !function (context) {
-    var __uid = 1,
+  !function (name, definition) {
+    if (typeof define == 'function') define(definition);
+    else if (typeof module != 'undefined') module.exports = definition();
+    else this[name] = definition();
+  }('bean', function () {
+    var win = window,
+        __uid = 1,
         registry = {},
         collected = {},
         overOut = /over|out/,
@@ -1289,7 +1294,7 @@
         attachEvent = 'attachEvent',
         removeEvent = 'removeEventListener',
         detachEvent = 'detachEvent',
-        doc = context.document || {},
+        doc = document || {},
         root = doc.documentElement || {},
         W3C_MODEL = root[addEvent],
         eventSupport = W3C_MODEL ? addEvent : attachEvent,
@@ -1316,21 +1321,24 @@
     listener = W3C_MODEL ? function (element, type, fn, add) {
       element[add ? addEvent : removeEvent](type, fn, false);
     } : function (element, type, fn, add, custom) {
-      custom && add && (element['_on' + custom] = element['_on' + custom] || 0);
+      if (custom && add && element['_on' + custom] === null) {
+        element['_on' + custom] = 0;
+      }
       element[add ? attachEvent : detachEvent]('on' + type, fn);
     },
   
     nativeHandler = function (element, fn, args) {
       return function (event) {
-        event = fixEvent(event || ((this.ownerDocument || this.document || this).parentWindow || context).event);
+        event = fixEvent(event || ((this.ownerDocument || this.document || this).parentWindow || win).event);
         return fn.apply(element, [event].concat(args));
       };
     },
   
     customHandler = function (element, fn, type, condition, args) {
-      return function (e) {
-        if (condition ? condition.apply(this, arguments) : W3C_MODEL ? true : e && e.propertyName == '_on' + type || !e) {
-          fn.apply(element, Array.prototype.slice.call(arguments, e ? 0 : 1).concat(args));
+      return function (event) {
+        if (condition ? condition.apply(this, arguments) : W3C_MODEL ? true : event && event.propertyName == '_on' + type || !event) {
+          event = event ? fixEvent(event || ((this.ownerDocument || this.document || this).parentWindow || win).event) : null;
+          fn.apply(element, Array.prototype.slice.call(arguments, event ? 0 : 1).concat(args));
         }
       };
     },
@@ -1424,9 +1432,9 @@
       var k, m, type, events, i,
           isString = typeof(orgEvents) == 'string',
           names = isString && orgEvents.replace(namespace, ''),
-          names = names && names.split('.'),
           rm = removeListener,
           attached = retrieveEvents(element);
+      names = names && names.split('.');
       if (isString && /\s/.test(orgEvents)) {
         orgEvents = orgEvents.split(' ');
         i = orgEvents.length - 1;
@@ -1491,7 +1499,7 @@
   
     fireListener = W3C_MODEL ? function (isNative, type, element) {
       evt = document.createEvent(isNative ? "HTMLEvents" : "UIEvents");
-      evt[isNative ? 'initEvent' : 'initUIEvent'](type, true, true, context, 1);
+      evt[isNative ? 'initEvent' : 'initUIEvent'](type, true, true, win, 1);
       element.dispatchEvent(evt);
     } : function (isNative, type, element) {
       isNative ? element.fireEvent('on' + type, document.createEventObject()) : element['_on' + type]++;
@@ -1594,26 +1602,22 @@
       }
     };
   
-    if (context[attachEvent]) {
-      add(context, 'unload', function () {
+    if (win[attachEvent]) {
+      add(win, 'unload', function () {
         for (var k in collected) {
           collected.hasOwnProperty(k) && clean(collected[k]);
         }
-        context.CollectGarbage && CollectGarbage();
+        win.CollectGarbage && CollectGarbage();
       });
     }
   
-    var oldBean = context.bean;
     bean.noConflict = function () {
-      context.bean = oldBean;
+      context.bean = old;
       return this;
     };
   
-    (typeof module !== 'undefined' && module.exports) ?
-      (module.exports = bean) :
-      (context['bean'] = bean);
-  
-  }(this);
+    return bean;
+  });
 
   provide("bean", module.exports);
 
@@ -1676,5 +1680,34 @@
   
     $.ender(methods, true);
   }(ender);
+
+}();
+
+!function () {
+
+  var module = { exports: {} }, exports = module.exports;
+
+  
+  var proto = require('./lib/prototype')
+    , base = require('./lib/base').connection
+    , tasks = require('./tasks').tasks;
+  
+  var $dm = Class.create(base, tasks, {
+    // tasks is a mixin
+  });
+  
+  // global on the server, window in the browser
+  var root = this;
+  
+  if (typeof module !== 'undefined' && module.exports) {
+      module.exports = $dm;
+  } else {
+      root.$dm = $dm;
+  }
+  
+
+  provide("dormouse", module.exports);
+
+  $.ender(module.exports);
 
 }();
