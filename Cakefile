@@ -14,5 +14,9 @@ input = source_files.join ' '
 output = 'build/dormouse.js'
 
 task 'build', 'build the dormousejs compiled file', (options) ->
-  console.log "coffee --join #{output} --compile #{input}"
-  exec "coffee --join #{output} --compile #{input}"
+  console.log "coffee -l --join #{output} --compile #{input}"
+  exec "coffee -l --join #{output} --compile #{input}", (err, stdo, stde) ->
+    if (err isnt null)
+      console.log 'stdout: ', stdo
+      console.log 'stderr: ', stde
+      console.log 'exec error: ', err
