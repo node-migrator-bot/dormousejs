@@ -11,8 +11,8 @@ source_files = [
 ]
 source_files = source_files.map (fname) -> "lib/#{fname}.coffee"
 input = source_files.join ' '
-assembled = 'build/assembled.js'
-output = 'build/dormouse.js'
+assembled = 'lib/assembled.js'
+output = 'dormouse.js'
 
 task 'assemble', 'assemble the dormousejs components from coffee', (options) ->
   console.log "coffee -l --join #{assembled} --compile #{input}"
@@ -24,9 +24,13 @@ task 'assemble', 'assemble the dormousejs components from coffee', (options) ->
 
 task 'build', 'wrap the assembled js with dependencies', (options) ->
   invoke 'assemble'
-  console.log "ender build ./ --output #{output}"
-  exec "ender build ./ --output #{output}", (err, stdo, stde) ->
+  console.log "ender build dormouse --output #{output}"
+  exec "cd build && ender build dormouse --output #{output}", (err, stdo, stde) ->
     console.log stdo
     if (err isnt null)
       console.log 'stderr: ', stde
       console.log 'exec error: ', err
+
+task 'clean', 'clean up assembled and built js', (options) ->
+  console.log "rm #{assembled} #{output}"
+  exec "rm #{assembled} #{output}"

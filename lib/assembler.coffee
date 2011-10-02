@@ -7,7 +7,7 @@ class Dormouse
   @implements Tasks
   # tasks is a mixin
 
-root = window
+root = this
 if (typeof module isnt 'undefined' and module.exports)
     module.exports = Dormouse
 else
