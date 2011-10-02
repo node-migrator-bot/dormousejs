@@ -4,7 +4,7 @@ Top level Dormouse
 ###
 
 class Dormouse
-  @implements Tasks
+  @implements Tasks, Projects
   # tasks is a mixin
 
 root = this

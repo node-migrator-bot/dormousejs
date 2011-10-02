@@ -7,6 +7,7 @@ source_files = [
   'libutils'
   'connection'
   'tasks'
+  'projects'
   'assembler'
 ]
 source_files = source_files.map (fname) -> "lib/#{fname}.coffee"

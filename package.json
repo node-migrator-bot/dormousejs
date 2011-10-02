@@ -10,10 +10,11 @@
     "url": "http://github.com/zahanm/node-dormouse.git"
   },
   "dependencies": {
-    "underscore": ">=1.1",
-    "ender-js": ">=0.3",
-    "path": ">=0.4",
-    "bean": ">=0.2"
+    "ender-js": "*",
+    "underscore": "*",
+    "path": "*",
+    "bean": "*",
+    "async": "*"
   },
   "devDependencies": {
     "coffee-script": "*"
