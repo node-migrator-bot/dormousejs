@@ -2,7 +2,7 @@
   "name": "dormouse",
   "version": "0.0.1-alpha",
   "description": "Javascript API for Dormouse",
-  "main": "./assembler",
+  "main": "build/assembled.js",
   "homepage": "http://dormou.se",
   "keywords": ["crowdsourcing"],
   "repository": {
