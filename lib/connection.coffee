@@ -12,30 +12,38 @@ class Connection
   ###
   @param options serialized in GET params
   ###
-  get: (path, options, callback) ->
+  get: (get_path, options, callback) ->
     # XXX TODO implementation, append api_key
-    request = new XMLHttpRequest()
-    path.join DM_URL, path
-    # callback error, response
+    get_path = path.join DM_URL, get_path
+    request = new XMLHttpRequest
+    request.open('GET', get_path, true)
+    request.onreadystatechange = (e) ->
+      if (request.readyState is 4)
+        console.log request.responseText
+        callback request.responseText
+      else
+        console.log 'Error', request.statusText
+        callback request.statusText
+    request.send null
 
   ###
   @param options appended to URL
   @param body dumped in POST body
   ###
-  post: (path, options, body, callback) ->
+  post: (post_path, options, body, callback) ->
     # XXX TODO implementation
 
   ###
   @param options appended to URL
   @param body dumped in body
   ###
-  put: (path, options, body, callback) ->
+  put: (put_path, options, body, callback) ->
     # XXX TODO implementation
 
   ###
   @param options is optional
   ###
-  delete: (path, options, callback) ->
+  delete: (delete_path, options, callback) ->
     # XXX TODO implementation
 
   getIds: ->
@@ -43,9 +51,17 @@ class Connection
     get_path = ids.shift()
     callback = ids.pop()
     if (libutils.isEmpty(ids))
-      return this.get(get_path, callback)
+      this.get get_path, callback
     else
-      ids.map (id) ->
-        return "#{id}.json"
-      # async.forEach
-    # XXX TODO implementation
+      items = []
+      async.forEach(ids, (id, done) ->
+        id_path = path.join get_path, "#{id}.json"
+        this.get id_path, (item) ->
+          items.push(item)
+          done()
+      , (err) ->
+        if err
+          callback(false)
+        else
+          callback(items)
+      ) # END async.forEach

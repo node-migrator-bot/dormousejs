@@ -40,4 +40,4 @@ class Tasks extends Connection
 
   deleteTask: (task, callback) ->
     delete_path = path.join 'tasks', "#{task.id}.json"
-    return this['delete'](delete_path, callback)
+    return this.delete delete_path, callback
