@@ -10,6 +10,7 @@ Base Connection
 class Connection
 
   ###
+  Assumption that it is getting JSON
   @param options serialized in GET params
   ###
   get: (get_path, options, callback) ->
@@ -20,7 +21,7 @@ class Connection
     request.onreadystatechange = (e) ->
       if (request.readyState is 4)
         console.log request.responseText
-        callback request.responseText
+        callback JSON.parse request.responseText
       else
         console.log 'Error', request.statusText
         callback request.statusText
