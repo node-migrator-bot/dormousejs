@@ -11,6 +11,7 @@ Task structure on API
 ###
 
 path = require 'path'
+Connection = require('./connection').Connection
 
 ###
 * Tasks mixin for Dormouse
@@ -41,3 +42,5 @@ class Tasks extends Connection
   deleteTask: (task, callback) ->
     delete_path = path.join 'tasks', "#{task.id}.json"
     return this.delete delete_path, callback
+
+exports.Tasks = Tasks

@@ -1,13 +1,15 @@
 
+require './mixin'
+Connection = require('./connection').Connection
+Tasks = require('./tasks').Tasks
+Projects = require('./projects').Projects
+
 ###
 Top level Dormouse
 ###
 
 class Dormouse
   @implements Tasks, Projects
-  # tasks is a mixin
+  # Tasks, Projects are mixins
 
-if (typeof module isnt 'undefined' and module.exports)
-    module.exports = Dormouse
-else
-    window.$dm = Dormouse
+exports.Dormouse = Dormouse

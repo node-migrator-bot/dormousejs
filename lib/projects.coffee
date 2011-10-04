@@ -11,6 +11,7 @@ Project structure on API
 ###
 
 path = require 'path'
+Connection = require('./connection').Connection
 
 ###
 * Projects mixin for Dormouse
@@ -36,4 +37,6 @@ class Projects extends Connection
 
   deleteProject: (project, callback) ->
     delete_path = path.join 'projects', "#{project.id}.json"
-    return this['delete'](delete_path, callback)
+    return this.delete delete_path, callback
+
+exports.Projects = Projects

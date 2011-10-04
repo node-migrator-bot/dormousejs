@@ -2,6 +2,8 @@
 path = require 'path'
 async = require 'async'
 
+libutils = require './libutils'
+
 DM_URL = 'http://arya.stanford.edu:3777/'
 
 ###
@@ -17,14 +19,15 @@ class Connection
     # XXX TODO implementation, append api_key
     get_path = path.join DM_URL, get_path
     request = new XMLHttpRequest
-    request.open('GET', get_path, true)
+    request.open 'GET', get_path, true
     request.onreadystatechange = (e) ->
       if (request.readyState is 4)
-        console.log request.responseText
-        callback JSON.parse request.responseText
-      else
-        console.log 'Error', request.statusText
-        callback request.statusText
+        if request.status is 200
+          console.log request.responseText
+          callback JSON.parse request.responseText if callback
+        else
+          console.log 'Error', request.statusText
+          callback request.statusText if callback
     request.send null
 
   ###
@@ -48,10 +51,10 @@ class Connection
     # XXX TODO implementation
 
   getIds: ->
-    ids = libutils.toArray(arguments)
+    ids = libutils.toArray arguments
     get_path = ids.shift()
     callback = ids.pop()
-    if (libutils.isEmpty(ids))
+    if (libutils.isEmpty ids)
       this.get get_path, callback
     else
       items = []
@@ -66,3 +69,5 @@ class Connection
         else
           callback(items)
       ) # END async.forEach
+
+exports.Connection = Connection
