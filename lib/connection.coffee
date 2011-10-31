@@ -1,10 +1,13 @@
 
 path = require 'path'
 async = require 'async'
+_ = require 'underscore'
+node_url = require 'url'
 
 libutils = require './libutils'
 
 DM_URL = 'http://arya.stanford.edu:3777/'
+API_KEY = '6b044f121358683678e5e21de2202a5e0a0394d5'
 
 ###
 Base Connection
@@ -18,6 +21,7 @@ class Connection
   get: (get_path, options, callback) ->
     # TODO append api_key, options
     get_path = path.join DM_URL, get_path
+    get_path = appendOptions get_path, options
     request = new XMLHttpRequest
     request.open 'GET', get_path, true
     # response handler
@@ -107,6 +111,12 @@ class Connection
         else
           callback(items)
       ) # END async.forEach
+
+appendOptions = (url, options) ->
+  options = _(options).extend { api_key: API_KEY }
+  urlObj = node_url.parse url
+  urlObj.query = options
+  return node_url.format urlObj
 
 parseResponse = (raw_response) ->
   try

@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "underscore": "*",
-    "async": "*"
+    "async": "*",
+    "ahr2": "2.x"
   },
   "devDependencies": {
     "coffee-script": "*",
