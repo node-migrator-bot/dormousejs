@@ -16,18 +16,18 @@ class Connection
   @param options serialized in GET params
   ###
   get: (get_path, options, callback) ->
-    # XXX TODO implementation, append api_key
+    # TODO append api_key, options
     get_path = path.join DM_URL, get_path
     request = new XMLHttpRequest
     request.open 'GET', get_path, true
-    request.onreadystatechange = (e) ->
-      if (request.readyState is 4)
-        if request.status is 200
-          console.log request.responseText
-          callback JSON.parse request.responseText if callback
-        else
-          console.log 'Error', request.statusText
-          callback request.statusText if callback
+    # response handler
+    request.onload = (e) ->
+      if request.status is 200
+        console.log request.responseText # DEBUG
+        callback parseResponse request.responseText if callback
+      else
+        console.log 'HTTP error', request.status
+        callback request.statusText if callback
     request.send null
 
   ###
@@ -35,20 +35,58 @@ class Connection
   @param body dumped in POST body
   ###
   post: (post_path, options, body, callback) ->
-    # XXX TODO implementation
+    # TODO append api_key, options
+    post_path = path.join DM_URL, post_path
+    request = new XMLHttpRequest
+    request.open 'POST', post_path, true
+    request.setRequestHeader 'Content-Type', 'application/json'
+    # response handler
+    request.onload = (e) ->
+      if request.status is 200
+        console.log request.responseText # DEBUG
+        callback parseResponse request.responseText if callback
+      else
+        console.log 'HTTP error', request.status
+        callback request.statusText if callback
+    request.send JSON.stringify body
 
   ###
   @param options appended to URL
   @param body dumped in body
   ###
   put: (put_path, options, body, callback) ->
-    # XXX TODO implementation
+    # TODO append api_key, options
+    put_path = path.join DM_URL, put_path
+    request = new XMLHttpRequest
+    request.open 'PUT', put_path, true
+    request.setRequestHeader 'Content-Type', 'application/json'
+    # response handler
+    request.onload = (e) ->
+      if request.status is 200
+        console.log request.responseText # DEBUG
+        callback parseResponse request.responseText if callback
+      else
+        console.log 'HTTP error', request.status
+        callback request.statusText if callback
+    request.send JSON.stringify body
 
   ###
   @param options is optional
   ###
   delete: (delete_path, options, callback) ->
-    # XXX TODO implementation
+    # TODO append api_key, options
+    delete_path = path.join DM_URL, delete_path
+    request = new XMLHttpRequest
+    request.open 'DELETE', delete_path, true
+    # response handler
+    request.onload = (e) ->
+      if request.status is 200
+        console.log request.responseText # DEBUG
+        callback parseResponse request.responseText if callback
+      else
+        console.log 'HTTP error', request.status
+        callback request.statusText if callback
+    request.send null
 
   getIds: ->
     ids = libutils.toArray arguments
@@ -69,5 +107,12 @@ class Connection
         else
           callback(items)
       ) # END async.forEach
+
+parseResponse = (raw_response) ->
+  try
+    return JSON.parse raw_response
+  catch syntax_error
+    console.log 'Response JSON parsing error:', syntax_error
+  return raw_response
 
 exports.Connection = Connection
