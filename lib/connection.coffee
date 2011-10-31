@@ -2,7 +2,7 @@
 path = require 'path'
 async = require 'async'
 _ = require 'underscore'
-node_url = require 'url'
+request = require 'ahr2'
 
 libutils = require './libutils'
 
@@ -21,18 +21,18 @@ class Connection
   get: (get_path, options, callback) ->
     # TODO append api_key, options
     get_path = path.join DM_URL, get_path
-    get_path = appendOptions get_path, options
-    request = new XMLHttpRequest
-    request.open 'GET', get_path, true
-    # response handler
-    request.onload = (e) ->
-      if request.status is 200
-        console.log request.responseText # DEBUG
-        callback parseResponse request.responseText if callback
+    options = appendAPIKey options
+    response = request
+      method: 'GET'
+      href: get_path
+      query: options
+    response.on 'loadend', (e) ->
+      if e.error
+        console.log 'HTTP error', e.error
+        callback e.error.message if callback
       else
-        console.log 'HTTP error', request.status
-        callback request.statusText if callback
-    request.send null
+        console.log e.target.result # DEBUG
+        callback parseResponse e.target.result if callback
 
   ###
   @param options appended to URL
@@ -112,11 +112,8 @@ class Connection
           callback(items)
       ) # END async.forEach
 
-appendOptions = (url, options) ->
-  options = _(options).extend { api_key: API_KEY }
-  urlObj = node_url.parse url
-  urlObj.query = options
-  return node_url.format urlObj
+appendAPIKey = (options) ->
+  return _(options).extend { api_key: API_KEY }
 
 parseResponse = (raw_response) ->
   try
