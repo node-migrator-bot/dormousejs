@@ -462,7 +462,7 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
     
     (function () {
         (function() {
-  var Connection, api_key, appendAPIKey, async, handleResponse, host, http, libutils, parseResponse, path, port, protocol, _;
+  var Connection, api_key, appendAPIKey, async, handleResponse, host, http, libutils, parseResponse, path, port, _;
   path = require('path');
   async = require('async');
   _ = require('underscore');
@@ -585,14 +585,18 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
     };
     return Connection;
   })();
-  protocol = 'http';
   host = 'dormou.se';
-  port = 3777;
+  port = 80;
   Connection.server = function(setter) {
+    var matched;
     if (setter) {
-      host = setter;
+      matched = setter.match(/^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/);
+      if (matched) {
+        host = matched[3] || 'dormou.se';
+        port = matched[5] || 80;
+      }
     }
-    return "" + protocol + "://" + host + ":" + port;
+    return "http://" + host + ":" + port + "/";
   };
   Connection.host = function(setter) {
     if (setter) {
@@ -610,6 +614,9 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
   Connection.api_key = function(setter) {
     if (setter) {
       api_key = setter;
+    }
+    if (!api_key) {
+      throw new Error('You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)');
     }
     return api_key;
   };

@@ -108,14 +108,16 @@ class Connection
 
 # --- static methods
 
-protocol = 'http'
 host = 'dormou.se'
-port = 3777 # 80
+port = 80
 Connection.server = (setter) ->
   if setter
-    # TODO parse setter into host and port
-    host = setter
-  return "#{protocol}://#{host}:#{port}"
+    matched = setter.match /^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/
+    if matched
+      # protocol = matched[2] || 'http'
+      host = matched[3] || 'dormou.se'
+      port = matched[5] || 80
+  return "http://#{host}:#{port}/"
 
 Connection.host = (setter) ->
   if setter
@@ -131,12 +133,14 @@ api_key = ''
 Connection.api_key = (setter) ->
   if setter
     api_key = setter
+  unless api_key
+    throw new Error 'You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)'
   return api_key
 
 # --- private methods
 
 appendAPIKey = (options) ->
-  return _.extend options, { api_key: Connection.api_key() }
+  return _.extend options, api_key: Connection.api_key()
 
 handleResponse = (res, callback) ->
   data = ''
