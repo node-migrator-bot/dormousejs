@@ -24,7 +24,7 @@ class Tasks extends Connection
   ###
   getTasks: (ids, callback) ->
     get_path = 'tasks.json'
-    args = Array.prototype.concat.apply [ get_path ], arguments
+    args = Array::concat.apply [ get_path ], arguments
     return this.getIds.apply this, args
 
   createTask: (task_info, callback) ->

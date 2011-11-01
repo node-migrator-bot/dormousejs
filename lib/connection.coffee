@@ -6,10 +6,6 @@ http = require 'http-browserify'
 
 libutils = require './libutils'
 
-DM_HOST = 'arya.stanford.edu'
-DM_PORT = 3777
-API_KEY = '6b044f121358683678e5e21de2202a5e0a0394d5'
-
 ###
 Base Connection
 ###
@@ -25,8 +21,8 @@ class Connection
       query: appendAPIKey options
     req = http.request
       method: 'GET'
-      host: DM_HOST
-      port: DM_PORT
+      host: Connection.host()
+      port: Connection.port()
       path: get_path
     , (res) ->
       handleResponse res, callback
@@ -43,8 +39,8 @@ class Connection
       query: appendAPIKey options
     req = http.request
       method: 'POST'
-      host: DM_HOST
-      port: DM_PORT
+      host: Connection.host()
+      port: Connection.port()
       path: post_path
       headers:
         'Content-Type': 'application/json'
@@ -63,8 +59,8 @@ class Connection
       query: appendAPIKey options
     req = http.request
       method: 'PUT'
-      host: DM_HOST
-      port: DM_PORT
+      host: Connection.host()
+      port: Connection.port()
       path: put_path
       headers:
         'Content-Type': 'application/json'
@@ -82,8 +78,8 @@ class Connection
       query: appendAPIKey options
     req = http.request
       method: 'DELETE'
-      host: DM_HOST
-      port: DM_PORT
+      host: Connection.host()
+      port: Connection.port()
       path: delete_path
     , (res) ->
       handleResponse res, callback
@@ -110,8 +106,37 @@ class Connection
           callback(items)
       ) # END async.forEach
 
+# --- static methods
+
+protocol = 'http'
+host = 'dormou.se'
+port = 3777 # 80
+Connection.server = (setter) ->
+  if setter
+    # TODO parse setter into host and port
+    host = setter
+  return "#{protocol}://#{host}:#{port}"
+
+Connection.host = (setter) ->
+  if setter
+    host = setter
+  return host
+
+Connection.port = (setter) ->
+  if setter
+    port = setter
+  return port
+
+api_key = ''
+Connection.api_key = (setter) ->
+  if setter
+    api_key = setter
+  return api_key
+
+# --- private methods
+
 appendAPIKey = (options) ->
-  return _.extend options, { api_key: API_KEY }
+  return _.extend options, { api_key: Connection.api_key() }
 
 handleResponse = (res, callback) ->
   data = ''

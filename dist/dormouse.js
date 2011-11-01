@@ -365,6 +365,12 @@ require.modules["/node_modules/dormouse/lib/assembler.coffee"] = function () {
   Dormouse = (function() {
     function Dormouse() {}
     Dormouse.implements(Tasks, Projects);
+    Dormouse.prototype.server = function() {
+      return Connection.server.apply(Connection, arguments);
+    };
+    Dormouse.prototype.api_key = function() {
+      return Connection.api_key.apply(Connection, arguments);
+    };
     return Dormouse;
   })();
   exports.Dormouse = Dormouse;
@@ -456,15 +462,12 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
     
     (function () {
         (function() {
-  var API_KEY, Connection, DM_HOST, DM_PORT, appendAPIKey, async, handleResponse, http, libutils, parseResponse, path, _;
+  var Connection, api_key, appendAPIKey, async, handleResponse, host, http, libutils, parseResponse, path, port, protocol, _;
   path = require('path');
   async = require('async');
   _ = require('underscore');
   http = require('http-browserify');
   libutils = require('./libutils');
-  DM_HOST = 'arya.stanford.edu';
-  DM_PORT = 3777;
-  API_KEY = '6b044f121358683678e5e21de2202a5e0a0394d5';
   /*
   Base Connection
   */
@@ -482,8 +485,8 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
       });
       req = http.request({
         method: 'GET',
-        host: DM_HOST,
-        port: DM_PORT,
+        host: Connection.host(),
+        port: Connection.port(),
         path: get_path
       }, function(res) {
         return handleResponse(res, callback);
@@ -502,8 +505,8 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
       });
       req = http.request({
         method: 'POST',
-        host: DM_HOST,
-        port: DM_PORT,
+        host: Connection.host(),
+        port: Connection.port(),
         path: post_path,
         headers: {
           'Content-Type': 'application/json'
@@ -525,8 +528,8 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
       });
       req = http.request({
         method: 'PUT',
-        host: DM_HOST,
-        port: DM_PORT,
+        host: Connection.host(),
+        port: Connection.port(),
         path: put_path,
         headers: {
           'Content-Type': 'application/json'
@@ -547,8 +550,8 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
       });
       req = http.request({
         method: 'DELETE',
-        host: DM_HOST,
-        port: DM_PORT,
+        host: Connection.host(),
+        port: Connection.port(),
         path: delete_path
       }, function(res) {
         return handleResponse(res, callback);
@@ -582,9 +585,37 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
     };
     return Connection;
   })();
+  protocol = 'http';
+  host = 'dormou.se';
+  port = 3777;
+  Connection.server = function(setter) {
+    if (setter) {
+      host = setter;
+    }
+    return "" + protocol + "://" + host + ":" + port;
+  };
+  Connection.host = function(setter) {
+    if (setter) {
+      host = setter;
+    }
+    return host;
+  };
+  Connection.port = function(setter) {
+    if (setter) {
+      port = setter;
+    }
+    return port;
+  };
+  api_key = '';
+  Connection.api_key = function(setter) {
+    if (setter) {
+      api_key = setter;
+    }
+    return api_key;
+  };
   appendAPIKey = function(options) {
     return _.extend(options, {
-      api_key: API_KEY
+      api_key: Connection.api_key()
     });
   };
   handleResponse = function(res, callback) {

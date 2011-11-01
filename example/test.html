@@ -4,6 +4,8 @@
   <title>Test</title>
   <script type="text/javascript" src="/dormouse.js"></script>
   <script type="text/javascript">
+    $dm.server('arya.stanford.edu');
+    $dm.api_key('6b044f121358683678e5e21de2202a5e0a0394d5');
     $dm.getTasks(function(tasks) {
       console.log(tasks);
     });
