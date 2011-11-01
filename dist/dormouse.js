@@ -492,7 +492,6 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
           return data += buf;
         });
         response.on('end', function() {
-          console.log(data);
           if (callback) {
             return callback(parseResponse(data));
           }

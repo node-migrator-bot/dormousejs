@@ -33,7 +33,6 @@ class Connection
       response.on 'data', (buf) ->
         data += buf
       response.on 'end', () ->
-        console.log data # DEBUG
         callback parseResponse data if callback
       response.on 'error', (e) ->
         console.log 'HTTP error', response.statusCode
