@@ -29,13 +29,7 @@ class Connection
       port: DM_PORT
       path: get_path
     , (res) ->
-      data = ''
-      res.on 'data', (buf) ->
-        data += buf
-      res.on 'end', () ->
-        callback parseResponse data if callback
-      res.on 'error', (err) ->
-        console.log 'HTTP error', res.statusCode, data, err
+      handleResponse res, callback
     # END http.request
     req.end() # sends the request
 
@@ -55,13 +49,7 @@ class Connection
       headers:
         'Content-Type': 'application/json'
     , (res) ->
-      data = ''
-      res.on 'data', (buf) ->
-        data += buf
-      res.on 'end', () ->
-        callback parseResponse data if callback
-      res.on 'error', (err) ->
-        console.log 'HTTP error', res.statusCode, data, err
+      handleResponse res, callback
     # END http.request
     req.end JSON.stringify body
 
@@ -70,38 +58,37 @@ class Connection
   @param body dumped in body
   ###
   put: (put_path, options, body, callback) ->
-    # TODO append api_key, options
-    put_path = path.join DM_URL, put_path
-    request = new XMLHttpRequest
-    request.open 'PUT', put_path, true
-    request.setRequestHeader 'Content-Type', 'application/json'
-    # response handler
-    request.onload = (e) ->
-      if request.status is 200
-        console.log request.responseText # DEBUG
-        callback parseResponse request.responseText if callback
-      else
-        console.log 'HTTP error', request.status
-        callback request.statusText if callback
-    request.send JSON.stringify body
+    put_path = libutils.formatUrl
+      path: put_path
+      query: appendAPIKey options
+    req = http.request
+      method: 'PUT'
+      host: DM_HOST
+      port: DM_PORT
+      path: put_path
+      headers:
+        'Content-Type': 'application/json'
+    , (res) ->
+      handleResponse res, callback
+    # END http.request
+    req.end JSON.stringify body
 
   ###
   @param options is optional
   ###
   delete: (delete_path, options, callback) ->
-    # TODO append api_key, options
-    delete_path = path.join DM_URL, delete_path
-    request = new XMLHttpRequest
-    request.open 'DELETE', delete_path, true
-    # response handler
-    request.onload = (e) ->
-      if request.status is 200
-        console.log request.responseText # DEBUG
-        callback parseResponse request.responseText if callback
-      else
-        console.log 'HTTP error', request.status
-        callback request.statusText if callback
-    request.send null
+    delete_path = libutils.formatUrl
+      path: delete_path
+      query: appendAPIKey options
+    req = http.request
+      method: 'DELETE'
+      host: DM_HOST
+      port: DM_PORT
+      path: delete_path
+    , (res) ->
+      handleResponse res, callback
+    # END http.request
+    req.end()
 
   getIds: ->
     ids = libutils.toArray arguments
@@ -125,6 +112,15 @@ class Connection
 
 appendAPIKey = (options) ->
   return _.extend options, { api_key: API_KEY }
+
+handleResponse = (res, callback) ->
+  data = ''
+  res.on 'data', (buf) ->
+    data += buf
+  res.on 'end', () ->
+    callback parseResponse data if callback
+  res.on 'error', (err) ->
+    console.log 'HTTP error', res.statusCode, data, err
 
 parseResponse = (raw_response) ->
   try

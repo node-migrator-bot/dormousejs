@@ -456,7 +456,7 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
     
     (function () {
         (function() {
-  var API_KEY, Connection, DM_HOST, DM_PORT, appendAPIKey, async, http, libutils, parseResponse, path, _;
+  var API_KEY, Connection, DM_HOST, DM_PORT, appendAPIKey, async, handleResponse, http, libutils, parseResponse, path, _;
   path = require('path');
   async = require('async');
   _ = require('underscore');
@@ -486,19 +486,7 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
         port: DM_PORT,
         path: get_path
       }, function(res) {
-        var data;
-        data = '';
-        res.on('data', function(buf) {
-          return data += buf;
-        });
-        res.on('end', function() {
-          if (callback) {
-            return callback(parseResponse(data));
-          }
-        });
-        return res.on('error', function(err) {
-          return console.log('HTTP error', res.statusCode, data, err);
-        });
+        return handleResponse(res, callback);
       });
       return req.end();
     };
@@ -521,19 +509,7 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
           'Content-Type': 'application/json'
         }
       }, function(res) {
-        var data;
-        data = '';
-        res.on('data', function(buf) {
-          return data += buf;
-        });
-        res.on('end', function() {
-          if (callback) {
-            return callback(parseResponse(data));
-          }
-        });
-        return res.on('error', function(err) {
-          return console.log('HTTP error', res.statusCode, data, err);
-        });
+        return handleResponse(res, callback);
       });
       return req.end(JSON.stringify(body));
     };
@@ -542,48 +518,42 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
       @param body dumped in body
       */
     Connection.prototype.put = function(put_path, options, body, callback) {
-      var request;
-      put_path = path.join(DM_URL, put_path);
-      request = new XMLHttpRequest;
-      request.open('PUT', put_path, true);
-      request.setRequestHeader('Content-Type', 'application/json');
-      request.onload = function(e) {
-        if (request.status === 200) {
-          console.log(request.responseText);
-          if (callback) {
-            return callback(parseResponse(request.responseText));
-          }
-        } else {
-          console.log('HTTP error', request.status);
-          if (callback) {
-            return callback(request.statusText);
-          }
+      var req;
+      put_path = libutils.formatUrl({
+        path: put_path,
+        query: appendAPIKey(options)
+      });
+      req = http.request({
+        method: 'PUT',
+        host: DM_HOST,
+        port: DM_PORT,
+        path: put_path,
+        headers: {
+          'Content-Type': 'application/json'
         }
-      };
-      return request.send(JSON.stringify(body));
+      }, function(res) {
+        return handleResponse(res, callback);
+      });
+      return req.end(JSON.stringify(body));
     };
     /*
       @param options is optional
       */
     Connection.prototype["delete"] = function(delete_path, options, callback) {
-      var request;
-      delete_path = path.join(DM_URL, delete_path);
-      request = new XMLHttpRequest;
-      request.open('DELETE', delete_path, true);
-      request.onload = function(e) {
-        if (request.status === 200) {
-          console.log(request.responseText);
-          if (callback) {
-            return callback(parseResponse(request.responseText));
-          }
-        } else {
-          console.log('HTTP error', request.status);
-          if (callback) {
-            return callback(request.statusText);
-          }
-        }
-      };
-      return request.send(null);
+      var req;
+      delete_path = libutils.formatUrl({
+        path: delete_path,
+        query: appendAPIKey(options)
+      });
+      req = http.request({
+        method: 'DELETE',
+        host: DM_HOST,
+        port: DM_PORT,
+        path: delete_path
+      }, function(res) {
+        return handleResponse(res, callback);
+      });
+      return req.end();
     };
     Connection.prototype.getIds = function() {
       var callback, get_path, ids, items;
@@ -615,6 +585,21 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
   appendAPIKey = function(options) {
     return _.extend(options, {
       api_key: API_KEY
+    });
+  };
+  handleResponse = function(res, callback) {
+    var data;
+    data = '';
+    res.on('data', function(buf) {
+      return data += buf;
+    });
+    res.on('end', function() {
+      if (callback) {
+        return callback(parseResponse(data));
+      }
+    });
+    return res.on('error', function(err) {
+      return console.log('HTTP error', res.statusCode, data, err);
     });
   };
   parseResponse = function(raw_response) {
