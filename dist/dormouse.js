@@ -2990,7 +2990,7 @@ require.modules["/node_modules/dormouse/lib/tasks.coffee"] = function () {
     Tasks.prototype.getTasks = function(ids, callback) {
       var args, get_path;
       get_path = 'tasks.json';
-      args = [get_path].concat(arguments);
+      args = Array.prototype.concat.apply([get_path], arguments);
       return this.getIds.apply(this, args);
     };
     Tasks.prototype.createTask = function(task_info, callback) {
@@ -3079,7 +3079,7 @@ require.modules["/node_modules/dormouse/lib/projects.coffee"] = function () {
     Projects.prototype.getProjects = function(ids, callback) {
       var args, get_path;
       get_path = 'projects.json';
-      args = [get_path].concat(arguments);
+      args = Array.prototype.concat.apply([get_path], arguments);
       return this.getIds.apply(this, args);
     };
     Projects.prototype.createProject = function(project_info, callback) {
