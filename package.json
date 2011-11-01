@@ -12,7 +12,7 @@
   "dependencies": {
     "underscore": "*",
     "async": "*",
-    "ahr2": "2.x"
+    "http-browserify": "*"
   },
   "devDependencies": {
     "coffee-script": "*",

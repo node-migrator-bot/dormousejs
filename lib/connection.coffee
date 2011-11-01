@@ -2,11 +2,12 @@
 path = require 'path'
 async = require 'async'
 _ = require 'underscore'
-request = require 'ahr2'
+http = require 'http-browserify'
 
 libutils = require './libutils'
 
-DM_URL = 'http://arya.stanford.edu:3777/'
+DM_HOST = 'arya.stanford.edu'
+DM_PORT = 3777
 API_KEY = '6b044f121358683678e5e21de2202a5e0a0394d5'
 
 ###
@@ -19,20 +20,26 @@ class Connection
   @param options serialized in GET params
   ###
   get: (get_path, options, callback) ->
-    # TODO append api_key, options
-    get_path = path.join DM_URL, get_path
-    options = appendAPIKey options
-    response = request
+    get_path = libutils.formatUrl
+      path: get_path
+      query: appendAPIKey options
+    request = http.request
       method: 'GET'
-      href: get_path
-      query: options
-    response.on 'loadend', (e) ->
-      if e.error
-        console.log 'HTTP error', e.error
-        callback e.error.message if callback
-      else
-        console.log e.target.result # DEBUG
-        callback parseResponse e.target.result if callback
+      host: DM_HOST
+      port: DM_PORT
+      path: get_path
+    , (response) ->
+      data = ''
+      response.on 'data', (buf) ->
+        data += buf
+      response.on 'end', () ->
+        console.log data # DEBUG
+        callback parseResponse data if callback
+      response.on 'error', (e) ->
+        console.log 'HTTP error', response.statusCode
+        callback data if callback
+    # END http.request
+    request.end() # sends the request
 
   ###
   @param options appended to URL
@@ -97,12 +104,12 @@ class Connection
     get_path = ids.shift()
     callback = ids.pop()
     if (libutils.isEmpty ids)
-      this.get get_path, callback
+      this.get get_path, {}, callback
     else
       items = []
       async.forEach(ids, (id, done) ->
         id_path = path.join get_path, "#{id}.json"
-        this.get id_path, (item) ->
+        this.get id_path, {}, (item) ->
           items.push(item)
           done()
       , (err) ->
@@ -113,7 +120,7 @@ class Connection
       ) # END async.forEach
 
 appendAPIKey = (options) ->
-  return _(options).extend { api_key: API_KEY }
+  return _.extend options, { api_key: API_KEY }
 
 parseResponse = (raw_response) ->
   try
