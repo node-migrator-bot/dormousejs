@@ -24,7 +24,7 @@ class Projects extends Connection
   ###
   getProjects: (ids, callback) ->
     get_path = 'projects.json'
-    args = [ get_path ].concat arguments
+    args = Array.prototype.concat.apply [ get_path ], arguments
     return this.getIds.apply this, args
 
   createProject: (project_info, callback) ->
