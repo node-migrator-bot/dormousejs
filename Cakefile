@@ -2,7 +2,7 @@
 {spawn, exec} = require 'child_process'
 fs = require 'fs'
 
-output = 'dist/dormouse.js'
+output = 'dist/dormouse.js.new'
 
 task 'build', 'wrap js with dependencies', (options) ->
   invoke 'clean'
