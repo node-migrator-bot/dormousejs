@@ -23,42 +23,47 @@ class Connection
     get_path = libutils.formatUrl
       path: get_path
       query: appendAPIKey options
-    request = http.request
+    req = http.request
       method: 'GET'
       host: DM_HOST
       port: DM_PORT
       path: get_path
-    , (response) ->
+    , (res) ->
       data = ''
-      response.on 'data', (buf) ->
+      res.on 'data', (buf) ->
         data += buf
-      response.on 'end', () ->
+      res.on 'end', () ->
         callback parseResponse data if callback
-      response.on 'error', (e) ->
-        console.log 'HTTP error', response.statusCode
-        callback data if callback
+      res.on 'error', (err) ->
+        console.log 'HTTP error', res.statusCode, data, err
     # END http.request
-    request.end() # sends the request
+    req.end() # sends the request
 
   ###
   @param options appended to URL
   @param body dumped in POST body
   ###
   post: (post_path, options, body, callback) ->
-    # TODO append api_key, options
-    post_path = path.join DM_URL, post_path
-    request = new XMLHttpRequest
-    request.open 'POST', post_path, true
-    request.setRequestHeader 'Content-Type', 'application/json'
-    # response handler
-    request.onload = (e) ->
-      if request.status is 200
-        console.log request.responseText # DEBUG
-        callback parseResponse request.responseText if callback
-      else
-        console.log 'HTTP error', request.status
-        callback request.statusText if callback
-    request.send JSON.stringify body
+    post_path = libutils.formatUrl
+      path: post_path
+      query: appendAPIKey options
+    req = http.request
+      method: 'POST'
+      host: DM_HOST
+      port: DM_PORT
+      path: post_path
+      headers:
+        'Content-Type': 'application/json'
+    , (res) ->
+      data = ''
+      res.on 'data', (buf) ->
+        data += buf
+      res.on 'end', () ->
+        callback parseResponse data if callback
+      res.on 'error', (err) ->
+        console.log 'HTTP error', res.statusCode, data, err
+    # END http.request
+    req.end JSON.stringify body
 
   ###
   @param options appended to URL

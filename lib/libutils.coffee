@@ -21,8 +21,7 @@ libutils.toArray = (array_like) ->
 ###
 format of urlObj:
 {
-  host: 'http://yoursite.com:3434/'
-  path: '/some/absolute/or/relative/url' [required]
+  path: '/some/relative/path' [no host]
   query: javascript object to append as params
 }
 ###
@@ -33,18 +32,7 @@ libutils.formatUrl = (urlObj) ->
   pairs = _.map query, (value, key) ->
     return encodeURIComponent(key) + eq + encodeURIComponent(value)
   qs = pairs.join sep
-  host = urlObj.host || ''
-  path = urlObj.path
-  # strip ending / in host
-  if host.match /\/$/
-    host = host.substr(0, host.length - 1)
-  # add leading / in path
-  if not path.match /^\//
-    path = '/' + path
-  # add ending / in path
-  if not path.match /\/$/
-    path = path + '/'
-  url = host + path
+  url = urlObj.path || '/'
   # strip off anchor #..
   if url.match /#/
     url = url.substr 0, url.indexOf '#'

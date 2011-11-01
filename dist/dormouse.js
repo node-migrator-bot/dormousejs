@@ -475,60 +475,67 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
       @param options serialized in GET params
       */
     Connection.prototype.get = function(get_path, options, callback) {
-      var request;
+      var req;
       get_path = libutils.formatUrl({
         path: get_path,
         query: appendAPIKey(options)
       });
-      request = http.request({
+      req = http.request({
         method: 'GET',
         host: DM_HOST,
         port: DM_PORT,
         path: get_path
-      }, function(response) {
+      }, function(res) {
         var data;
         data = '';
-        response.on('data', function(buf) {
+        res.on('data', function(buf) {
           return data += buf;
         });
-        response.on('end', function() {
+        res.on('end', function() {
           if (callback) {
             return callback(parseResponse(data));
           }
         });
-        return response.on('error', function(e) {
-          console.log('HTTP error', response.statusCode);
-          if (callback) {
-            return callback(data);
-          }
+        return res.on('error', function(err) {
+          return console.log('HTTP error', res.statusCode, data, err);
         });
       });
-      return request.end();
+      return req.end();
     };
     /*
       @param options appended to URL
       @param body dumped in POST body
       */
     Connection.prototype.post = function(post_path, options, body, callback) {
-      var request;
-      post_path = path.join(DM_URL, post_path);
-      request = new XMLHttpRequest;
-      request.open('POST', post_path, true);
-      request.setRequestHeader('Content-Type', 'application/json');
-      request.onload = function(e) {
-        if (request.status === 200) {
-          console.log(request.responseText);
-          if (callback) {
-            return callback(parseResponse(request.responseText));
-          }
-        } else {
-          console.log('HTTP error', request.status);
-          if (callback) {
-            return callback(request.statusText);
-          }
+      var req;
+      post_path = libutils.formatUrl({
+        path: post_path,
+        query: appendAPIKey(options)
+      });
+      req = http.request({
+        method: 'POST',
+        host: DM_HOST,
+        port: DM_PORT,
+        path: post_path,
+        headers: {
+          'Content-Type': 'application/json'
         }
-      };
-      return request.send(JSON.stringify(body));
+      }, function(res) {
+        var data;
+        data = '';
+        res.on('data', function(buf) {
+          return data += buf;
+        });
+        res.on('end', function() {
+          if (callback) {
+            return callback(parseResponse(data));
+          }
+        });
+        return res.on('error', function(err) {
+          return console.log('HTTP error', res.statusCode, data, err);
+        });
+      });
+      return req.end(JSON.stringify(body));
     };
     /*
       @param options appended to URL
@@ -2888,13 +2895,12 @@ require.modules["/node_modules/dormouse/lib/libutils.coffee"] = function () {
   /*
   format of urlObj:
   {
-    host: 'http://yoursite.com:3434/'
-    path: '/some/absolute/or/relative/url' [required]
+    path: '/some/relative/path' [no host]
     query: javascript object to append as params
   }
   */
   libutils.formatUrl = function(urlObj) {
-    var eq, host, pairs, path, qs, query, sep, url;
+    var eq, pairs, qs, query, sep, url;
     query = urlObj.query || {};
     sep = '&';
     eq = '=';
@@ -2902,18 +2908,7 @@ require.modules["/node_modules/dormouse/lib/libutils.coffee"] = function () {
       return encodeURIComponent(key) + eq + encodeURIComponent(value);
     });
     qs = pairs.join(sep);
-    host = urlObj.host || '';
-    path = urlObj.path;
-    if (host.match(/\/$/)) {
-      host = host.substr(0, host.length - 1);
-    }
-    if (!path.match(/^\//)) {
-      path = '/' + path;
-    }
-    if (!path.match(/\/$/)) {
-      path = path + '/';
-    }
-    url = host + path;
+    url = urlObj.path || '/';
     if (url.match(/#/)) {
       url = url.substr(0, url.indexOf('#'));
     }
