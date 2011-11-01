@@ -20,6 +20,9 @@ server = http.createServer (req, res) ->
           res.end 'Error reading dormouse.js'
         else
           res.end data
+    else
+      res.writeHead 404, { 'Content-Type': 'application/json' }
+      res.end '{ "message": Invalid path requested" }'
 server.listen 3778
 
 console.log 'Server running at http://localhost:3778/'
