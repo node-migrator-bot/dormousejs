@@ -117,6 +117,8 @@ Connection.server = (setter) ->
       # protocol = matched[2] || 'http'
       host = matched[3] || 'dormou.se'
       port = matched[5] || 80
+    else
+      throw new Error 'Improperly formatted url passed to Dormouse.server(...)'
   return "http://#{host}:#{port}/"
 
 Connection.host = (setter) ->

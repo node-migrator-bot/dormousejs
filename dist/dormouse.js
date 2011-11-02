@@ -594,6 +594,8 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
       if (matched) {
         host = matched[3] || 'dormou.se';
         port = matched[5] || 80;
+      } else {
+        throw new Error('Improperly formatted url passed to Dormouse.server(...)');
       }
     }
     return "http://" + host + ":" + port + "/";
