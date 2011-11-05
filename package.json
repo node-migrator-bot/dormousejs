@@ -2,12 +2,15 @@
   "name": "dormouse",
   "version": "0.0.1",
   "description": "Javascript API for Dormouse",
-  "main": "lib/assembler",
   "homepage": "http://dormou.se",
   "keywords": ["crowdsourcing"],
   "repository": {
     "type": "git",
     "url": "http://github.com/zahanm/node-dormouse.git"
+  },
+  "main": "lib/assembler",
+  "directories": {
+    "lib": "./lib"
   },
   "dependencies": {
     "underscore": "*",

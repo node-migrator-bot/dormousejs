@@ -328,18 +328,18 @@ require.modules["/node_modules/dormouse/package.json"] = function () {
     __require.modules["/node_modules/dormouse/package.json"]._cached = module.exports;
     
     (function () {
-        module.exports = {"name":"dormouse","version":"0.0.1","description":"Javascript API for Dormouse","main":"lib/assembler","homepage":"http://dormou.se","keywords":["crowdsourcing"],"repository":{"type":"git","url":"http://github.com/zahanm/node-dormouse.git"},"dependencies":{"underscore":"*","async":"*","http-browserify":"*"},"devDependencies":{"coffee-script":"*","browserify":"*"}};
+        module.exports = {"name":"dormouse","version":"0.0.1","description":"Javascript API for Dormouse","homepage":"http://dormou.se","keywords":["crowdsourcing"],"repository":{"type":"git","url":"http://github.com/zahanm/node-dormouse.git"},"main":"lib/assembler","directories":{"lib":"./lib"},"dependencies":{"underscore":"*","async":"*","http-browserify":"*"},"devDependencies":{"coffee-script":"*","browserify":"*"}};
     }).call(module.exports);
     
     __require.modules["/node_modules/dormouse/package.json"]._cached = module.exports;
     return module.exports;
 };
 
-require.modules["/node_modules/dormouse/lib/assembler.coffee"] = function () {
+require.modules["/node_modules/dormouse/lib/assembler.js"] = function () {
     var module = { exports : {} };
     var exports = module.exports;
     var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/assembler.coffee";
+    var __filename = "/node_modules/dormouse/lib/assembler.js";
     
     var require = function (file) {
         return __require(file, "/node_modules/dormouse/lib");
@@ -350,43 +350,40 @@ require.modules["/node_modules/dormouse/lib/assembler.coffee"] = function () {
     };
     
     require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/assembler.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/assembler.js"]._cached = module.exports;
     
     (function () {
-        (function() {
-  var Connection, Dormouse, Projects, Tasks;
-  require('./mixin');
-  Connection = require('./connection').Connection;
-  Tasks = require('./tasks').Tasks;
-  Projects = require('./projects').Projects;
-  /*
-  Top level Dormouse
-  */
-  Dormouse = (function() {
-    function Dormouse() {}
-    Dormouse.implements(Tasks, Projects);
-    Dormouse.prototype.server = function() {
-      return Connection.server.apply(Connection, arguments);
-    };
-    Dormouse.prototype.api_key = function() {
-      return Connection.api_key.apply(Connection, arguments);
-    };
-    return Dormouse;
-  })();
-  exports.Dormouse = Dormouse;
-}).call(this);
-;
+        var Connection, Dormouse, Projects, Tasks;
+require('./mixin');
+Connection = require('./connection').Connection;
+Tasks = require('./tasks').Tasks;
+Projects = require('./projects').Projects;
+/*
+Top level Dormouse
+*/
+Dormouse = (function() {
+  function Dormouse() {}
+  Dormouse.implements(Tasks, Projects);
+  Dormouse.prototype.server = function() {
+    return Connection.server.apply(Connection, arguments);
+  };
+  Dormouse.prototype.api_key = function() {
+    return Connection.api_key.apply(Connection, arguments);
+  };
+  return Dormouse;
+})();
+exports.Dormouse = Dormouse;;
     }).call(module.exports);
     
-    __require.modules["/node_modules/dormouse/lib/assembler.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/assembler.js"]._cached = module.exports;
     return module.exports;
 };
 
-require.modules["/node_modules/dormouse/lib/mixin.coffee"] = function () {
+require.modules["/node_modules/dormouse/lib/mixin.js"] = function () {
     var module = { exports : {} };
     var exports = module.exports;
     var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/mixin.coffee";
+    var __filename = "/node_modules/dormouse/lib/mixin.js";
     
     var require = function (file) {
         return __require(file, "/node_modules/dormouse/lib");
@@ -397,57 +394,54 @@ require.modules["/node_modules/dormouse/lib/mixin.coffee"] = function () {
     };
     
     require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/mixin.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/mixin.js"]._cached = module.exports;
     
     (function () {
-        (function() {
-  var implements;
-  var __slice = Array.prototype.slice;
-  implements = function() {
-    var classes, getter, klass, prop, setter, _i, _len;
-    classes = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-    for (_i = 0, _len = classes.length; _i < _len; _i++) {
-      klass = classes[_i];
-      for (prop in klass) {
-        this[prop] = klass[prop];
-      }
-      for (prop in klass.prototype) {
-        getter = klass.prototype.__lookupGetter__(prop);
-        setter = klass.prototype.__lookupSetter__(prop);
-        if (getter || setter) {
-          if (getter) {
-            this.prototype.__defineGetter__(prop, getter);
-          }
-          if (setter) {
-            this.prototype.__defineSetter__(prop, setter);
-          }
-        } else {
-          this.prototype[prop] = klass.prototype[prop];
+        var implements;
+var __slice = Array.prototype.slice;
+implements = function() {
+  var classes, getter, klass, prop, setter, _i, _len;
+  classes = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+  for (_i = 0, _len = classes.length; _i < _len; _i++) {
+    klass = classes[_i];
+    for (prop in klass) {
+      this[prop] = klass[prop];
+    }
+    for (prop in klass.prototype) {
+      getter = klass.prototype.__lookupGetter__(prop);
+      setter = klass.prototype.__lookupSetter__(prop);
+      if (getter || setter) {
+        if (getter) {
+          this.prototype.__defineGetter__(prop, getter);
         }
+        if (setter) {
+          this.prototype.__defineSetter__(prop, setter);
+        }
+      } else {
+        this.prototype[prop] = klass.prototype[prop];
       }
     }
-    return this;
-  };
-  if (Object.defineProperty) {
-    Object.defineProperty(Function.prototype, "implements", {
-      value: implements
-    });
-  } else {
-    Function.prototype.implements = implements;
   }
-}).call(this);
-;
+  return this;
+};
+if (Object.defineProperty) {
+  Object.defineProperty(Function.prototype, "implements", {
+    value: implements
+  });
+} else {
+  Function.prototype.implements = implements;
+};
     }).call(module.exports);
     
-    __require.modules["/node_modules/dormouse/lib/mixin.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/mixin.js"]._cached = module.exports;
     return module.exports;
 };
 
-require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
+require.modules["/node_modules/dormouse/lib/connection.js"] = function () {
     var module = { exports : {} };
     var exports = module.exports;
     var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/connection.coffee";
+    var __filename = "/node_modules/dormouse/lib/connection.js";
     
     var require = function (file) {
         return __require(file, "/node_modules/dormouse/lib");
@@ -458,204 +452,201 @@ require.modules["/node_modules/dormouse/lib/connection.coffee"] = function () {
     };
     
     require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/connection.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/connection.js"]._cached = module.exports;
     
     (function () {
-        (function() {
-  var Connection, api_key, appendAPIKey, async, handleResponse, host, http, libutils, parseResponse, path, port, _;
-  path = require('path');
-  async = require('async');
-  _ = require('underscore');
-  http = require('http-browserify');
-  libutils = require('./libutils');
+        var Connection, api_key, appendAPIKey, async, handleResponse, host, http, libutils, parseResponse, path, port, _;
+path = require('path');
+async = require('async');
+_ = require('underscore');
+http = require('http-browserify');
+libutils = require('./libutils');
+/*
+Base Connection
+*/
+Connection = (function() {
+  function Connection() {}
   /*
-  Base Connection
-  */
-  Connection = (function() {
-    function Connection() {}
-    /*
-      Assumption that it is getting JSON
-      @param options serialized in GET params
-      */
-    Connection.prototype.get = function(get_path, options, callback) {
-      var req;
-      get_path = libutils.formatUrl({
-        path: get_path,
-        query: appendAPIKey(options)
-      });
-      req = http.request({
-        method: 'GET',
-        host: Connection.host(),
-        port: Connection.port(),
-        path: get_path
-      }, function(res) {
-        return handleResponse(res, callback);
-      });
-      return req.end();
-    };
-    /*
-      @param options appended to URL
-      @param body dumped in POST body
-      */
-    Connection.prototype.post = function(post_path, options, body, callback) {
-      var req;
-      post_path = libutils.formatUrl({
-        path: post_path,
-        query: appendAPIKey(options)
-      });
-      req = http.request({
-        method: 'POST',
-        host: Connection.host(),
-        port: Connection.port(),
-        path: post_path,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }, function(res) {
-        return handleResponse(res, callback);
-      });
-      return req.end(JSON.stringify(body));
-    };
-    /*
-      @param options appended to URL
-      @param body dumped in body
-      */
-    Connection.prototype.put = function(put_path, options, body, callback) {
-      var req;
-      put_path = libutils.formatUrl({
-        path: put_path,
-        query: appendAPIKey(options)
-      });
-      req = http.request({
-        method: 'PUT',
-        host: Connection.host(),
-        port: Connection.port(),
-        path: put_path,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }, function(res) {
-        return handleResponse(res, callback);
-      });
-      return req.end(JSON.stringify(body));
-    };
-    /*
-      @param options is optional
-      */
-    Connection.prototype["delete"] = function(delete_path, options, callback) {
-      var req;
-      delete_path = libutils.formatUrl({
-        path: delete_path,
-        query: appendAPIKey(options)
-      });
-      req = http.request({
-        method: 'DELETE',
-        host: Connection.host(),
-        port: Connection.port(),
-        path: delete_path
-      }, function(res) {
-        return handleResponse(res, callback);
-      });
-      return req.end();
-    };
-    Connection.prototype.getIds = function() {
-      var callback, get_path, ids, items;
-      ids = libutils.toArray(arguments);
-      get_path = ids.shift();
-      callback = ids.pop();
-      if (libutils.isEmpty(ids)) {
-        return this.get(get_path, {}, callback);
-      } else {
-        items = [];
-        return async.forEach(ids, function(id, done) {
-          var id_path;
-          id_path = path.join(get_path, "" + id + ".json");
-          return this.get(id_path, {}, function(item) {
-            items.push(item);
-            return done();
-          });
-        }, function(err) {
-          if (err) {
-            return callback(false);
-          } else {
-            return callback(items);
-          }
+    Assumption that it is getting JSON
+    @param options serialized in GET params
+    */
+  Connection.prototype.get = function(get_path, options, callback) {
+    var req;
+    get_path = libutils.formatUrl({
+      path: get_path,
+      query: appendAPIKey(options)
+    });
+    req = http.request({
+      method: 'GET',
+      host: Connection.host(),
+      port: Connection.port(),
+      path: get_path
+    }, function(res) {
+      return handleResponse(res, callback);
+    });
+    return req.end();
+  };
+  /*
+    @param options appended to URL
+    @param body dumped in POST body
+    */
+  Connection.prototype.post = function(post_path, options, body, callback) {
+    var req;
+    post_path = libutils.formatUrl({
+      path: post_path,
+      query: appendAPIKey(options)
+    });
+    req = http.request({
+      method: 'POST',
+      host: Connection.host(),
+      port: Connection.port(),
+      path: post_path,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }, function(res) {
+      return handleResponse(res, callback);
+    });
+    return req.end(JSON.stringify(body));
+  };
+  /*
+    @param options appended to URL
+    @param body dumped in body
+    */
+  Connection.prototype.put = function(put_path, options, body, callback) {
+    var req;
+    put_path = libutils.formatUrl({
+      path: put_path,
+      query: appendAPIKey(options)
+    });
+    req = http.request({
+      method: 'PUT',
+      host: Connection.host(),
+      port: Connection.port(),
+      path: put_path,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }, function(res) {
+      return handleResponse(res, callback);
+    });
+    return req.end(JSON.stringify(body));
+  };
+  /*
+    @param options is optional
+    */
+  Connection.prototype["delete"] = function(delete_path, options, callback) {
+    var req;
+    delete_path = libutils.formatUrl({
+      path: delete_path,
+      query: appendAPIKey(options)
+    });
+    req = http.request({
+      method: 'DELETE',
+      host: Connection.host(),
+      port: Connection.port(),
+      path: delete_path
+    }, function(res) {
+      return handleResponse(res, callback);
+    });
+    return req.end();
+  };
+  Connection.prototype.getIds = function() {
+    var callback, get_path, ids, items;
+    ids = libutils.toArray(arguments);
+    get_path = ids.shift();
+    callback = ids.pop();
+    if (libutils.isEmpty(ids)) {
+      return this.get(get_path, {}, callback);
+    } else {
+      items = [];
+      return async.forEach(ids, function(id, done) {
+        var id_path;
+        id_path = path.join(get_path, "" + id + ".json");
+        return this.get(id_path, {}, function(item) {
+          items.push(item);
+          return done();
         });
-      }
-    };
-    return Connection;
-  })();
-  host = 'dormou.se';
-  port = 80;
-  Connection.server = function(setter) {
-    var matched;
-    if (setter) {
-      matched = setter.match(/^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/);
-      if (matched) {
-        host = matched[3] || 'dormou.se';
-        port = matched[5] || 80;
-      } else {
-        throw new Error('Improperly formatted url passed to Dormouse.server(...)');
-      }
+      }, function(err) {
+        if (err) {
+          return callback(false);
+        } else {
+          return callback(items);
+        }
+      });
     }
-    return "http://" + host + ":" + port + "/";
   };
-  Connection.host = function(setter) {
-    if (setter) {
-      host = setter;
+  return Connection;
+})();
+host = 'dormou.se';
+port = 80;
+Connection.server = function(setter) {
+  var matched;
+  if (setter) {
+    matched = setter.match(/^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/);
+    if (matched) {
+      host = matched[3] || 'dormou.se';
+      port = matched[5] || 80;
+    } else {
+      throw new Error('Improperly formatted url passed to Dormouse.server(...)');
     }
-    return host;
-  };
-  Connection.port = function(setter) {
-    if (setter) {
-      port = setter;
+  }
+  return "http://" + host + ":" + port + "/";
+};
+Connection.host = function(setter) {
+  if (setter) {
+    host = setter;
+  }
+  return host;
+};
+Connection.port = function(setter) {
+  if (setter) {
+    port = setter;
+  }
+  return port;
+};
+api_key = '';
+Connection.api_key = function(setter) {
+  if (setter) {
+    api_key = setter;
+  }
+  if (!api_key) {
+    throw new Error('You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)');
+  }
+  return api_key;
+};
+appendAPIKey = function(options) {
+  return _.extend(options, {
+    api_key: Connection.api_key()
+  });
+};
+handleResponse = function(res, callback) {
+  var data;
+  data = '';
+  res.on('data', function(buf) {
+    return data += buf;
+  });
+  res.on('end', function() {
+    if (callback) {
+      return callback(parseResponse(data));
     }
-    return port;
-  };
-  api_key = '';
-  Connection.api_key = function(setter) {
-    if (setter) {
-      api_key = setter;
-    }
-    if (!api_key) {
-      throw new Error('You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)');
-    }
-    return api_key;
-  };
-  appendAPIKey = function(options) {
-    return _.extend(options, {
-      api_key: Connection.api_key()
-    });
-  };
-  handleResponse = function(res, callback) {
-    var data;
-    data = '';
-    res.on('data', function(buf) {
-      return data += buf;
-    });
-    res.on('end', function() {
-      if (callback) {
-        return callback(parseResponse(data));
-      }
-    });
-    return res.on('error', function(err) {
-      return console.log('HTTP error', res.statusCode, data, err);
-    });
-  };
-  parseResponse = function(raw_response) {
-    try {
-      return JSON.parse(raw_response);
-    } catch (syntax_error) {
-      console.log('Response JSON parsing error:', syntax_error);
-    }
-    return raw_response;
-  };
-  exports.Connection = Connection;
-}).call(this);
-;
+  });
+  return res.on('error', function(err) {
+    return console.log('HTTP error', res.statusCode, data, err);
+  });
+};
+parseResponse = function(raw_response) {
+  try {
+    return JSON.parse(raw_response);
+  } catch (syntax_error) {
+    console.log('Response JSON parsing error:', syntax_error);
+  }
+  return raw_response;
+};
+exports.Connection = Connection;;
     }).call(module.exports);
     
-    __require.modules["/node_modules/dormouse/lib/connection.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/connection.js"]._cached = module.exports;
     return module.exports;
 };
 
@@ -2877,11 +2868,11 @@ Response.prototype.write = function (res) {
     return module.exports;
 };
 
-require.modules["/node_modules/dormouse/lib/libutils.coffee"] = function () {
+require.modules["/node_modules/dormouse/lib/libutils.js"] = function () {
     var module = { exports : {} };
     var exports = module.exports;
     var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/libutils.coffee";
+    var __filename = "/node_modules/dormouse/lib/libutils.js";
     
     var require = function (file) {
         return __require(file, "/node_modules/dormouse/lib");
@@ -2892,73 +2883,70 @@ require.modules["/node_modules/dormouse/lib/libutils.coffee"] = function () {
     };
     
     require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/libutils.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/libutils.js"]._cached = module.exports;
     
     (function () {
-        (function() {
-  /*
-  utils for simplify detecting types and stuff
-  */
-  var libutils, _;
-  var __hasProp = Object.prototype.hasOwnProperty;
-  _ = require('underscore');
-  libutils = exports;
-  libutils.isEmpty = function(obj) {
-    var prop;
-    for (prop in obj) {
-      if (!__hasProp.call(obj, prop)) continue;
-      return false;
-    }
-    return true;
-  };
-  libutils.isArray = function(obj) {
-    return obj instanceof Array;
-  };
-  libutils.toArray = function(array_like) {
-    return Array.prototype.slice.call(array_like);
-  };
-  /*
-  format of urlObj:
-  {
-    path: '/some/relative/path' [no host]
-    query: javascript object to append as params
+        /*
+utils for simplify detecting types and stuff
+*/
+var libutils, _;
+var __hasProp = Object.prototype.hasOwnProperty;
+_ = require('underscore');
+libutils = exports;
+libutils.isEmpty = function(obj) {
+  var prop;
+  for (prop in obj) {
+    if (!__hasProp.call(obj, prop)) continue;
+    return false;
   }
-  */
-  libutils.formatUrl = function(urlObj) {
-    var eq, pairs, qs, query, sep, url;
-    query = urlObj.query || {};
-    sep = '&';
-    eq = '=';
-    pairs = _.map(query, function(value, key) {
-      return encodeURIComponent(key) + eq + encodeURIComponent(value);
-    });
-    qs = pairs.join(sep);
-    url = urlObj.path || '/';
-    if (url.match(/#/)) {
-      url = url.substr(0, url.indexOf('#'));
+  return true;
+};
+libutils.isArray = function(obj) {
+  return obj instanceof Array;
+};
+libutils.toArray = function(array_like) {
+  return Array.prototype.slice.call(array_like);
+};
+/*
+format of urlObj:
+{
+  path: '/some/relative/path' [no host]
+  query: javascript object to append as params
+}
+*/
+libutils.formatUrl = function(urlObj) {
+  var eq, pairs, qs, query, sep, url;
+  query = urlObj.query || {};
+  sep = '&';
+  eq = '=';
+  pairs = _.map(query, function(value, key) {
+    return encodeURIComponent(key) + eq + encodeURIComponent(value);
+  });
+  qs = pairs.join(sep);
+  url = urlObj.path || '/';
+  if (url.match(/#/)) {
+    url = url.substr(0, url.indexOf('#'));
+  }
+  if (qs.length > 0) {
+    if (url.match(/\?/)) {
+      url += sep + qs;
+    } else {
+      url += '?' + qs;
     }
-    if (qs.length > 0) {
-      if (url.match(/\?/)) {
-        url += sep + qs;
-      } else {
-        url += '?' + qs;
-      }
-    }
-    return url;
-  };
-}).call(this);
-;
+  }
+  return url;
+};;
     }).call(module.exports);
     
-    __require.modules["/node_modules/dormouse/lib/libutils.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/libutils.js"]._cached = module.exports;
     return module.exports;
 };
 
-require.modules["/node_modules/dormouse/lib/tasks.coffee"] = function () {
+require.modules["/node_modules/dormouse/lib/tasks.js"] = function () {
     var module = { exports : {} };
     var exports = module.exports;
     var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/tasks.coffee";
+    var __filename = "/node_modules/dormouse/lib/tasks.js";
     
     var require = function (file) {
         return __require(file, "/node_modules/dormouse/lib");
@@ -2969,85 +2957,82 @@ require.modules["/node_modules/dormouse/lib/tasks.coffee"] = function () {
     };
     
     require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/tasks.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/tasks.js"]._cached = module.exports;
     
     (function () {
-        (function() {
-  /*
-  
-  Task structure on API
-  
-  {
-    id: '1234',
-    question: 'What is the speed of a European swallow-tailed swift?'
+        /*
+
+Task structure on API
+
+{
+  id: '1234',
+  question: 'What is the speed of a European swallow-tailed swift?'
+}
+
+*/
+var Connection, Tasks, path;
+var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+  for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
+  function ctor() { this.constructor = child; }
+  ctor.prototype = parent.prototype;
+  child.prototype = new ctor;
+  child.__super__ = parent.prototype;
+  return child;
+};
+path = require('path');
+Connection = require('./connection').Connection;
+/*
+* Tasks mixin for Dormouse
+* basic API operations
+*/
+Tasks = (function() {
+  __extends(Tasks, Connection);
+  function Tasks() {
+    Tasks.__super__.constructor.apply(this, arguments);
   }
-  
-  */
-  var Connection, Tasks, path;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
-    for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
-    function ctor() { this.constructor = child; }
-    ctor.prototype = parent.prototype;
-    child.prototype = new ctor;
-    child.__super__ = parent.prototype;
-    return child;
-  };
-  path = require('path');
-  Connection = require('./connection').Connection;
   /*
-  * Tasks mixin for Dormouse
-  * basic API operations
-  */
-  Tasks = (function() {
-    __extends(Tasks, Connection);
-    function Tasks() {
-      Tasks.__super__.constructor.apply(this, arguments);
-    }
-    /*
-      @param ids = ids of tasks to fetch, optional
-      */
-    Tasks.prototype.getTasks = function(ids, callback) {
-      var args, get_path;
-      get_path = 'tasks.json';
-      args = Array.prototype.concat.apply([get_path], arguments);
-      return this.getIds.apply(this, args);
-    };
-    Tasks.prototype.createTask = function(task_info, callback) {
-      var post_path;
-      post_path = 'tasks.json';
-      return this.post(post_path, task_info, callback);
-    };
-    Tasks.prototype.performTask = function(task, callback) {
-      var get_path;
-      get_path = path.join('tasks', task.id, 'perform.json');
-      return this.get(get_path, callback);
-    };
-    Tasks.prototype.answerTask = function(task, answer_info, callback) {
-      var put_path;
-      put_path = path.join('tasks', task.id, 'answer.json');
-      return this.put(put_path, answer_info, callback);
-    };
-    Tasks.prototype.deleteTask = function(task, callback) {
-      var delete_path;
-      delete_path = path.join('tasks', "" + task.id + ".json");
-      return this["delete"](delete_path, callback);
-    };
-    return Tasks;
-  })();
-  exports.Tasks = Tasks;
-}).call(this);
-;
+    @param ids = ids of tasks to fetch, optional
+    */
+  Tasks.prototype.getTasks = function(ids, callback) {
+    var args, get_path;
+    get_path = 'tasks.json';
+    args = Array.prototype.concat.apply([get_path], arguments);
+    return this.getIds.apply(this, args);
+  };
+  Tasks.prototype.createTask = function(task_info, callback) {
+    var post_path;
+    post_path = 'tasks.json';
+    return this.post(post_path, task_info, callback);
+  };
+  Tasks.prototype.performTask = function(task, callback) {
+    var get_path;
+    get_path = path.join('tasks', task.id, 'perform.json');
+    return this.get(get_path, callback);
+  };
+  Tasks.prototype.answerTask = function(task, answer_info, callback) {
+    var put_path;
+    put_path = path.join('tasks', task.id, 'answer.json');
+    return this.put(put_path, answer_info, callback);
+  };
+  Tasks.prototype.deleteTask = function(task, callback) {
+    var delete_path;
+    delete_path = path.join('tasks', "" + task.id + ".json");
+    return this["delete"](delete_path, callback);
+  };
+  return Tasks;
+})();
+exports.Tasks = Tasks;;
     }).call(module.exports);
     
-    __require.modules["/node_modules/dormouse/lib/tasks.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/tasks.js"]._cached = module.exports;
     return module.exports;
 };
 
-require.modules["/node_modules/dormouse/lib/projects.coffee"] = function () {
+require.modules["/node_modules/dormouse/lib/projects.js"] = function () {
     var module = { exports : {} };
     var exports = module.exports;
     var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/projects.coffee";
+    var __filename = "/node_modules/dormouse/lib/projects.js";
     
     var require = function (file) {
         return __require(file, "/node_modules/dormouse/lib");
@@ -3058,72 +3043,69 @@ require.modules["/node_modules/dormouse/lib/projects.coffee"] = function () {
     };
     
     require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/projects.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/projects.js"]._cached = module.exports;
     
     (function () {
-        (function() {
-  /*
-  
-  Project structure on API
-  
-  {
-    id: '1234',
-    template: '2561'
+        /*
+
+Project structure on API
+
+{
+  id: '1234',
+  template: '2561'
+}
+
+*/
+var Connection, Projects, path;
+var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+  for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
+  function ctor() { this.constructor = child; }
+  ctor.prototype = parent.prototype;
+  child.prototype = new ctor;
+  child.__super__ = parent.prototype;
+  return child;
+};
+path = require('path');
+Connection = require('./connection').Connection;
+/*
+* Projects mixin for Dormouse
+* basic API operations
+*/
+Projects = (function() {
+  __extends(Projects, Connection);
+  function Projects() {
+    Projects.__super__.constructor.apply(this, arguments);
   }
-  
-  */
-  var Connection, Projects, path;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
-    for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
-    function ctor() { this.constructor = child; }
-    ctor.prototype = parent.prototype;
-    child.prototype = new ctor;
-    child.__super__ = parent.prototype;
-    return child;
-  };
-  path = require('path');
-  Connection = require('./connection').Connection;
   /*
-  * Projects mixin for Dormouse
-  * basic API operations
-  */
-  Projects = (function() {
-    __extends(Projects, Connection);
-    function Projects() {
-      Projects.__super__.constructor.apply(this, arguments);
-    }
-    /*
-      @param ids = ids of projects to fetch, optional
-      */
-    Projects.prototype.getProjects = function(ids, callback) {
-      var args, get_path;
-      get_path = 'projects.json';
-      args = Array.prototype.concat.apply([get_path], arguments);
-      return this.getIds.apply(this, args);
-    };
-    Projects.prototype.createProject = function(project_info, callback) {
-      var post_path;
-      post_path = 'projects.json';
-      return this.post(post_path, project_info, callback);
-    };
-    Projects.prototype.editProject = function(project, callback) {
-      var put_path;
-      put_path = path.join('projects', "" + project.id + ".json");
-      return this.put(put_path, project, callback);
-    };
-    Projects.prototype.deleteProject = function(project, callback) {
-      var delete_path;
-      delete_path = path.join('projects', "" + project.id + ".json");
-      return this["delete"](delete_path, callback);
-    };
-    return Projects;
-  })();
-  exports.Projects = Projects;
-}).call(this);
-;
+    @param ids = ids of projects to fetch, optional
+    */
+  Projects.prototype.getProjects = function(ids, callback) {
+    var args, get_path;
+    get_path = 'projects.json';
+    args = Array.prototype.concat.apply([get_path], arguments);
+    return this.getIds.apply(this, args);
+  };
+  Projects.prototype.createProject = function(project_info, callback) {
+    var post_path;
+    post_path = 'projects.json';
+    return this.post(post_path, project_info, callback);
+  };
+  Projects.prototype.editProject = function(project, callback) {
+    var put_path;
+    put_path = path.join('projects', "" + project.id + ".json");
+    return this.put(put_path, project, callback);
+  };
+  Projects.prototype.deleteProject = function(project, callback) {
+    var delete_path;
+    delete_path = path.join('projects', "" + project.id + ".json");
+    return this["delete"](delete_path, callback);
+  };
+  return Projects;
+})();
+exports.Projects = Projects;;
     }).call(module.exports);
     
-    __require.modules["/node_modules/dormouse/lib/projects.coffee"]._cached = module.exports;
+    __require.modules["/node_modules/dormouse/lib/projects.js"]._cached = module.exports;
     return module.exports;
 };
 
