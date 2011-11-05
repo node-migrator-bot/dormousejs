@@ -328,7 +328,7 @@ require.modules["/node_modules/dormouse/package.json"] = function () {
     __require.modules["/node_modules/dormouse/package.json"]._cached = module.exports;
     
     (function () {
-        module.exports = {"name":"dormouse","version":"0.0.1","description":"Javascript API for Dormouse","homepage":"http://dormou.se","keywords":["crowdsourcing"],"repository":{"type":"git","url":"http://github.com/zahanm/node-dormouse.git"},"main":"lib/assembler","directories":{"lib":"./lib"},"dependencies":{"underscore":"*","async":"*","http-browserify":"*"},"devDependencies":{"coffee-script":"*","browserify":"*"}};
+        module.exports = {"name":"dormouse","version":"0.0.1","description":"Javascript API for Dormouse","homepage":"http://dormou.se","keywords":["crowdsourcing"],"repository":{"type":"git","url":"http://github.com/zahanm/node-dormouse.git"},"main":"lib/assembler","directories":{"lib":"./lib","src":"./src"},"dependencies":{"underscore":"*","async":"*","http-browserify":"*"},"devDependencies":{"coffee-script":"*","browserify":"*"}};
     }).call(module.exports);
     
     __require.modules["/node_modules/dormouse/package.json"]._cached = module.exports;

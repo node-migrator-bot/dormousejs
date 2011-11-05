@@ -10,7 +10,8 @@
   },
   "main": "lib/assembler",
   "directories": {
-    "lib": "./lib"
+    "lib": "./lib",
+    "src": "./src"
   },
   "dependencies": {
     "underscore": "*",
