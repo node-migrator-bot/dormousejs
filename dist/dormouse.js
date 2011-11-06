@@ -2992,11 +2992,6 @@ var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, par
   child.prototype = new ctor;
   child.__super__ = parent.prototype;
   return child;
-}, __indexOf = Array.prototype.indexOf || function(item) {
-  for (var i = 0, l = this.length; i < l; i++) {
-    if (this[i] === item) return i;
-  }
-  return -1;
 };
 path = require('path');
 Connection = require('./connection').Connection;
@@ -3030,7 +3025,7 @@ Tasks = (function() {
     required_fields = ['project_id', 'template_id', 'parameters'];
     for (_i = 0, _len = required_fields.length; _i < _len; _i++) {
       field = required_fields[_i];
-      if (__indexOf.call(task_info, field) < 0) {
+      if (!(field in task_info)) {
         throw new Error("Required field for task creation: " + field);
       }
     }

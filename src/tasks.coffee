@@ -51,7 +51,7 @@ class Tasks extends Connection
   createTask: (task_info, callback) ->
     required_fields = ['project_id', 'template_id', 'parameters']
     for field in required_fields
-      throw new Error "Required field for task creation: #{field}" unless field in task_info
+      throw new Error "Required field for task creation: #{field}" unless field of task_info
     post_path = 'tasks.json'
     return this.post post_path, { 'task': task_info }, callback
 
