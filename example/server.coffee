@@ -5,6 +5,7 @@ url = require 'url'
 
 server = http.createServer (req, res) ->
   parsed = url.parse req.url
+  console.log 'GET #{parsed.pathname}'
   switch parsed.pathname
     when '/'
       res.writeHead 200, { 'Content-Type': 'text/html' }
