@@ -53,7 +53,7 @@ class Tasks extends Connection
     for field in required_fields
       throw new Error "Required field for task creation: #{field}" unless field of task_info
     post_path = 'tasks.json'
-    return this.post post_path, { 'task': task_info }, callback
+    return this.post post_path, {}, { 'task': task_info }, callback
 
   performTask: (task, callback) ->
     get_path = path.join 'tasks', task.id, 'perform.json'
@@ -61,7 +61,7 @@ class Tasks extends Connection
 
   answerTask: (task, answer_info, callback) ->
     put_path = path.join 'tasks', task.id, 'answer.json'
-    return this.put put_path, answer_info, callback
+    return this.put put_path, {}, answer_info, callback
 
   deleteTask: (task, callback) ->
     delete_path = path.join 'tasks', "#{task.id}.json"

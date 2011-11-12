@@ -29,11 +29,11 @@ class Projects extends Connection
 
   createProject: (project_info, callback) ->
     post_path = 'projects.json'
-    return this.post post_path, project_info, callback
+    return this.post post_path, {}, project_info, callback
 
   editProject: (project, callback) ->
     put_path = path.join 'projects', "#{project.id}.json"
-    return this.put put_path, project, callback
+    return this.put put_path, {}, project, callback
 
   deleteProject: (project, callback) ->
     delete_path = path.join 'projects', "#{project.id}.json"
