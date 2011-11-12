@@ -9,14 +9,14 @@ server = http.createServer (req, res) ->
   switch parsed.pathname
     when '/'
       res.writeHead 200, { 'Content-Type': 'text/html' }
-      fs.readFile './test.html', (err, data) ->
+      fs.readFile './example/test.html', (err, data) ->
         if err
           res.end 'Error reading test.html'
         else
           res.end data
     when '/dormouse.js'
       res.writeHead 200, { 'Content-Type': 'text/javascript' }
-      fs.readFile '../dist/dormouse.js', (err, data) ->
+      fs.readFile './dist/dormouse.js', (err, data) ->
         if err
           res.end 'Error reading dormouse.js'
         else
