@@ -3030,7 +3030,7 @@ Tasks = (function() {
       }
     }
     post_path = 'tasks.json';
-    return this.post(post_path, {
+    return this.post(post_path, {}, {
       'task': task_info
     }, callback);
   };
@@ -3042,7 +3042,7 @@ Tasks = (function() {
   Tasks.prototype.answerTask = function(task, answer_info, callback) {
     var put_path;
     put_path = path.join('tasks', task.id, 'answer.json');
-    return this.put(put_path, answer_info, callback);
+    return this.put(put_path, {}, answer_info, callback);
   };
   Tasks.prototype.deleteTask = function(task, callback) {
     var delete_path;
@@ -3118,12 +3118,12 @@ Projects = (function() {
   Projects.prototype.createProject = function(project_info, callback) {
     var post_path;
     post_path = 'projects.json';
-    return this.post(post_path, project_info, callback);
+    return this.post(post_path, {}, project_info, callback);
   };
   Projects.prototype.editProject = function(project, callback) {
     var put_path;
     put_path = path.join('projects', "" + project.id + ".json");
-    return this.put(put_path, project, callback);
+    return this.put(put_path, {}, project, callback);
   };
   Projects.prototype.deleteProject = function(project, callback) {
     var delete_path;
