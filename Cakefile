@@ -31,12 +31,14 @@ task 'wrapup', "wrap the 'dormouse' module and its dependancies into dist/dormou
           console.log "#{jsdist} write error", err
           process.exit 1
 
-task 'runserver', 'run the test code node.js server on http://localhost:3778/', (options) ->
-  exec "coffee example/server.coffee", (err, stdo, stde) ->
-    if (err)
-      console.log 'browserify error', err
-      console.log 'stderr', stde
-      process.exit 1
+task 'runserver', 'run the test code node.js server', (options) ->
+  server = spawn 'coffee', ['example/server.coffee']
+  server.stdout.on 'data', (data) ->
+    console.log data.toString()
+  server.stderr.on 'data', (data) ->
+    console.error data.toString()
+  server.on 'exit', (code, signal) ->
+    process.exit code
 
 compile_files = (cb) ->
   exec "coffee --compile --lint --bare --output #{jslib} #{coffeelib}", (err, stdo, stde) ->
