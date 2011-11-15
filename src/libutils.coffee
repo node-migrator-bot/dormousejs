@@ -42,4 +42,7 @@ libutils.formatUrl = (urlObj) ->
       url += sep + qs
     else
       url += '?' + qs
+  # prepend leading '/'
+  if not url.match /^\//
+    url = '/' + url
   return url

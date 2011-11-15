@@ -2934,6 +2934,9 @@ libutils.formatUrl = function(urlObj) {
       url += '?' + qs;
     }
   }
+  if (!url.match(/^\//)) {
+    url = '/' + url;
+  }
   return url;
 };;
     }).call(module.exports);
