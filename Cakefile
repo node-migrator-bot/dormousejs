@@ -21,7 +21,7 @@ task 'compile', 'compile the coffeescript in src/ into javascript in lib/', (opt
 task 'wrapup', "wrap the 'dormouse' module and its dependancies into dist/dormouse.js", (options) ->
   invoke 'clean'
   compile_files () ->
-    exec "cd dist && browserify -r dormouse init.js", (err, stdo, stde) ->
+    exec "cd dist && browserify -r dormouse browser.js", (err, stdo, stde) ->
       if (err)
         console.log 'browserify error', err
         console.log 'stderr', stde

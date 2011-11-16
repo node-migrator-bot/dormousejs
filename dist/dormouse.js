@@ -7,25 +7,24 @@ var require = function (file, cwd) {
     var res = mod._cached ? mod._cached : mod();
     return res;
 }
-var __require = require;
 
 require.paths = [];
 require.modules = {};
 require.extensions = [".js",".coffee"];
 
+require._core = {
+    'assert': true,
+    'events': true,
+    'fs': true,
+    'path': true,
+    'vm': true
+};
+
 require.resolve = (function () {
-    var core = {
-        'assert': true,
-        'events': true,
-        'fs': true,
-        'path': true,
-        'vm': true
-    };
-    
     return function (x, cwd) {
         if (!cwd) cwd = '/';
         
-        if (core[x]) return x;
+        if (require._core[x]) return x;
         var path = require.modules.path();
         var y = cwd || '.';
         
@@ -130,6 +129,37 @@ require.alias = function (from, to) {
     }
 };
 
+require.define = function (filename, fn) {
+    var dirname = require._core[filename]
+        ? ''
+        : require.modules.path().dirname(filename)
+    ;
+    
+    var require_ = function (file) {
+        return require(file, dirname)
+    };
+    require_.resolve = function (name) {
+        return require.resolve(name, dirname);
+    };
+    require_.modules = require.modules;
+    require_.define = require.define;
+    var module_ = { exports : {} };
+    
+    require.modules[filename] = function () {
+        require.modules[filename]._cached = module_.exports;
+        fn.call(
+            module_.exports,
+            require_,
+            module_,
+            module_.exports,
+            dirname,
+            filename
+        );
+        require.modules[filename]._cached = module_.exports;
+        return module_.exports;
+    };
+};
+
 var Object_keys = Object.keys || function (obj) {
     var res = [];
     for (var key in obj) res.push(key)
@@ -151,25 +181,8 @@ if (!process.binding) process.binding = function (name) {
 
 if (!process.cwd) process.cwd = function () { return '.' };
 
-require.modules["path"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = ".";
-    var __filename = "path";
-    
-    var require = function (file) {
-        return __require(file, ".");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, ".");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["path"]._cached = module.exports;
-    
-    (function () {
-        function filter (xs, fn) {
+require.define("path", function (require, module, exports, __dirname, __filename) {
+    function filter (xs, fn) {
     var res = [];
     for (var i = 0; i < xs.length; i++) {
         if (fn(xs[i], i, xs)) res.push(xs[i]);
@@ -303,102 +316,54 @@ exports.basename = function(path, ext) {
 exports.extname = function(path) {
   return splitPathRe.exec(path)[3] || '';
 };
-;
-    }).call(module.exports);
-    
-    __require.modules["path"]._cached = module.exports;
-    return module.exports;
-};
 
-require.modules["/node_modules/dormouse/package.json"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse";
-    var __filename = "/node_modules/dormouse/package.json";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/package.json"]._cached = module.exports;
-    
-    (function () {
-        module.exports = {"name":"dormouse","version":"0.0.1","description":"Javascript API for Dormouse","homepage":"http://dormou.se","keywords":["crowdsourcing"],"repository":{"type":"git","url":"http://github.com/zahanm/node-dormouse.git"},"main":"lib/assembler","directories":{"lib":"./lib","src":"./src"},"dependencies":{"underscore":"*","async":"*","http-browserify":"*"},"devDependencies":{"coffee-script":"*","browserify":"*"}};
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/package.json"]._cached = module.exports;
-    return module.exports;
-};
+});
 
-require.modules["/node_modules/dormouse/lib/assembler.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/assembler.js";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/lib");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/lib");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/assembler.js"]._cached = module.exports;
-    
-    (function () {
-        var Connection, Dormouse, Projects, Tasks;
+require.define("/node_modules/dormouse/package.json", function (require, module, exports, __dirname, __filename) {
+    module.exports = {"main":"lib/assembler"}
+});
+
+require.define("/node_modules/dormouse/lib/assembler.js", function (require, module, exports, __dirname, __filename) {
+    var Connection, Dormouse, Projects, Tasks;
+
 require('./mixin');
+
 Connection = require('./connection').Connection;
+
 Tasks = require('./tasks').Tasks;
+
 Projects = require('./projects').Projects;
+
 /*
 Top level Dormouse
 */
+
 Dormouse = (function() {
+
   function Dormouse() {}
+
   Dormouse.implements(Tasks, Projects);
+
   Dormouse.prototype.server = function() {
     return Connection.server.apply(Connection, arguments);
   };
+
   Dormouse.prototype.api_key = function() {
     return Connection.api_key.apply(Connection, arguments);
   };
-  return Dormouse;
-})();
-exports.Dormouse = Dormouse;;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/lib/assembler.js"]._cached = module.exports;
-    return module.exports;
-};
 
-require.modules["/node_modules/dormouse/lib/mixin.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/mixin.js";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/lib");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/lib");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/mixin.js"]._cached = module.exports;
-    
-    (function () {
-        var implements;
+  return Dormouse;
+
+})();
+
+exports.Dormouse = Dormouse;
+
+});
+
+require.define("/node_modules/dormouse/lib/mixin.js", function (require, module, exports, __dirname, __filename) {
+    var implements;
 var __slice = Array.prototype.slice;
+
 implements = function() {
   var classes, getter, klass, prop, setter, _i, _len;
   classes = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -411,12 +376,8 @@ implements = function() {
       getter = klass.prototype.__lookupGetter__(prop);
       setter = klass.prototype.__lookupSetter__(prop);
       if (getter || setter) {
-        if (getter) {
-          this.prototype.__defineGetter__(prop, getter);
-        }
-        if (setter) {
-          this.prototype.__defineSetter__(prop, setter);
-        }
+        if (getter) this.prototype.__defineGetter__(prop, getter);
+        if (setter) this.prototype.__defineSetter__(prop, setter);
       } else {
         this.prototype[prop] = klass.prototype[prop];
       }
@@ -424,52 +385,43 @@ implements = function() {
   }
   return this;
 };
+
 if (Object.defineProperty) {
   Object.defineProperty(Function.prototype, "implements", {
     value: implements
   });
 } else {
   Function.prototype.implements = implements;
-};
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/lib/mixin.js"]._cached = module.exports;
-    return module.exports;
-};
+}
 
-require.modules["/node_modules/dormouse/lib/connection.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/connection.js";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/lib");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/lib");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/connection.js"]._cached = module.exports;
-    
-    (function () {
-        var Connection, api_key, appendAPIKey, async, handleResponse, host, http, libutils, parseResponse, path, port, _;
+});
+
+require.define("/node_modules/dormouse/lib/connection.js", function (require, module, exports, __dirname, __filename) {
+    var Connection, api_key, appendAPIKey, async, handleResponse, host, http, libutils, parseResponse, path, port, _;
+
 path = require('path');
+
 async = require('async');
+
 _ = require('underscore');
+
 http = require('http-browserify');
+
 libutils = require('./libutils');
+
 /*
 Base Connection
 */
+
 Connection = (function() {
+
   function Connection() {}
+
   /*
     Assumption that it is getting JSON
     @param options serialized in GET params
-    */
+  */
+
   Connection.prototype.get = function(get_path, options, callback) {
     var req;
     get_path = libutils.formatUrl({
@@ -486,10 +438,12 @@ Connection = (function() {
     });
     return req.end();
   };
+
   /*
     @param options appended to URL
     @param body dumped in POST body
-    */
+  */
+
   Connection.prototype.post = function(post_path, options, body, callback) {
     var req;
     post_path = libutils.formatUrl({
@@ -509,10 +463,12 @@ Connection = (function() {
     });
     return req.end(JSON.stringify(body));
   };
+
   /*
     @param options appended to URL
     @param body dumped in body
-    */
+  */
+
   Connection.prototype.put = function(put_path, options, body, callback) {
     var req;
     put_path = libutils.formatUrl({
@@ -532,9 +488,11 @@ Connection = (function() {
     });
     return req.end(JSON.stringify(body));
   };
+
   /*
     @param options is optional
-    */
+  */
+
   Connection.prototype["delete"] = function(delete_path, options, callback) {
     var req;
     delete_path = libutils.formatUrl({
@@ -551,6 +509,7 @@ Connection = (function() {
     });
     return req.end();
   };
+
   Connection.prototype.getIds = function() {
     var callback, get_path, ids, items;
     ids = libutils.toArray(arguments);
@@ -576,10 +535,15 @@ Connection = (function() {
       });
     }
   };
+
   return Connection;
+
 })();
+
 host = 'dormou.se';
+
 port = 80;
+
 Connection.server = function(setter) {
   var matched;
   if (setter) {
@@ -593,33 +557,33 @@ Connection.server = function(setter) {
   }
   return "http://" + host + ":" + port + "/";
 };
+
 Connection.host = function(setter) {
-  if (setter) {
-    host = setter;
-  }
+  if (setter) host = setter;
   return host;
 };
+
 Connection.port = function(setter) {
-  if (setter) {
-    port = setter;
-  }
+  if (setter) port = setter;
   return port;
 };
+
 api_key = '';
+
 Connection.api_key = function(setter) {
-  if (setter) {
-    api_key = setter;
-  }
+  if (setter) api_key = setter;
   if (!api_key) {
     throw new Error('You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)');
   }
   return api_key;
 };
+
 appendAPIKey = function(options) {
   return _.extend(options, {
     api_key: Connection.api_key()
   });
 };
+
 handleResponse = function(res, callback) {
   var data;
   data = '';
@@ -627,14 +591,13 @@ handleResponse = function(res, callback) {
     return data += buf;
   });
   res.on('end', function() {
-    if (callback) {
-      return callback(parseResponse(data));
-    }
+    if (callback) return callback(parseResponse(data));
   });
   return res.on('error', function(err) {
     return console.log('HTTP error', res.statusCode, data, err);
   });
 };
+
 parseResponse = function(raw_response) {
   try {
     return JSON.parse(raw_response);
@@ -643,85 +606,24 @@ parseResponse = function(raw_response) {
   }
   return raw_response;
 };
-exports.Connection = Connection;;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/lib/connection.js"]._cached = module.exports;
-    return module.exports;
-};
 
-require.modules["/node_modules/dormouse/node_modules/async/package.json"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/node_modules/async";
-    var __filename = "/node_modules/dormouse/node_modules/async/package.json";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/node_modules/async");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/node_modules/async");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/node_modules/async/package.json"]._cached = module.exports;
-    
-    (function () {
-        module.exports = {"name":"async","description":"Higher-order functions and common patterns for asynchronous code","main":"./index","author":"Caolan McMahon","version":"0.1.10","repository":{"type":"git","url":"http://github.com/caolan/async.git"},"bugs":{"web":"http://github.com/caolan/async/issues"},"licenses":[{"type":"MIT","url":"http://github.com/caolan/async/raw/master/LICENSE"}]};
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/node_modules/async/package.json"]._cached = module.exports;
-    return module.exports;
-};
+exports.Connection = Connection;
 
-require.modules["/node_modules/dormouse/node_modules/async/index.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/node_modules/async";
-    var __filename = "/node_modules/dormouse/node_modules/async/index.js";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/node_modules/async");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/node_modules/async");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/node_modules/async/index.js"]._cached = module.exports;
-    
-    (function () {
-        // This file is just added for convenience so this repository can be
+});
+
+require.define("/node_modules/dormouse/node_modules/async/package.json", function (require, module, exports, __dirname, __filename) {
+    module.exports = {"main":"./index"}
+});
+
+require.define("/node_modules/dormouse/node_modules/async/index.js", function (require, module, exports, __dirname, __filename) {
+    // This file is just added for convenience so this repository can be
 // directly checked out into a project's deps folder
 module.exports = require('./lib/async');
-;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/node_modules/async/index.js"]._cached = module.exports;
-    return module.exports;
-};
 
-require.modules["/node_modules/dormouse/node_modules/async/lib/async.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/node_modules/async/lib";
-    var __filename = "/node_modules/dormouse/node_modules/async/lib/async.js";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/node_modules/async/lib");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/node_modules/async/lib");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/node_modules/async/lib/async.js"]._cached = module.exports;
-    
-    (function () {
-        /*global setTimeout: false, console: false */
+});
+
+require.define("/node_modules/dormouse/node_modules/async/lib/async.js", function (require, module, exports, __dirname, __filename) {
+    /*global setTimeout: false, console: false */
 (function () {
 
     var async = {};
@@ -1084,7 +986,7 @@ require.modules["/node_modules/dormouse/node_modules/async/lib/async.js"] = func
             return callback(null);
         }
 
-        var completed = [];
+        var results = {};
 
         var listeners = [];
         var addListener = function (fn) {
@@ -1105,8 +1007,8 @@ require.modules["/node_modules/dormouse/node_modules/async/lib/async.js"] = func
         };
 
         addListener(function () {
-            if (completed.length === keys.length) {
-                callback(null);
+            if (_keys(results).length === keys.length) {
+                callback(null, results);
             }
         });
 
@@ -1119,24 +1021,28 @@ require.modules["/node_modules/dormouse/node_modules/async/lib/async.js"] = func
                     callback = function () {};
                 }
                 else {
-                    completed.push(k);
+                    var args = Array.prototype.slice.call(arguments, 1);
+                    if (args.length <= 1) {
+                        args = args[0];
+                    }
+                    results[k] = args;
                     taskComplete();
                 }
             };
             var requires = task.slice(0, Math.abs(task.length - 1)) || [];
             var ready = function () {
                 return _reduce(requires, function (a, x) {
-                    return (a && _indexOf(completed, x) !== -1);
+                    return (a && results.hasOwnProperty(x));
                 }, true);
             };
             if (ready()) {
-                task[task.length - 1](taskCallback);
+                task[task.length - 1](taskCallback, results);
             }
             else {
                 var listener = function () {
                     if (ready()) {
                         removeListener(listener);
-                        task[task.length - 1](taskCallback);
+                        task[task.length - 1](taskCallback, results);
                     }
                 };
                 addListener(listener);
@@ -1306,34 +1212,34 @@ require.modules["/node_modules/dormouse/node_modules/async/lib/async.js"] = func
 
     async.queue = function (worker, concurrency) {
         var workers = 0;
-        var tasks = [];
         var q = {
+            tasks: [],
             concurrency: concurrency,
             saturated: null,
             empty: null,
             drain: null,
             push: function (data, callback) {
-                tasks.push({data: data, callback: callback});
-                if(q.saturated && tasks.length == concurrency) q.saturated();
+                q.tasks.push({data: data, callback: callback});
+                if(q.saturated && q.tasks.length == concurrency) q.saturated();
                 async.nextTick(q.process);
             },
             process: function () {
-                if (workers < q.concurrency && tasks.length) {
-                    var task = tasks.shift();
-                    if(q.empty && tasks.length == 0) q.empty();
+                if (workers < q.concurrency && q.tasks.length) {
+                    var task = q.tasks.shift();
+                    if(q.empty && q.tasks.length == 0) q.empty();
                     workers += 1;
                     worker(task.data, function () {
                         workers -= 1;
                         if (task.callback) {
                             task.callback.apply(task, arguments);
                         }
-                        if(q.drain && tasks.length + workers == 0) q.drain();
+                        if(q.drain && q.tasks.length + workers == 0) q.drain();
                         q.process();
                     });
                 }
             },
             length: function () {
-                return tasks.length;
+                return q.tasks.length;
             },
             running: function () {
                 return workers;
@@ -1370,77 +1276,52 @@ require.modules["/node_modules/dormouse/node_modules/async/lib/async.js"] = func
 
     async.memoize = function (fn, hasher) {
         var memo = {};
+        var queues = {};
         hasher = hasher || function (x) {
             return x;
         };
-        return function () {
+        var memoized = function () {
             var args = Array.prototype.slice.call(arguments);
             var callback = args.pop();
             var key = hasher.apply(null, args);
             if (key in memo) {
                 callback.apply(null, memo[key]);
             }
+            else if (key in queues) {
+                queues[key].push(callback);
+            }
             else {
+                queues[key] = [callback];
                 fn.apply(null, args.concat([function () {
                     memo[key] = arguments;
-                    callback.apply(null, arguments);
+                    var q = queues[key];
+                    delete queues[key];
+                    for (var i = 0, l = q.length; i < l; i++) {
+                      q[i].apply(null, arguments);
+                    }
                 }]));
             }
         };
+        memoized.unmemoized = fn;
+        return memoized;
+    };
+
+    async.unmemoize = function (fn) {
+      return function () {
+        return (fn.unmemoized || fn).apply(null, arguments);
+      }
     };
 
 }());
-;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/node_modules/async/lib/async.js"]._cached = module.exports;
-    return module.exports;
-};
 
-require.modules["/node_modules/dormouse/node_modules/underscore/package.json"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/node_modules/underscore";
-    var __filename = "/node_modules/dormouse/node_modules/underscore/package.json";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/node_modules/underscore");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/node_modules/underscore");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/node_modules/underscore/package.json"]._cached = module.exports;
-    
-    (function () {
-        module.exports = {"name":"underscore","description":"JavaScript's functional programming helper library.","homepage":"http://documentcloud.github.com/underscore/","keywords":["util","functional","server","client","browser"],"author":"Jeremy Ashkenas <jeremy@documentcloud.org>","contributors":[],"dependencies":[],"repository":{"type":"git","url":"git://github.com/documentcloud/underscore.git"},"main":"underscore.js","version":"1.1.7"};
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/node_modules/underscore/package.json"]._cached = module.exports;
-    return module.exports;
-};
+});
 
-require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/node_modules/underscore";
-    var __filename = "/node_modules/dormouse/node_modules/underscore/underscore.js";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/node_modules/underscore");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/node_modules/underscore");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"]._cached = module.exports;
-    
-    (function () {
-        //     Underscore.js 1.1.7
+require.define("/node_modules/dormouse/node_modules/underscore/package.json", function (require, module, exports, __dirname, __filename) {
+    module.exports = {"main":"underscore.js"}
+});
+
+require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", function (require, module, exports, __dirname, __filename) {
+    //     Underscore.js 1.2.2
 //     (c) 2011 Jeremy Ashkenas, DocumentCloud Inc.
 //     Underscore is freely distributable under the MIT license.
 //     Portions of Underscore are inspired or borrowed from Prototype,
@@ -1490,19 +1371,26 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
   // Create a safe reference to the Underscore object for use below.
   var _ = function(obj) { return new wrapper(obj); };
 
-  // Export the Underscore object for **CommonJS**, with backwards-compatibility
-  // for the old `require()` API. If we're not in CommonJS, add `_` to the
-  // global object.
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = _;
-    _._ = _;
+  // Export the Underscore object for **Node.js** and **"CommonJS"**, with
+  // backwards-compatibility for the old `require()` API. If we're not in
+  // CommonJS, add `_` to the global object.
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      exports = module.exports = _;
+    }
+    exports._ = _;
+  } else if (typeof define === 'function' && define.amd) {
+    // Register as a named module with AMD.
+    define('underscore', function() {
+      return _;
+    });
   } else {
     // Exported as a string, for Closure Compiler "advanced" mode.
     root['_'] = _;
   }
 
   // Current version.
-  _.VERSION = '1.1.7';
+  _.VERSION = '1.2.2';
 
   // Collection Functions
   // --------------------
@@ -1629,7 +1517,7 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
     if (obj == null) return result;
     if (nativeSome && obj.some === nativeSome) return obj.some(iterator, context);
     each(obj, function(value, index, list) {
-      if (result |= iterator.call(context, value, index, list)) return breaker;
+      if (result || (result = iterator.call(context, value, index, list))) return breaker;
     });
     return !!result;
   };
@@ -1640,8 +1528,8 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
     var found = false;
     if (obj == null) return found;
     if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) != -1;
-    any(obj, function(value) {
-      if (found = value === target) return true;
+    found = any(obj, function(value) {
+      return value === target;
     });
     return found;
   };
@@ -1662,6 +1550,7 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
   // Return the maximum element or (element-based computation).
   _.max = function(obj, iterator, context) {
     if (!iterator && _.isArray(obj)) return Math.max.apply(Math, obj);
+    if (!iterator && _.isEmpty(obj)) return -Infinity;
     var result = {computed : -Infinity};
     each(obj, function(value, index, list) {
       var computed = iterator ? iterator.call(context, value, index, list) : value;
@@ -1673,12 +1562,28 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
   // Return the minimum element (or element-based computation).
   _.min = function(obj, iterator, context) {
     if (!iterator && _.isArray(obj)) return Math.min.apply(Math, obj);
+    if (!iterator && _.isEmpty(obj)) return Infinity;
     var result = {computed : Infinity};
     each(obj, function(value, index, list) {
       var computed = iterator ? iterator.call(context, value, index, list) : value;
       computed < result.computed && (result = {value : value, computed : computed});
     });
     return result.value;
+  };
+
+  // Shuffle an array.
+  _.shuffle = function(obj) {
+    var shuffled = [], rand;
+    each(obj, function(value, index, list) {
+      if (index == 0) {
+        shuffled[0] = value;
+      } else {
+        rand = Math.floor(Math.random() * (index + 1));
+        shuffled[index] = shuffled[rand];
+        shuffled[rand] = value;
+      }
+    });
+    return shuffled;
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -1694,9 +1599,11 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
     }), 'value');
   };
 
-  // Groups the object's values by a criterion produced by an iterator
-  _.groupBy = function(obj, iterator) {
+  // Groups the object's values by a criterion. Pass either a string attribute
+  // to group by, or a function that returns the criterion.
+  _.groupBy = function(obj, val) {
     var result = {};
+    var iterator = _.isFunction(val) ? val : function(obj) { return obj[val]; };
     each(obj, function(value, index) {
       var key = iterator(value, index);
       (result[key] || (result[key] = [])).push(value);
@@ -1740,6 +1647,24 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
     return (n != null) && !guard ? slice.call(array, 0, n) : array[0];
   };
 
+  // Returns everything but the last entry of the array. Especcialy useful on
+  // the arguments object. Passing **n** will return all the values in
+  // the array, excluding the last N. The **guard** check allows it to work with
+  // `_.map`.
+  _.initial = function(array, n, guard) {
+    return slice.call(array, 0, array.length - ((n == null) || guard ? 1 : n));
+  };
+
+  // Get the last element of an array. Passing **n** will return the last N
+  // values in the array. The **guard** check allows it to work with `_.map`.
+  _.last = function(array, n, guard) {
+    if ((n != null) && !guard) {
+      return slice.call(array, Math.max(array.length - n, 0));
+    } else {
+      return array[array.length - 1];
+    }
+  };
+
   // Returns everything but the first entry of the array. Aliased as `tail`.
   // Especially useful on the arguments object. Passing an **index** will return
   // the rest of the values in the array from that index onward. The **guard**
@@ -1748,20 +1673,15 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
     return slice.call(array, (index == null) || guard ? 1 : index);
   };
 
-  // Get the last element of an array.
-  _.last = function(array) {
-    return array[array.length - 1];
-  };
-
   // Trim out all falsy values from an array.
   _.compact = function(array) {
     return _.filter(array, function(value){ return !!value; });
   };
 
   // Return a completely flattened version of an array.
-  _.flatten = function(array) {
+  _.flatten = function(array, shallow) {
     return _.reduce(array, function(memo, value) {
-      if (_.isArray(value)) return memo.concat(_.flatten(value));
+      if (_.isArray(value)) return memo.concat(shallow ? value : _.flatten(value));
       memo[memo.length] = value;
       return memo;
     }, []);
@@ -1775,17 +1695,23 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
   // Produce a duplicate-free version of the array. If the array has already
   // been sorted, you have the option of using a faster algorithm.
   // Aliased as `unique`.
-  _.uniq = _.unique = function(array, isSorted) {
-    return _.reduce(array, function(memo, el, i) {
-      if (0 == i || (isSorted === true ? _.last(memo) != el : !_.include(memo, el))) memo[memo.length] = el;
+  _.uniq = _.unique = function(array, isSorted, iterator) {
+    var initial = iterator ? _.map(array, iterator) : array;
+    var result = [];
+    _.reduce(initial, function(memo, el, i) {
+      if (0 == i || (isSorted === true ? _.last(memo) != el : !_.include(memo, el))) {
+        memo[memo.length] = el;
+        result[result.length] = array[i];
+      }
       return memo;
     }, []);
+    return result;
   };
 
   // Produce an array that contains the union: each distinct element from all of
   // the passed-in arrays.
   _.union = function() {
-    return _.uniq(_.flatten(arguments));
+    return _.uniq(_.flatten(arguments, true));
   };
 
   // Produce an array that contains every item shared between all the
@@ -1833,7 +1759,6 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
     return -1;
   };
 
-
   // Delegates to **ECMAScript 5**'s native `lastIndexOf` if available.
   _.lastIndexOf = function(array, item) {
     if (array == null) return -1;
@@ -1868,15 +1793,25 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
   // Function (ahem) Functions
   // ------------------
 
+  // Reusable constructor function for prototype setting.
+  var ctor = function(){};
+
   // Create a function bound to a given object (assigning `this`, and arguments,
   // optionally). Binding with arguments is also known as `curry`.
   // Delegates to **ECMAScript 5**'s native `Function.bind` if available.
   // We check for `func.bind` first, to fail fast when `func` is undefined.
-  _.bind = function(func, obj) {
+  _.bind = function bind(func, context) {
+    var bound, args;
     if (func.bind === nativeBind && nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
-    var args = slice.call(arguments, 2);
-    return function() {
-      return func.apply(obj, args.concat(slice.call(arguments)));
+    if (!_.isFunction(func)) throw new TypeError;
+    args = slice.call(arguments, 2);
+    return bound = function() {
+      if (!(this instanceof bound)) return func.apply(context, args.concat(slice.call(arguments)));
+      ctor.prototype = func.prototype;
+      var self = new ctor;
+      var result = func.apply(self, args.concat(slice.call(arguments)));
+      if (Object(result) === result) return result;
+      return self;
     };
   };
 
@@ -1912,31 +1847,43 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
     return _.delay.apply(_, [func, 1].concat(slice.call(arguments, 1)));
   };
 
-  // Internal function used to implement `_.throttle` and `_.debounce`.
-  var limit = function(func, wait, debounce) {
-    var timeout;
-    return function() {
-      var context = this, args = arguments;
-      var throttler = function() {
-        timeout = null;
-        func.apply(context, args);
-      };
-      if (debounce) clearTimeout(timeout);
-      if (debounce || !timeout) timeout = setTimeout(throttler, wait);
-    };
-  };
-
   // Returns a function, that, when invoked, will only be triggered at most once
   // during a given window of time.
   _.throttle = function(func, wait) {
-    return limit(func, wait, false);
+    var context, args, timeout, throttling, more;
+    var whenDone = _.debounce(function(){ more = throttling = false; }, wait);
+    return function() {
+      context = this; args = arguments;
+      var later = function() {
+        timeout = null;
+        if (more) func.apply(context, args);
+        whenDone();
+      };
+      if (!timeout) timeout = setTimeout(later, wait);
+      if (throttling) {
+        more = true;
+      } else {
+        func.apply(context, args);
+      }
+      whenDone();
+      throttling = true;
+    };
   };
 
   // Returns a function, that, as long as it continues to be invoked, will not
   // be triggered. The function will be called after it stops being called for
   // N milliseconds.
   _.debounce = function(func, wait) {
-    return limit(func, wait, true);
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        func.apply(context, args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
   };
 
   // Returns a function that will be executed at most one time, no matter how
@@ -1975,11 +1922,11 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
 
   // Returns a function that will only be executed after being called N times.
   _.after = function(times, func) {
+    if (times <= 0) return func();
     return function() {
       if (--times < 1) { return func.apply(this, arguments); }
     };
   };
-
 
   // Object Functions
   // ----------------
@@ -2030,6 +1977,7 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
 
   // Create a (shallow-cloned) duplicate of an object.
   _.clone = function(obj) {
+    if (!_.isObject(obj)) return obj;
     return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
   };
 
@@ -2041,47 +1989,103 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
     return obj;
   };
 
-  // Perform a deep comparison to check if two objects are equal.
-  _.isEqual = function(a, b) {
-    // Check object identity.
-    if (a === b) return true;
-    // Different types?
-    var atype = typeof(a), btype = typeof(b);
-    if (atype != btype) return false;
-    // Basic equality test (watch out for coercions).
-    if (a == b) return true;
-    // One is falsy and the other truthy.
-    if ((!a && b) || (a && !b)) return false;
+  // Internal recursive comparison function.
+  function eq(a, b, stack) {
+    // Identical objects are equal. `0 === -0`, but they aren't identical.
+    // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
+    if (a === b) return a !== 0 || 1 / a == 1 / b;
+    // A strict comparison is necessary because `null == undefined`.
+    if (a == null || b == null) return a === b;
     // Unwrap any wrapped objects.
     if (a._chain) a = a._wrapped;
     if (b._chain) b = b._wrapped;
-    // One of them implements an isEqual()?
-    if (a.isEqual) return a.isEqual(b);
-    if (b.isEqual) return b.isEqual(a);
-    // Check dates' integer values.
-    if (_.isDate(a) && _.isDate(b)) return a.getTime() === b.getTime();
-    // Both are NaN?
-    if (_.isNaN(a) && _.isNaN(b)) return false;
-    // Compare regular expressions.
-    if (_.isRegExp(a) && _.isRegExp(b))
-      return a.source     === b.source &&
-             a.global     === b.global &&
-             a.ignoreCase === b.ignoreCase &&
-             a.multiline  === b.multiline;
-    // If a is not an object by this point, we can't handle it.
-    if (atype !== 'object') return false;
-    // Check for different array lengths before comparing contents.
-    if (a.length && (a.length !== b.length)) return false;
-    // Nothing else worked, deep compare the contents.
-    var aKeys = _.keys(a), bKeys = _.keys(b);
-    // Different object sizes?
-    if (aKeys.length != bKeys.length) return false;
-    // Recursive comparison of contents.
-    for (var key in a) if (!(key in b) || !_.isEqual(a[key], b[key])) return false;
-    return true;
+    // Invoke a custom `isEqual` method if one is provided.
+    if (_.isFunction(a.isEqual)) return a.isEqual(b);
+    if (_.isFunction(b.isEqual)) return b.isEqual(a);
+    // Compare `[[Class]]` names.
+    var className = toString.call(a);
+    if (className != toString.call(b)) return false;
+    switch (className) {
+      // Strings, numbers, dates, and booleans are compared by value.
+      case '[object String]':
+        // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+        // equivalent to `new String("5")`.
+        return String(a) == String(b);
+      case '[object Number]':
+        a = +a;
+        b = +b;
+        // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
+        // other numeric values.
+        return a != a ? b != b : (a == 0 ? 1 / a == 1 / b : a == b);
+      case '[object Date]':
+      case '[object Boolean]':
+        // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+        // millisecond representations. Note that invalid dates with millisecond representations
+        // of `NaN` are not equivalent.
+        return +a == +b;
+      // RegExps are compared by their source patterns and flags.
+      case '[object RegExp]':
+        return a.source == b.source &&
+               a.global == b.global &&
+               a.multiline == b.multiline &&
+               a.ignoreCase == b.ignoreCase;
+    }
+    if (typeof a != 'object' || typeof b != 'object') return false;
+    // Assume equality for cyclic structures. The algorithm for detecting cyclic
+    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+    var length = stack.length;
+    while (length--) {
+      // Linear search. Performance is inversely proportional to the number of
+      // unique nested structures.
+      if (stack[length] == a) return true;
+    }
+    // Add the first object to the stack of traversed objects.
+    stack.push(a);
+    var size = 0, result = true;
+    // Recursively compare objects and arrays.
+    if (className == '[object Array]') {
+      // Compare array lengths to determine if a deep comparison is necessary.
+      size = a.length;
+      result = size == b.length;
+      if (result) {
+        // Deep compare the contents, ignoring non-numeric properties.
+        while (size--) {
+          // Ensure commutative equality for sparse arrays.
+          if (!(result = size in a == size in b && eq(a[size], b[size], stack))) break;
+        }
+      }
+    } else {
+      // Objects with different constructors are not equivalent.
+      if ("constructor" in a != "constructor" in b || a.constructor != b.constructor) return false;
+      // Deep compare objects.
+      for (var key in a) {
+        if (hasOwnProperty.call(a, key)) {
+          // Count the expected number of properties.
+          size++;
+          // Deep compare each member.
+          if (!(result = hasOwnProperty.call(b, key) && eq(a[key], b[key], stack))) break;
+        }
+      }
+      // Ensure that both objects contain the same number of properties.
+      if (result) {
+        for (key in b) {
+          if (hasOwnProperty.call(b, key) && !(size--)) break;
+        }
+        result = !size;
+      }
+    }
+    // Remove the first object from the stack of traversed objects.
+    stack.pop();
+    return result;
+  }
+
+  // Perform a deep comparison to check if two objects are equal.
+  _.isEqual = function(a, b) {
+    return eq(a, b, []);
   };
 
-  // Is a given array or object empty?
+  // Is a given array, string, or object empty?
+  // An "empty" object has no enumerable own-properties.
   _.isEmpty = function(obj) {
     if (_.isArray(obj) || _.isString(obj)) return obj.length === 0;
     for (var key in obj) if (hasOwnProperty.call(obj, key)) return false;
@@ -2096,7 +2100,7 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
   // Is a given value an array?
   // Delegates to ECMA5's native Array.isArray
   _.isArray = nativeIsArray || function(obj) {
-    return toString.call(obj) === '[object Array]';
+    return toString.call(obj) == '[object Array]';
   };
 
   // Is a given variable an object?
@@ -2105,44 +2109,50 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
   };
 
   // Is a given variable an arguments object?
-  _.isArguments = function(obj) {
-    return !!(obj && hasOwnProperty.call(obj, 'callee'));
-  };
+  if (toString.call(arguments) == '[object Arguments]') {
+    _.isArguments = function(obj) {
+      return toString.call(obj) == '[object Arguments]';
+    };
+  } else {
+    _.isArguments = function(obj) {
+      return !!(obj && hasOwnProperty.call(obj, 'callee'));
+    };
+  }
 
   // Is a given value a function?
   _.isFunction = function(obj) {
-    return !!(obj && obj.constructor && obj.call && obj.apply);
+    return toString.call(obj) == '[object Function]';
   };
 
   // Is a given value a string?
   _.isString = function(obj) {
-    return !!(obj === '' || (obj && obj.charCodeAt && obj.substr));
+    return toString.call(obj) == '[object String]';
   };
 
   // Is a given value a number?
   _.isNumber = function(obj) {
-    return !!(obj === 0 || (obj && obj.toExponential && obj.toFixed));
+    return toString.call(obj) == '[object Number]';
   };
 
-  // Is the given value `NaN`? `NaN` happens to be the only value in JavaScript
-  // that does not equal itself.
+  // Is the given value `NaN`?
   _.isNaN = function(obj) {
+    // `NaN` is the only value for which `===` is not reflexive.
     return obj !== obj;
   };
 
   // Is a given value a boolean?
   _.isBoolean = function(obj) {
-    return obj === true || obj === false;
+    return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
   };
 
   // Is a given value a date?
   _.isDate = function(obj) {
-    return !!(obj && obj.getTimezoneOffset && obj.setUTCFullYear);
+    return toString.call(obj) == '[object Date]';
   };
 
   // Is the given value a regular expression?
   _.isRegExp = function(obj) {
-    return !!(obj && obj.test && obj.exec && (obj.ignoreCase || obj.ignoreCase === false));
+    return toString.call(obj) == '[object RegExp]';
   };
 
   // Is a given value equal to null?
@@ -2175,6 +2185,11 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
     for (var i = 0; i < n; i++) iterator.call(context, i);
   };
 
+  // Escape a string for HTML interpolation.
+  _.escape = function(string) {
+    return (''+string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/\//g,'&#x2F;');
+  };
+
   // Add your own custom functions to the Underscore object, ensuring that
   // they're correctly added to the OOP wrapper as well.
   _.mixin = function(obj) {
@@ -2195,7 +2210,8 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
   // following template settings to use alternative delimiters.
   _.templateSettings = {
     evaluate    : /<%([\s\S]+?)%>/g,
-    interpolate : /<%=([\s\S]+?)%>/g
+    interpolate : /<%=([\s\S]+?)%>/g,
+    escape      : /<%-([\s\S]+?)%>/g
   };
 
   // JavaScript micro-templating, similar to John Resig's implementation.
@@ -2207,19 +2223,22 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
       'with(obj||{}){__p.push(\'' +
       str.replace(/\\/g, '\\\\')
          .replace(/'/g, "\\'")
+         .replace(c.escape, function(match, code) {
+           return "',_.escape(" + code.replace(/\\'/g, "'") + "),'";
+         })
          .replace(c.interpolate, function(match, code) {
            return "'," + code.replace(/\\'/g, "'") + ",'";
          })
          .replace(c.evaluate || null, function(match, code) {
            return "');" + code.replace(/\\'/g, "'")
-                              .replace(/[\r\n\t]/g, ' ') + "__p.push('";
+                              .replace(/[\r\n\t]/g, ' ') + ";__p.push('";
          })
          .replace(/\r/g, '\\r')
          .replace(/\n/g, '\\n')
          .replace(/\t/g, '\\t')
          + "');}return __p.join('');";
-    var func = new Function('obj', tmpl);
-    return data ? func(data) : func;
+    var func = new Function('obj', '_', tmpl);
+    return data ? func(data, _) : function(data) { return func(data, _) };
   };
 
   // The OOP Wrapper
@@ -2278,58 +2297,16 @@ require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"] 
     return this._wrapped;
   };
 
-})();
-;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/node_modules/underscore/underscore.js"]._cached = module.exports;
-    return module.exports;
-};
+}).call(this);
 
-require.modules["/node_modules/dormouse/node_modules/http-browserify/package.json"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/node_modules/http-browserify";
-    var __filename = "/node_modules/dormouse/node_modules/http-browserify/package.json";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/node_modules/http-browserify");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/node_modules/http-browserify");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/node_modules/http-browserify/package.json"]._cached = module.exports;
-    
-    (function () {
-        module.exports = {"name":"http-browserify","version":"0.0.3","description":"http module compatability for browserify","main":"index.js","browserify":"browser.js","directories":{"lib":".","example":"example","test":"test"},"devDependencies":{"express":"2.4.x","browserify":"1.4.x","sinon":"*","vows":"*"},"repository":{"type":"git","url":"http://github.com/substack/http-browserify.git"},"keywords":["http","browserify","compatible","meatless","browser"],"author":{"name":"James Halliday","email":"mail@substack.net","url":"http://substack.net"},"license":"MIT/X11","engine":{"node":">=0.4"}};
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/node_modules/http-browserify/package.json"]._cached = module.exports;
-    return module.exports;
-};
+});
 
-require.modules["/node_modules/dormouse/node_modules/http-browserify/browser.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/node_modules/http-browserify";
-    var __filename = "/node_modules/dormouse/node_modules/http-browserify/browser.js";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/node_modules/http-browserify");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/node_modules/http-browserify");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/node_modules/http-browserify/browser.js"]._cached = module.exports;
-    
-    (function () {
-        var http = module.exports;
+require.define("/node_modules/dormouse/node_modules/http-browserify/package.json", function (require, module, exports, __dirname, __filename) {
+    module.exports = {"main":"index.js","browserify":"browser.js"}
+});
+
+require.define("/node_modules/dormouse/node_modules/http-browserify/browser.js", function (require, module, exports, __dirname, __filename) {
+    var http = module.exports;
 var EventEmitter = require('events').EventEmitter;
 var Request = require('./lib/request');
 
@@ -2349,32 +2326,11 @@ http.get = function (params, cb) {
     req.end();
     return req;
 };
-;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/node_modules/http-browserify/browser.js"]._cached = module.exports;
-    return module.exports;
-};
 
-require.modules["events"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = ".";
-    var __filename = "events";
-    
-    var require = function (file) {
-        return __require(file, ".");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, ".");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["events"]._cached = module.exports;
-    
-    (function () {
-        if (!process.EventEmitter) process.EventEmitter = function () {};
+});
+
+require.define("events", function (require, module, exports, __dirname, __filename) {
+    if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
 var isArray = typeof Array.isArray === 'function'
@@ -2545,32 +2501,11 @@ EventEmitter.prototype.listeners = function(type) {
   }
   return this._events[type];
 };
-;
-    }).call(module.exports);
-    
-    __require.modules["events"]._cached = module.exports;
-    return module.exports;
-};
 
-require.modules["/node_modules/dormouse/node_modules/http-browserify/lib/request.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/node_modules/http-browserify/lib";
-    var __filename = "/node_modules/dormouse/node_modules/http-browserify/lib/request.js";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/node_modules/http-browserify/lib");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/node_modules/http-browserify/lib");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/node_modules/http-browserify/lib/request.js"]._cached = module.exports;
-    
-    (function () {
-        var EventEmitter = require('events').EventEmitter;
+});
+
+require.define("/node_modules/dormouse/node_modules/http-browserify/lib/request.js", function (require, module, exports, __dirname, __filename) {
+    var EventEmitter = require('events').EventEmitter;
 var Response = require('./response');
 
 var Request = module.exports = function() {};
@@ -2737,32 +2672,11 @@ XdrResponse.prototype = new Response();
 XdrResponse.prototype.getAllResponseHeaders = function() {
   return 'Content-Type: ' + this.contentType;
 };
-;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/node_modules/http-browserify/lib/request.js"]._cached = module.exports;
-    return module.exports;
-};
 
-require.modules["/node_modules/dormouse/node_modules/http-browserify/lib/response.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/node_modules/http-browserify/lib";
-    var __filename = "/node_modules/dormouse/node_modules/http-browserify/lib/response.js";
-    
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/node_modules/http-browserify/lib");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/node_modules/http-browserify/lib");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/node_modules/http-browserify/lib/response.js"]._cached = module.exports;
-    
-    (function () {
-        var EventEmitter = require('events').EventEmitter;
+});
+
+require.define("/node_modules/dormouse/node_modules/http-browserify/lib/response.js", function (require, module, exports, __dirname, __filename) {
+    var EventEmitter = require('events').EventEmitter;
 
 var Response = module.exports = function (res) {
     this.offset = 0;
@@ -2861,38 +2775,22 @@ Response.prototype.write = function (res) {
         this.offset = res.responseText.length;
     }
 };
-;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/node_modules/http-browserify/lib/response.js"]._cached = module.exports;
-    return module.exports;
-};
 
-require.modules["/node_modules/dormouse/lib/libutils.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/libutils.js";
+});
+
+require.define("/node_modules/dormouse/lib/libutils.js", function (require, module, exports, __dirname, __filename) {
     
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/lib");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/lib");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/libutils.js"]._cached = module.exports;
-    
-    (function () {
-        /*
+/*
 utils for simplify detecting types and stuff
 */
+
 var libutils, _;
 var __hasProp = Object.prototype.hasOwnProperty;
+
 _ = require('underscore');
+
 libutils = exports;
+
 libutils.isEmpty = function(obj) {
   var prop;
   for (prop in obj) {
@@ -2901,12 +2799,15 @@ libutils.isEmpty = function(obj) {
   }
   return true;
 };
+
 libutils.isArray = function(obj) {
   return obj instanceof Array;
 };
+
 libutils.toArray = function(array_like) {
   return Array.prototype.slice.call(array_like);
 };
+
 /*
 format of urlObj:
 {
@@ -2914,6 +2815,7 @@ format of urlObj:
   query: javascript object to append as params
 }
 */
+
 libutils.formatUrl = function(urlObj) {
   var eq, pairs, qs, query, sep, url;
   query = urlObj.query || {};
@@ -2924,9 +2826,7 @@ libutils.formatUrl = function(urlObj) {
   });
   qs = pairs.join(sep);
   url = urlObj.path || '/';
-  if (url.match(/#/)) {
-    url = url.substr(0, url.indexOf('#'));
-  }
+  if (url.match(/#/)) url = url.substr(0, url.indexOf('#'));
   if (qs.length > 0) {
     if (url.match(/\?/)) {
       url += sep + qs;
@@ -2934,36 +2834,15 @@ libutils.formatUrl = function(urlObj) {
       url += '?' + qs;
     }
   }
-  if (!url.match(/^\//)) {
-    url = '/' + url;
-  }
+  if (!url.match(/^\//)) url = '/' + url;
   return url;
-};;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/lib/libutils.js"]._cached = module.exports;
-    return module.exports;
 };
 
-require.modules["/node_modules/dormouse/lib/tasks.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/tasks.js";
+});
+
+require.define("/node_modules/dormouse/lib/tasks.js", function (require, module, exports, __dirname, __filename) {
     
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/lib");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/lib");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/tasks.js"]._cached = module.exports;
-    
-    (function () {
-        /*
+/*
 
 Task structure on API
 
@@ -2985,44 +2864,47 @@ Task structure on API
     question: "blah"
   }
 }
-
 */
+
 var Connection, Tasks, path;
-var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
-  for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
-  function ctor() { this.constructor = child; }
-  ctor.prototype = parent.prototype;
-  child.prototype = new ctor;
-  child.__super__ = parent.prototype;
-  return child;
-};
+var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
 path = require('path');
+
 Connection = require('./connection').Connection;
+
 /*
 * Tasks mixin for Dormouse
 * basic API operations
 */
+
 Tasks = (function() {
+
   __extends(Tasks, Connection);
+
   function Tasks() {
     Tasks.__super__.constructor.apply(this, arguments);
   }
+
   /*
     @param ids = ids of tasks to fetch, optional
-    */
+  */
+
   Tasks.prototype.getTasks = function(ids, callback) {
     var args, get_path;
     get_path = 'tasks.json';
     args = Array.prototype.concat.apply([get_path], arguments);
     return this.getIds.apply(this, args);
   };
+
   /*
     @param task_info = object with the following required fields
         project_id. template_id, parameters
       and the following optional fields
         eligibility, expires_at, replication, duplication, name
     @callback { status: 'created', location: 1234 }
-    */
+  */
+
   Tasks.prototype.createTask = function(task_info, callback) {
     var field, post_path, required_fields, _i, _len;
     required_fields = ['project_id', 'template_id', 'parameters'];
@@ -3037,49 +2919,36 @@ Tasks = (function() {
       'task': task_info
     }, callback);
   };
+
   Tasks.prototype.performTask = function(task, callback) {
     var get_path;
     get_path = path.join('tasks', task.id, 'perform.json');
     return this.get(get_path, callback);
   };
+
   Tasks.prototype.answerTask = function(task, answer_info, callback) {
     var put_path;
     put_path = path.join('tasks', task.id, 'answer.json');
     return this.put(put_path, {}, answer_info, callback);
   };
+
   Tasks.prototype.deleteTask = function(task, callback) {
     var delete_path;
     delete_path = path.join('tasks', "" + task.id + ".json");
     return this["delete"](delete_path, callback);
   };
-  return Tasks;
-})();
-exports.Tasks = Tasks;;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/lib/tasks.js"]._cached = module.exports;
-    return module.exports;
-};
 
-require.modules["/node_modules/dormouse/lib/projects.js"] = function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/node_modules/dormouse/lib";
-    var __filename = "/node_modules/dormouse/lib/projects.js";
+  return Tasks;
+
+})();
+
+exports.Tasks = Tasks;
+
+});
+
+require.define("/node_modules/dormouse/lib/projects.js", function (require, module, exports, __dirname, __filename) {
     
-    var require = function (file) {
-        return __require(file, "/node_modules/dormouse/lib");
-    };
-    
-    require.resolve = function (file) {
-        return __require.resolve(name, "/node_modules/dormouse/lib");
-    };
-    
-    require.modules = __require.modules;
-    __require.modules["/node_modules/dormouse/lib/projects.js"]._cached = module.exports;
-    
-    (function () {
-        /*
+/*
 
 Project structure on API
 
@@ -3087,78 +2956,72 @@ Project structure on API
   id: '1234',
   template: '2561'
 }
-
 */
+
 var Connection, Projects, path;
-var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
-  for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
-  function ctor() { this.constructor = child; }
-  ctor.prototype = parent.prototype;
-  child.prototype = new ctor;
-  child.__super__ = parent.prototype;
-  return child;
-};
+var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
 path = require('path');
+
 Connection = require('./connection').Connection;
+
 /*
 * Projects mixin for Dormouse
 * basic API operations
 */
+
 Projects = (function() {
+
   __extends(Projects, Connection);
+
   function Projects() {
     Projects.__super__.constructor.apply(this, arguments);
   }
+
   /*
     @param ids = ids of projects to fetch, optional
-    */
+  */
+
   Projects.prototype.getProjects = function(ids, callback) {
     var args, get_path;
     get_path = 'projects.json';
     args = Array.prototype.concat.apply([get_path], arguments);
     return this.getIds.apply(this, args);
   };
+
   Projects.prototype.createProject = function(project_info, callback) {
     var post_path;
     post_path = 'projects.json';
     return this.post(post_path, {}, project_info, callback);
   };
+
   Projects.prototype.editProject = function(project, callback) {
     var put_path;
     put_path = path.join('projects', "" + project.id + ".json");
     return this.put(put_path, {}, project, callback);
   };
+
   Projects.prototype.deleteProject = function(project, callback) {
     var delete_path;
     delete_path = path.join('projects', "" + project.id + ".json");
     return this["delete"](delete_path, callback);
   };
-  return Projects;
-})();
-exports.Projects = Projects;;
-    }).call(module.exports);
-    
-    __require.modules["/node_modules/dormouse/lib/projects.js"]._cached = module.exports;
-    return module.exports;
-};
 
-(function () {
-    var module = { exports : {} };
-    var exports = module.exports;
-    var __dirname = "/";
-    var __filename = "//Users/zahanm/Documents/Research/dormousejs/dist";
-    
-    var require = function (file) {
-        return __require(file, "/");
-    };
-    require.modules = __require.modules;
-    
+  return Projects;
+
+})();
+
+exports.Projects = Projects;
+
+});
+
+require.define("/browser.js", function (require, module, exports, __dirname, __filename) {
     
 // window in browser, global on server
-var root = this;
 var Dormouse = require('dormouse').Dormouse;
-root.$dm = new Dormouse();
+window.$dm = new Dormouse();
 
-;
-})();
+
+});
+require("/browser.js");
 
