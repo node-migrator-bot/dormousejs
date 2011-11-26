@@ -11,11 +11,13 @@ Base Connection
 ###
 class Connection
 
+  # --- static methods
+
   ###
   Assumption that it is getting JSON
   @param options serialized in GET params
   ###
-  get: (get_path, options, callback) ->
+  @get: (get_path, options, callback) ->
     get_path = libutils.formatUrl
       path: get_path
       query: appendAPIKey options
@@ -33,7 +35,7 @@ class Connection
   @param options appended to URL
   @param body dumped in POST body
   ###
-  post: (post_path, options, body, callback) ->
+  @post: (post_path, options, body, callback) ->
     post_path = libutils.formatUrl
       path: post_path
       query: appendAPIKey options
@@ -53,7 +55,7 @@ class Connection
   @param options appended to URL
   @param body dumped in body
   ###
-  put: (put_path, options, body, callback) ->
+  @put: (put_path, options, body, callback) ->
     put_path = libutils.formatUrl
       path: put_path
       query: appendAPIKey options
@@ -72,7 +74,7 @@ class Connection
   ###
   @param options is optional
   ###
-  delete: (delete_path, options, callback) ->
+  @delete: (delete_path, options, callback) ->
     delete_path = libutils.formatUrl
       path: delete_path
       query: appendAPIKey options
@@ -86,7 +88,7 @@ class Connection
     # END http.request
     req.end()
 
-  getIds: ->
+  @getIds: ->
     ids = libutils.toArray arguments
     get_path = ids.shift()
     callback = ids.pop()
@@ -106,38 +108,36 @@ class Connection
           callback(items)
       ) # END async.forEach
 
-# --- static methods
+  host = 'dormou.se'
+  port = 80
+  @server: (setter) ->
+    if setter
+      matched = setter.match /^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/
+      if matched
+        # protocol = matched[2] || 'http'
+        host = matched[3] || 'dormou.se'
+        port = matched[5] || 80
+      else
+        throw new Error 'Improperly formatted url passed to Dormouse.server(...)'
+    "http://#{host}:#{port}/"
 
-host = 'dormou.se'
-port = 80
-Connection.server = (setter) ->
-  if setter
-    matched = setter.match /^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/
-    if matched
-      # protocol = matched[2] || 'http'
-      host = matched[3] || 'dormou.se'
-      port = matched[5] || 80
-    else
-      throw new Error 'Improperly formatted url passed to Dormouse.server(...)'
-  return "http://#{host}:#{port}/"
+  @host: (setter) ->
+    if setter
+      host = setter
+    host
 
-Connection.host = (setter) ->
-  if setter
-    host = setter
-  return host
+  @port: (setter) ->
+    if setter
+      port = setter
+    port
 
-Connection.port = (setter) ->
-  if setter
-    port = setter
-  return port
-
-api_key = ''
-Connection.api_key = (setter) ->
-  if setter
-    api_key = setter
-  unless api_key
-    throw new Error 'You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)'
-  return api_key
+  api_key = ''
+  @api_key: (setter) ->
+    if setter
+      api_key = setter
+    unless api_key
+      throw new Error 'You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)'
+    api_key
 
 # --- private methods
 
@@ -158,6 +158,6 @@ parseResponse = (raw_response) ->
     return JSON.parse raw_response
   catch syntax_error
     console.log 'Response JSON parsing error:', syntax_error
-  return raw_response
+  raw_response
 
 exports.Connection = Connection

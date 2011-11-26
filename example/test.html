@@ -16,11 +16,14 @@
         mode: "text"
       }
     };
-    $dm.createTask(task_info, function(r) {
+    $dm.getTasks(function(r) {
+      console.log(r);
+    })
+    /*$dm.createTask(task_info, function(r) {
       console.log(r);
       var content = document.getElementById('content');
       content.innerText = r.name;
-    });
+    });*/
   </script>
 </head>
 <body>

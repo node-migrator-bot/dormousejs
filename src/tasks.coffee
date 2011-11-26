@@ -33,10 +33,12 @@ Connection = require('./connection').Connection
 ###
 class Tasks extends Connection
 
+  # --- static methods
+
   ###
   @param ids = ids of tasks to fetch, optional
   ###
-  getTasks: (ids, callback) ->
+  @getTasks: (ids, callback) ->
     get_path = 'tasks.json'
     args = Array::concat.apply [ get_path ], arguments
     return this.getIds.apply this, args
@@ -48,22 +50,22 @@ class Tasks extends Connection
       eligibility, expires_at, replication, duplication, name
   @callback { status: 'created', location: 1234 }
   ###
-  createTask: (task_info, callback) ->
+  @createTask: (task_info, callback) ->
     required_fields = ['project_id', 'template_id', 'parameters']
     for field in required_fields
       throw new Error "Required field for task creation: #{field}" unless field of task_info
     post_path = 'tasks.json'
     return this.post post_path, {}, { 'task': task_info }, callback
 
-  performTask: (task, callback) ->
+  @performTask: (task, callback) ->
     get_path = path.join 'tasks', task.id, 'perform.json'
     return this.get get_path, callback
 
-  answerTask: (task, answer_info, callback) ->
+  @answerTask: (task, answer_info, callback) ->
     put_path = path.join 'tasks', task.id, 'answer.json'
     return this.put put_path, {}, answer_info, callback
 
-  deleteTask: (task, callback) ->
+  @deleteTask: (task, callback) ->
     delete_path = path.join 'tasks', "#{task.id}.json"
     return this.delete delete_path, callback
 

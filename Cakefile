@@ -34,9 +34,9 @@ task 'wrapup', "wrap the 'dormouse' module and its dependancies into dist/dormou
 task 'runserver', 'run the test code node.js server', (options) ->
   server = spawn 'coffee', ['example/server.coffee']
   server.stdout.on 'data', (data) ->
-    console.log data.toString()
+    console.log data.toString().trim()
   server.stderr.on 'data', (data) ->
-    console.error data.toString()
+    console.error data.toString().trim()
   server.on 'exit', (code, signal) ->
     process.exit code
 

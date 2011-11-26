@@ -344,11 +344,11 @@ Dormouse = (function() {
 
   Dormouse.implements(Tasks, Projects);
 
-  Dormouse.prototype.server = function() {
+  Dormouse.server = function() {
     return Connection.server.apply(Connection, arguments);
   };
 
-  Dormouse.prototype.api_key = function() {
+  Dormouse.api_key = function() {
     return Connection.api_key.apply(Connection, arguments);
   };
 
@@ -356,7 +356,7 @@ Dormouse = (function() {
 
 })();
 
-exports.Dormouse = Dormouse;
+module.exports = Dormouse;
 
 });
 
@@ -397,7 +397,7 @@ if (Object.defineProperty) {
 });
 
 require.define("/node_modules/dormouse/lib/connection.js", function (require, module, exports, __dirname, __filename) {
-    var Connection, api_key, appendAPIKey, async, handleResponse, host, http, libutils, parseResponse, path, port, _;
+    var Connection, appendAPIKey, async, handleResponse, http, libutils, parseResponse, path, _;
 
 path = require('path');
 
@@ -414,6 +414,7 @@ Base Connection
 */
 
 Connection = (function() {
+  var api_key, host, port;
 
   function Connection() {}
 
@@ -422,7 +423,7 @@ Connection = (function() {
     @param options serialized in GET params
   */
 
-  Connection.prototype.get = function(get_path, options, callback) {
+  Connection.get = function(get_path, options, callback) {
     var req;
     get_path = libutils.formatUrl({
       path: get_path,
@@ -444,7 +445,7 @@ Connection = (function() {
     @param body dumped in POST body
   */
 
-  Connection.prototype.post = function(post_path, options, body, callback) {
+  Connection.post = function(post_path, options, body, callback) {
     var req;
     post_path = libutils.formatUrl({
       path: post_path,
@@ -469,7 +470,7 @@ Connection = (function() {
     @param body dumped in body
   */
 
-  Connection.prototype.put = function(put_path, options, body, callback) {
+  Connection.put = function(put_path, options, body, callback) {
     var req;
     put_path = libutils.formatUrl({
       path: put_path,
@@ -493,7 +494,7 @@ Connection = (function() {
     @param options is optional
   */
 
-  Connection.prototype["delete"] = function(delete_path, options, callback) {
+  Connection["delete"] = function(delete_path, options, callback) {
     var req;
     delete_path = libutils.formatUrl({
       path: delete_path,
@@ -510,7 +511,7 @@ Connection = (function() {
     return req.end();
   };
 
-  Connection.prototype.getIds = function() {
+  Connection.getIds = function() {
     var callback, get_path, ids, items;
     ids = libutils.toArray(arguments);
     get_path = ids.shift();
@@ -536,47 +537,47 @@ Connection = (function() {
     }
   };
 
+  host = 'dormou.se';
+
+  port = 80;
+
+  Connection.server = function(setter) {
+    var matched;
+    if (setter) {
+      matched = setter.match(/^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/);
+      if (matched) {
+        host = matched[3] || 'dormou.se';
+        port = matched[5] || 80;
+      } else {
+        throw new Error('Improperly formatted url passed to Dormouse.server(...)');
+      }
+    }
+    return "http://" + host + ":" + port + "/";
+  };
+
+  Connection.host = function(setter) {
+    if (setter) host = setter;
+    return host;
+  };
+
+  Connection.port = function(setter) {
+    if (setter) port = setter;
+    return port;
+  };
+
+  api_key = '';
+
+  Connection.api_key = function(setter) {
+    if (setter) api_key = setter;
+    if (!api_key) {
+      throw new Error('You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)');
+    }
+    return api_key;
+  };
+
   return Connection;
 
 })();
-
-host = 'dormou.se';
-
-port = 80;
-
-Connection.server = function(setter) {
-  var matched;
-  if (setter) {
-    matched = setter.match(/^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/);
-    if (matched) {
-      host = matched[3] || 'dormou.se';
-      port = matched[5] || 80;
-    } else {
-      throw new Error('Improperly formatted url passed to Dormouse.server(...)');
-    }
-  }
-  return "http://" + host + ":" + port + "/";
-};
-
-Connection.host = function(setter) {
-  if (setter) host = setter;
-  return host;
-};
-
-Connection.port = function(setter) {
-  if (setter) port = setter;
-  return port;
-};
-
-api_key = '';
-
-Connection.api_key = function(setter) {
-  if (setter) api_key = setter;
-  if (!api_key) {
-    throw new Error('You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)');
-  }
-  return api_key;
-};
 
 appendAPIKey = function(options) {
   return _.extend(options, {
@@ -2890,7 +2891,7 @@ Tasks = (function() {
     @param ids = ids of tasks to fetch, optional
   */
 
-  Tasks.prototype.getTasks = function(ids, callback) {
+  Tasks.getTasks = function(ids, callback) {
     var args, get_path;
     get_path = 'tasks.json';
     args = Array.prototype.concat.apply([get_path], arguments);
@@ -2905,7 +2906,7 @@ Tasks = (function() {
     @callback { status: 'created', location: 1234 }
   */
 
-  Tasks.prototype.createTask = function(task_info, callback) {
+  Tasks.createTask = function(task_info, callback) {
     var field, post_path, required_fields, _i, _len;
     required_fields = ['project_id', 'template_id', 'parameters'];
     for (_i = 0, _len = required_fields.length; _i < _len; _i++) {
@@ -2920,19 +2921,19 @@ Tasks = (function() {
     }, callback);
   };
 
-  Tasks.prototype.performTask = function(task, callback) {
+  Tasks.performTask = function(task, callback) {
     var get_path;
     get_path = path.join('tasks', task.id, 'perform.json');
     return this.get(get_path, callback);
   };
 
-  Tasks.prototype.answerTask = function(task, answer_info, callback) {
+  Tasks.answerTask = function(task, answer_info, callback) {
     var put_path;
     put_path = path.join('tasks', task.id, 'answer.json');
     return this.put(put_path, {}, answer_info, callback);
   };
 
-  Tasks.prototype.deleteTask = function(task, callback) {
+  Tasks.deleteTask = function(task, callback) {
     var delete_path;
     delete_path = path.join('tasks', "" + task.id + ".json");
     return this["delete"](delete_path, callback);
@@ -2982,26 +2983,26 @@ Projects = (function() {
     @param ids = ids of projects to fetch, optional
   */
 
-  Projects.prototype.getProjects = function(ids, callback) {
+  Projects.getProjects = function(ids, callback) {
     var args, get_path;
     get_path = 'projects.json';
     args = Array.prototype.concat.apply([get_path], arguments);
     return this.getIds.apply(this, args);
   };
 
-  Projects.prototype.createProject = function(project_info, callback) {
+  Projects.createProject = function(project_info, callback) {
     var post_path;
     post_path = 'projects.json';
     return this.post(post_path, {}, project_info, callback);
   };
 
-  Projects.prototype.editProject = function(project, callback) {
+  Projects.editProject = function(project, callback) {
     var put_path;
     put_path = path.join('projects', "" + project.id + ".json");
     return this.put(put_path, {}, project, callback);
   };
 
-  Projects.prototype.deleteProject = function(project, callback) {
+  Projects.deleteProject = function(project, callback) {
     var delete_path;
     delete_path = path.join('projects', "" + project.id + ".json");
     return this["delete"](delete_path, callback);
@@ -3017,10 +3018,7 @@ exports.Projects = Projects;
 
 require.define("/browser.js", function (require, module, exports, __dirname, __filename) {
     
-// window in browser, global on server
-var Dormouse = require('dormouse').Dormouse;
-window.$dm = new Dormouse();
-
+window.$dm = require('dormouse');
 
 });
 require("/browser.js");
