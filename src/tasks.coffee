@@ -43,6 +43,11 @@ class Tasks extends Connection
     args = Array::concat.apply [ get_path ], arguments
     return this.getIds.apply this, args
 
+  @getProjectTasks: (project_id, callback) ->
+    @getTasks (tasks) ->
+      callback tasks.filter (t) ->
+        t.task.project_id is project_id
+
   ###
   @param task_info = object with the following required fields
       project_id. template_id, parameters
