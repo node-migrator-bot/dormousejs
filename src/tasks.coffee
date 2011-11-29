@@ -56,9 +56,11 @@ class Tasks extends Connection
   @callback { status: 'created', location: 1234 }
   ###
   @createTask: (task_info, callback) ->
-    required_fields = [ 'project_id', 'template_id', 'parameters', 'eligibility', 'replication', 'duplication' ]
+    required_fields = [ 'project_id', 'template_id', 'parameters', 'replication', 'duplication' ]
     for field in required_fields
       throw new Error "Required field for task creation: #{field}" unless field of task_info
+    if not task_info.eligibility?
+      task_info.eligibility = predicate: null, communities: []
     post_path = 'tasks.json'
     return this.post post_path, {}, { 'task': task_info }, callback
 
