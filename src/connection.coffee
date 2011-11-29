@@ -39,6 +39,8 @@ class Connection
     post_path = libutils.formatUrl
       path: post_path
       query: appendAPIKey options
+    raw_body = JSON.stringify body
+    raw_length = if Buffer? then Buffer.byteLength(raw_body) else raw_body.length
     req = http.request
       method: 'POST'
       host: Connection.host()
@@ -46,10 +48,11 @@ class Connection
       path: post_path
       headers:
         'Content-Type': 'application/json'
+        'Content-Length': raw_length
     , (res) ->
       handleResponse res, callback
     # END http.request
-    req.end JSON.stringify body
+    req.end raw_body
 
   ###
   @param options appended to URL
@@ -59,6 +62,8 @@ class Connection
     put_path = libutils.formatUrl
       path: put_path
       query: appendAPIKey options
+    raw_body = JSON.stringify body
+    raw_length = if Buffer? then Buffer.byteLength(raw_body) else raw_body.length
     req = http.request
       method: 'PUT'
       host: Connection.host()
@@ -66,10 +71,11 @@ class Connection
       path: put_path
       headers:
         'Content-Type': 'application/json'
+        'Content-Length': raw_length
     , (res) ->
       handleResponse res, callback
     # END http.request
-    req.end JSON.stringify body
+    req.end raw_body
 
   ###
   @param options is optional
