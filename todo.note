@@ -1,0 +1,10 @@
+
+maintian queue of requests
+  keep max=5 in flight
+  queue up the rest and execute them as spots vacate
+  use async.forEachLimit
+
+responses added to
+  task.responses
+
+check for iscomplete
