@@ -446,23 +446,26 @@ Connection = (function() {
   */
 
   Connection.post = function(post_path, options, body, callback) {
-    var req;
+    var raw_body, raw_length, req;
     post_path = libutils.formatUrl({
       path: post_path,
       query: appendAPIKey(options)
     });
+    raw_body = JSON.stringify(body);
+    raw_length = typeof Buffer !== "undefined" && Buffer !== null ? Buffer.byteLength(raw_body) : raw_body.length;
     req = http.request({
       method: 'POST',
       host: Connection.host(),
       port: Connection.port(),
       path: post_path,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Content-Length': raw_length
       }
     }, function(res) {
       return handleResponse(res, callback);
     });
-    return req.end(JSON.stringify(body));
+    return req.end(raw_body);
   };
 
   /*
@@ -471,23 +474,26 @@ Connection = (function() {
   */
 
   Connection.put = function(put_path, options, body, callback) {
-    var req;
+    var raw_body, raw_length, req;
     put_path = libutils.formatUrl({
       path: put_path,
       query: appendAPIKey(options)
     });
+    raw_body = JSON.stringify(body);
+    raw_length = typeof Buffer !== "undefined" && Buffer !== null ? Buffer.byteLength(raw_body) : raw_body.length;
     req = http.request({
       method: 'PUT',
       host: Connection.host(),
       port: Connection.port(),
       path: put_path,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Content-Length': raw_length
       }
     }, function(res) {
       return handleResponse(res, callback);
     });
-    return req.end(JSON.stringify(body));
+    return req.end(raw_body);
   };
 
   /*
@@ -2916,12 +2922,18 @@ Tasks = (function() {
 
   Tasks.createTask = function(task_info, callback) {
     var field, post_path, required_fields, _i, _len;
-    required_fields = ['project_id', 'template_id', 'parameters', 'eligibility', 'replication', 'duplication'];
+    required_fields = ['project_id', 'template_id', 'parameters', 'replication', 'duplication'];
     for (_i = 0, _len = required_fields.length; _i < _len; _i++) {
       field = required_fields[_i];
       if (!(field in task_info)) {
         throw new Error("Required field for task creation: " + field);
       }
+    }
+    if (!(task_info.eligibility != null)) {
+      task_info.eligibility = {
+        predicate: null,
+        communities: []
+      };
     }
     post_path = 'tasks.json';
     return this.post(post_path, {}, {
