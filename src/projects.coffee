@@ -22,12 +22,20 @@ class Projects extends Connection
   # --- static methods
 
   ###
-  @param ids = ids of projects to fetch, optional
+  Get all projects from Dormouse
+  @param id of project to fetch
   ###
-  @getProjects: (ids, callback) ->
-    get_path = 'projects.json'
-    args = Array::concat.apply [ get_path ], arguments
-    return this.getIds.apply this, args
+  @getProject: (id, callback) ->
+    @get "projects/#{id}.json", (r) ->
+      callback r.project
+
+  ###
+  Get all projects from Dormouse
+  ###
+  @getProjects: (callback) ->
+    @get 'projects.json', (r) ->
+      callback r.map (p) ->
+        p.project
 
   @createProject: (project_info, callback) ->
     post_path = 'projects.json'

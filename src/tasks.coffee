@@ -36,10 +36,20 @@ class Tasks extends Connection
   # --- static methods
 
   ###
+  Fetch a task from Dormouse
+  @param id of task
+  ###
+  @getTasks: (id, callback) ->
+    @get "tasks/#{id}.json", (r) ->
+      callback r.task
+
+  ###
   Fetches all tasks from Dormouse
   ###
   @getTasks: (callback) ->
-    return this.get 'tasks.json', callback
+    @get 'tasks.json', (r) ->
+      callback r.map (t) ->
+        t.task
 
   ###
   @param task_info = object with the following required fields
