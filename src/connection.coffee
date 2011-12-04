@@ -18,6 +18,9 @@ class Connection
   @param options serialized in GET params
   ###
   @get: (get_path, options, callback) ->
+    if typeof options is 'function'
+      callback = options
+      options = {}
     get_path = libutils.formatUrl
       path: get_path
       query: appendAPIKey options
