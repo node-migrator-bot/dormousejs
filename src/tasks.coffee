@@ -36,17 +36,10 @@ class Tasks extends Connection
   # --- static methods
 
   ###
-  @param ids = ids of tasks to fetch, optional
+  Fetches all tasks from Dormouse
   ###
-  @getTasks: (ids, callback) ->
-    get_path = 'tasks.json'
-    args = Array::concat.apply [ get_path ], arguments
-    return this.getIds.apply this, args
-
-  @getProjectTasks: (project_id, callback) ->
-    @getTasks (tasks) ->
-      callback tasks.filter (t) ->
-        t.task.project_id is project_id
+  @getTasks: (callback) ->
+    return this.get 'tasks.json', callback
 
   ###
   @param task_info = object with the following required fields
