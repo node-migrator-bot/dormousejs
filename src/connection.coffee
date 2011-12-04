@@ -1,6 +1,5 @@
 
 path = require 'path'
-async = require 'async'
 _ = require 'underscore'
 http = require 'http-browserify'
 
@@ -96,26 +95,6 @@ class Connection
       handleResponse res, callback
     # END http.request
     req.end()
-
-  @getIds: ->
-    ids = libutils.toArray arguments
-    get_path = ids.shift()
-    callback = ids.pop()
-    if (libutils.isEmpty ids)
-      this.get get_path, {}, callback
-    else
-      items = []
-      async.forEach(ids, (id, done) ->
-        id_path = path.join get_path, "#{id}.json"
-        this.get id_path, {}, (item) ->
-          items.push(item)
-          done()
-      , (err) ->
-        if err
-          callback(false)
-        else
-          callback(items)
-      ) # END async.forEach
 
   host = 'dormou.se'
   port = 80
