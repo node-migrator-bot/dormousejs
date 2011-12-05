@@ -16,7 +16,10 @@
         mode: "text"
       }
     };
-    $dm.getTasks(function(r) {
+    var q = $dm.getTasks();
+    q.where('project_id', 11);
+    q.where('template_id', 7);
+    q.run(function(r) {
       console.log(r);
     })
     /*$dm.createTask(task_info, function(r) {

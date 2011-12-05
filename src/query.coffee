@@ -22,27 +22,27 @@ class Query extends Connection
 
   constructor: ->
     @get_path = 'tasks.json'
-    @contraints = []
+    @constraints = []
     @limit = false
 
   where: (prop, value) ->
-    @contraints.append prop: value
+    @constraints.push prop: prop, value: value
 
   limit: (l) ->
     @limit = l
 
   run: (callback) ->
-    @get @get_path, (r) ->
+    Query.get @get_path, (r) =>
       tasks = r.map (t) ->
         t.task
-      tasks = tasks.filter (task) =>
+      tasks = tasks.filter( (task) ->
         @constraints.every (c) ->
           if c.prop of top_level
             task[c.prop] is c.value
           else
             task.parameters[c.prop] is c.value
-      console.assert @limit isnt undefined, 'context not set properly from Connection'
-      if @limit?
+      , this)
+      if @limit
         tasks = tasks.slice 0, @limit
       callback tasks
 
