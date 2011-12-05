@@ -24,8 +24,11 @@
       console.log(r);
       var task = r[0];
       var el = document.getElementById('content');
-      $dm.render(el, task);
-    })
+      el.innerHTML = $dm.render(el.innerHTML, task);
+    });
+    // $dm.getTasks(function(r) {
+    //   console.log(r);
+    // });
     /*$dm.createTask(task_info, function(r) {
       console.log(r);
       var content = document.getElementById('content');
