@@ -2295,8 +2295,19 @@ Query = (function() {
     this.limited = false;
   }
 
-  Query.prototype.where = function(prop, value) {
+  Query.prototype.eq = function(prop, value) {
     return this.constraints.push({
+      op: 'eq',
+      prop: prop,
+      value: value
+    });
+  };
+
+  Query.prototype.where = Query.prototype.eq;
+
+  Query.prototype.ne = function(prop, value) {
+    return this.constraints.push({
+      op: 'ne',
       prop: prop,
       value: value
     });
@@ -2304,10 +2315,17 @@ Query = (function() {
 
   Query.prototype.check_constraints = function(task) {
     return this.constraints.every(function(c) {
+      var task_value;
       if (c.prop in top_level) {
-        return task[c.prop] === c.value;
+        task_value = task[c.prop];
       } else {
-        return task.parameters[c.prop] === c.value;
+        task_value = task.parameters[c.prop];
+      }
+      switch (c.op) {
+        case 'ne':
+          return task_value !== c.value;
+        default:
+          return task_value === c.value;
       }
     });
   };

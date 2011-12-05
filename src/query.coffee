@@ -27,15 +27,25 @@ class Query extends Connection
     @ordering = false
     @limited = false
 
-  where: (prop, value) ->
-    @constraints.push prop: prop, value: value
+  eq: (prop, value) ->
+    @constraints.push op: 'eq', prop: prop, value: value
+
+  where: Query::eq
+
+  ne: (prop, value) ->
+    @constraints.push op: 'ne', prop: prop, value: value
 
   check_constraints: (task) ->
     @constraints.every (c) ->
       if c.prop of top_level
-        task[c.prop] is c.value
+        task_value = task[c.prop]
       else
-        task.parameters[c.prop] is c.value
+        task_value = task.parameters[c.prop]
+      switch c.op
+        when 'ne'
+          task_value isnt c.value
+        else
+          task_value is c.value
 
   order_by: (o) ->
     @ordering = o
