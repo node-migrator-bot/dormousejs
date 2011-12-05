@@ -2199,12 +2199,12 @@ Tasks = (function() {
     }
   };
 
-  Tasks.render = function(el, task) {
+  Tasks.render = function(snippet, task) {
     var context, template;
-    template = _.template(el.innerHTML);
+    template = _.template(snippet);
     context = {};
     _.extend(context, task.parameters);
-    return el.innerHTML = template(context);
+    return template(context);
   };
 
   /*

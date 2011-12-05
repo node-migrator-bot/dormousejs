@@ -59,11 +59,11 @@ class Tasks extends Connection
         callback r.map (t) ->
           t.task
 
-  @render: (el, task) ->
-    template = _.template el.innerHTML
+  @render: (snippet, task) ->
+    template = _.template snippet
     context = {}
     _.extend context, task.parameters
-    el.innerHTML = template context
+    template context
 
   ###
   @param task_info = object with the following required fields
