@@ -10,7 +10,7 @@ Task structure on API
 * template_id: 7,
 * duplication: 1,
 * replication: 1,
-  created_at; "2011-10-14T14:02:47Z",
+  created_at: "2011-10-14T14:02:47Z",
   updated_at: "2011-10-14T14:02:47Z",
   expires_at: "",
 * eligibility: {
