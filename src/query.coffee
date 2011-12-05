@@ -22,8 +22,13 @@ class Query extends Connection
   run: (callback) ->
     @get @get_path, (r) ->
       tasks = r.map (t) ->
-        task = t.task
+        t.task
+      tasks = tasks.filter (task) ->
         @constraints.every (c) ->
           task[c.prop] is c.value
-      console.assert @limit, 'context not set properly from Connection'
-      callback tasks.slice 0, @limit
+      console.assert @limit isnt undefined, 'context not set properly from Connection'
+      if @limit?
+        tasks = tasks.slice 0, @limit
+      callback tasks
+
+exports.Query = Query

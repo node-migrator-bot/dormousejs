@@ -26,6 +26,7 @@ Task structure on API
 
 path = require 'path'
 Connection = require('./connection').Connection
+Query = require('./query').Query
 
 ###
 * Tasks mixin for Dormouse
@@ -47,9 +48,12 @@ class Tasks extends Connection
   Fetches all tasks from Dormouse
   ###
   @getTasks: (callback) ->
-    @get 'tasks.json', (r) ->
-      callback r.map (t) ->
-        t.task
+    if not callback or typeof callback isnt 'function'
+      new Query()
+    else
+      @get 'tasks.json', (r) ->
+        callback r.map (t) ->
+          t.task
 
   ###
   @param task_info = object with the following required fields
