@@ -2276,7 +2276,8 @@ top_level = {
   replication: true,
   created_at: true,
   updated_at: true,
-  expires_at: true
+  expires_at: true,
+  responses: true
 };
 
 /*
@@ -2313,9 +2314,17 @@ Query = (function() {
     });
   };
 
+  Query.prototype.iscomplete = function(value) {
+    return this.constraints.push({
+      op: 'iscomplete',
+      prop: 'responses',
+      value: value
+    });
+  };
+
   Query.prototype.check_constraints = function(task) {
     return this.constraints.every(function(c) {
-      var task_value;
+      var complete, task_value;
       if (c.prop in top_level) {
         task_value = task[c.prop];
       } else {
@@ -2324,6 +2333,14 @@ Query = (function() {
       switch (c.op) {
         case 'ne':
           return task_value !== c.value;
+        case 'iscomplete':
+          complete = task_value && task_value.length;
+          if (c.value) {
+            return complete;
+          } else {
+            return !complete;
+          }
+          break;
         default:
           return task_value === c.value;
       }

@@ -13,6 +13,7 @@ top_level =
   created_at: true
   updated_at: true
   expires_at: true
+  responses: true
 
 ###
 * Query for tasks
@@ -35,6 +36,9 @@ class Query extends Connection
   ne: (prop, value) ->
     @constraints.push op: 'ne', prop: prop, value: value
 
+  iscomplete: (value) ->
+    @constraints.push op: 'iscomplete', prop: 'responses', value: value
+
   check_constraints: (task) ->
     @constraints.every (c) ->
       if c.prop of top_level
@@ -44,6 +48,9 @@ class Query extends Connection
       switch c.op
         when 'ne'
           task_value isnt c.value
+        when 'iscomplete'
+          complete = task_value and task_value.length
+          if c.value then complete else not complete
         else
           task_value is c.value
 

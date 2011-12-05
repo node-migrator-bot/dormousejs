@@ -19,6 +19,7 @@
     var q = $dm.getTasks();
     q.where('project_id', 11);
     q.where('template_id', 7);
+    q.iscomplete(false);
     q.limit(1);
     q.run(function(r) {
       console.log(r);
