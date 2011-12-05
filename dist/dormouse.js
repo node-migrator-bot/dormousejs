@@ -2265,8 +2265,10 @@ exports.Tasks = Tasks;
 });
 
 require.define("/node_modules/dormouse/lib/query.js", function (require, module, exports, __dirname, __filename) {
-    var Connection, Query, top_level;
+    var Connection, Query, top_level, _;
 var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+_ = require('underscore');
 
 Connection = require('./connection').Connection;
 
@@ -2294,7 +2296,8 @@ Query = (function() {
   function Query() {
     this.get_path = 'tasks.json';
     this.constraints = [];
-    this.l = false;
+    this.ordering = false;
+    this.limited = false;
   }
 
   Query.prototype.where = function(prop, value) {
@@ -2304,8 +2307,36 @@ Query = (function() {
     });
   };
 
+  Query.prototype.check_constraints = function(task) {
+    return this.constraints.every(function(c) {
+      if (c.prop in top_level) {
+        return task[c.prop] === c.value;
+      } else {
+        return task.parameters[c.prop] === c.value;
+      }
+    });
+  };
+
+  Query.prototype.order_by = function(o) {
+    return this.ordering = o;
+  };
+
+  Query.prototype.apply_ordering = function(tasks) {
+    if (this.ordering === '?') {
+      return _.shuffle(tasks);
+    } else {
+      return _.sortBy(tasks, function(task) {
+        if (this.ordering in top_level) {
+          return task[this.ordering];
+        } else {
+          return task.parameters[this.ordering];
+        }
+      }, this);
+    }
+  };
+
   Query.prototype.limit = function(l) {
-    return this.l = l;
+    return this.limited = l;
   };
 
   Query.prototype.run = function(callback) {
@@ -2315,16 +2346,9 @@ Query = (function() {
       tasks = r.map(function(t) {
         return t.task;
       });
-      tasks = tasks.filter(function(task) {
-        return this.constraints.every(function(c) {
-          if (c.prop in top_level) {
-            return task[c.prop] === c.value;
-          } else {
-            return task.parameters[c.prop] === c.value;
-          }
-        });
-      }, _this);
-      if (_this.l) tasks = tasks.slice(0, _this.l);
+      tasks = tasks.filter(_this.check_constraints, _this);
+      if (_this.ordering) tasks = _this.apply_ordering(tasks);
+      if (_this.limited) tasks = tasks.slice(0, _this.limited);
       return callback(tasks);
     });
   };
