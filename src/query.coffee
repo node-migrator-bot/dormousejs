@@ -30,14 +30,17 @@ class Query extends Connection
 
   eq: (prop, value) ->
     @constraints.push op: 'eq', prop: prop, value: value
+    this
 
   where: Query::eq
 
   ne: (prop, value) ->
     @constraints.push op: 'ne', prop: prop, value: value
+    this
 
   iscomplete: (value) ->
     @constraints.push op: 'iscomplete', prop: 'responses', value: value
+    this
 
   check_constraints: (task) ->
     @constraints.every (c) ->
@@ -56,6 +59,7 @@ class Query extends Connection
 
   order_by: (o) ->
     @ordering = o
+    this
 
   apply_ordering: (tasks) ->
     if @ordering is '?'
@@ -70,6 +74,7 @@ class Query extends Connection
 
   limit: (l) ->
     @limited = l
+    this
 
   run: (callback) ->
     Query.get @get_path, (r) =>
