@@ -52,12 +52,10 @@ class Tasks extends Connection
   Fetches all tasks from Dormouse
   ###
   @getTasks: (callback) ->
-    if not callback or typeof callback isnt 'function'
-      new Query()
-    else
-      @get 'tasks.json', (r) ->
-        callback r.map (t) ->
-          t.task
+    q = new Query()
+    if callback and typeof callback is 'function'
+      q.run callback
+    q
 
   @render: (snippet, task) ->
     template = _.template snippet
