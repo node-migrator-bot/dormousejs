@@ -4,4 +4,4 @@
 node_modules
 secure.keys
 *.note
-
+!todo.note
