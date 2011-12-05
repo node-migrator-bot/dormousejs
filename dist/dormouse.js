@@ -2144,10 +2144,8 @@ Task structure on API
 }
 */
 
-var Connection, Query, Tasks, path, _;
+var Connection, Query, Tasks, _;
 var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
-
-path = require('path');
 
 Connection = require('./connection').Connection;
 
@@ -2233,21 +2231,15 @@ Tasks = (function() {
     }, callback);
   };
 
-  Tasks.performTask = function(task, callback) {
-    var get_path;
-    get_path = path.join('tasks', task.id, 'perform.json');
-    return this.get(get_path, callback);
-  };
-
-  Tasks.answerTask = function(task, answer_info, callback) {
+  Tasks.answerTask = function(task_id, answer_info, callback) {
     var put_path;
-    put_path = path.join('tasks', task.id, 'answer.json');
+    put_path = "tasks/" + task_id + "/answer.json";
     return this.put(put_path, {}, answer_info, callback);
   };
 
-  Tasks.deleteTask = function(task, callback) {
+  Tasks.deleteTask = function(task_id, callback) {
     var delete_path;
-    delete_path = path.join('tasks', "" + task.id + ".json");
+    delete_path = "tasks/" + task_id + ".json";
     return this["delete"](delete_path, callback);
   };
 

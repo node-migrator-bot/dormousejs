@@ -24,7 +24,6 @@ Task structure on API
 
 ###
 
-path = require 'path'
 Connection = require('./connection').Connection
 Query = require('./query').Query
 
@@ -78,18 +77,14 @@ class Tasks extends Connection
     task_info.replication ?= 1
     task_info.duplication ?= 1
     post_path = 'tasks.json'
-    return this.post post_path, {}, { 'task': task_info }, callback
+    this.post post_path, {}, { 'task': task_info }, callback
 
-  @performTask: (task, callback) ->
-    get_path = path.join 'tasks', task.id, 'perform.json'
-    return this.get get_path, callback
+  @answerTask: (task_id, answer_info, callback) ->
+    put_path = "tasks/#{task_id}/answer.json"
+    this.put put_path, {}, answer_info, callback
 
-  @answerTask: (task, answer_info, callback) ->
-    put_path = path.join 'tasks', task.id, 'answer.json'
-    return this.put put_path, {}, answer_info, callback
-
-  @deleteTask: (task, callback) ->
-    delete_path = path.join 'tasks', "#{task.id}.json"
-    return this.delete delete_path, callback
+  @deleteTask: (task_id, callback) ->
+    delete_path =  "tasks/#{task_id}.json"
+    this.delete delete_path, callback
 
 exports.Tasks = Tasks
