@@ -2197,6 +2197,9 @@ Tasks = (function() {
     template = _.template(snippet);
     context = {};
     _.extend(context, task.parameters);
+    ['id', 'name', 'project_id', 'template_id'].forEach(function(prop) {
+      return context[prop] = task[prop];
+    });
     return template(context);
   };
 

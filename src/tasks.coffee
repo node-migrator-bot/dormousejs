@@ -60,6 +60,8 @@ class Tasks extends Connection
     template = _.template snippet
     context = {}
     _.extend context, task.parameters
+    ['id', 'name', 'project_id', 'template_id'].forEach (prop) ->
+      context[prop] = task[prop]
     template context
 
   ###
