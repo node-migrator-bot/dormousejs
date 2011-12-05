@@ -28,6 +28,10 @@ path = require 'path'
 Connection = require('./connection').Connection
 Query = require('./query').Query
 
+_ = require 'underscore' # for templating
+_.templateSettings =
+  interpolate : /\{\{(.+?)\}\}/g
+
 ###
 * Tasks mixin for Dormouse
 * basic API operations
@@ -40,7 +44,7 @@ class Tasks extends Connection
   Fetch a task from Dormouse
   @param id of task
   ###
-  @getTasks: (id, callback) ->
+  @getTask: (id, callback) ->
     @get "tasks/#{id}.json", (r) ->
       callback r.task
 
@@ -54,6 +58,12 @@ class Tasks extends Connection
       @get 'tasks.json', (r) ->
         callback r.map (t) ->
           t.task
+
+  @render: (el, task) ->
+    template = _.template el.innerHTML
+    context = {}
+    _.extend context, task.parameters
+    el.innerHTML = template context
 
   ###
   @param task_info = object with the following required fields

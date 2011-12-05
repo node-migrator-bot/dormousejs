@@ -2144,7 +2144,7 @@ Task structure on API
 }
 */
 
-var Connection, Query, Tasks, path;
+var Connection, Query, Tasks, path, _;
 var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
 path = require('path');
@@ -2152,6 +2152,12 @@ path = require('path');
 Connection = require('./connection').Connection;
 
 Query = require('./query').Query;
+
+_ = require('underscore');
+
+_.templateSettings = {
+  interpolate: /\{\{(.+?)\}\}/g
+};
 
 /*
 * Tasks mixin for Dormouse
@@ -2171,7 +2177,7 @@ Tasks = (function() {
     @param id of task
   */
 
-  Tasks.getTasks = function(id, callback) {
+  Tasks.getTask = function(id, callback) {
     return this.get("tasks/" + id + ".json", function(r) {
       return callback(r.task);
     });
@@ -2191,6 +2197,14 @@ Tasks = (function() {
         }));
       });
     }
+  };
+
+  Tasks.render = function(el, task) {
+    var context, template;
+    template = _.template(el.innerHTML);
+    context = {};
+    _.extend(context, task.parameters);
+    return el.innerHTML = template(context);
   };
 
   /*
@@ -2280,7 +2294,7 @@ Query = (function() {
   function Query() {
     this.get_path = 'tasks.json';
     this.constraints = [];
-    this.limit = false;
+    this.l = false;
   }
 
   Query.prototype.where = function(prop, value) {
@@ -2291,7 +2305,7 @@ Query = (function() {
   };
 
   Query.prototype.limit = function(l) {
-    return this.limit = l;
+    return this.l = l;
   };
 
   Query.prototype.run = function(callback) {
@@ -2310,7 +2324,7 @@ Query = (function() {
           }
         });
       }, _this);
-      if (_this.limit) tasks = tasks.slice(0, _this.limit);
+      if (_this.l) tasks = tasks.slice(0, _this.l);
       return callback(tasks);
     });
   };

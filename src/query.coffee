@@ -23,13 +23,13 @@ class Query extends Connection
   constructor: ->
     @get_path = 'tasks.json'
     @constraints = []
-    @limit = false
+    @l = false
 
   where: (prop, value) ->
     @constraints.push prop: prop, value: value
 
   limit: (l) ->
-    @limit = l
+    @l = l
 
   run: (callback) ->
     Query.get @get_path, (r) =>
@@ -42,8 +42,8 @@ class Query extends Connection
           else
             task.parameters[c.prop] is c.value
       , this)
-      if @limit
-        tasks = tasks.slice 0, @limit
+      if @l
+        tasks = tasks.slice 0, @l
       callback tasks
 
 exports.Query = Query

@@ -19,8 +19,12 @@
     var q = $dm.getTasks();
     q.where('project_id', 11);
     q.where('template_id', 7);
+    q.limit(1);
     q.run(function(r) {
       console.log(r);
+      var task = r[0];
+      var el = document.getElementById('content');
+      $dm.render(el, task);
     })
     /*$dm.createTask(task_info, function(r) {
       console.log(r);
@@ -31,6 +35,15 @@
 </head>
 <body>
   <div id="content">
+    <p>
+      {{ currentSegment }}
+    </p>
+    <p>
+      {{ mode }}
+    </p>
+    <p>
+      <a href="{{ videoUrl }}">Video</a>
+    </p>
   </div>
 </body>
 </html>
