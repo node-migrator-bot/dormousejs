@@ -21,16 +21,16 @@
     q.where('template_id', 7);
     q.iscomplete(false);
     q.limit(1);
-    q.run(function(r) {
+    q.run(function(err, r) {
       console.log(r);
       var task = r[0];
       var el = document.getElementById('content');
       el.innerHTML = $dm.render(el.innerHTML, task);
     });
-    // $dm.getTasks(function(r) {
+    // $dm.getTasks(function(err, r) {
     //   console.log(r);
     // });
-    /*$dm.createTask(task_info, function(r) {
+    /*$dm.createTask(task_info, function(err, r) {
       console.log(r);
       var content = document.getElementById('content');
       content.innerText = r.name;

@@ -44,8 +44,9 @@ class Tasks extends Connection
   @param id of task
   ###
   @getTask: (id, callback) ->
-    @get "tasks/#{id}.json", (r) ->
-      callback r.task
+    @get "tasks/#{id}.json", (err, r) ->
+      if err then callback err, r
+      else callback null, r.task
 
   ###
   Fetches all tasks from Dormouse

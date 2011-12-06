@@ -77,7 +77,8 @@ class Query extends Connection
     this
 
   run: (callback) ->
-    Query.get @get_path, (r) =>
+    Query.get @get_path, (err, r) =>
+      return callback err, r if err
       tasks = r.map (t) ->
         t.task
       tasks = tasks.filter @check_constraints, this
@@ -85,6 +86,6 @@ class Query extends Connection
         tasks = @apply_ordering tasks
       if @limited
         tasks = tasks.slice 0, @limited
-      callback tasks
+      callback null, tasks
 
 exports.Query = Query

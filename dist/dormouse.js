@@ -574,20 +574,20 @@ handleResponse = function(res, callback) {
     return data += buf;
   });
   res.on('end', function() {
-    if (callback) return callback(parseResponse(data));
+    if (callback) return parseResponse(data, callback);
   });
   return res.on('error', function(err) {
     return console.log('HTTP error', res.statusCode, data, err);
   });
 };
 
-parseResponse = function(raw_response) {
+parseResponse = function(raw_response, callback) {
   try {
-    return JSON.parse(raw_response);
-  } catch (syntax_error) {
-    console.log('Response JSON parsing error:', syntax_error);
+    return callback(null, JSON.parse(raw_response));
+  } catch (err) {
+    if (console) console.error('Response JSON parsing error:', err);
+    return callback(err, raw_response);
   }
-  return raw_response;
 };
 
 exports.Connection = Connection;
@@ -2176,8 +2176,12 @@ Tasks = (function() {
   */
 
   Tasks.getTask = function(id, callback) {
-    return this.get("tasks/" + id + ".json", function(r) {
-      return callback(r.task);
+    return this.get("tasks/" + id + ".json", function(err, r) {
+      if (err) {
+        return callback(err, r);
+      } else {
+        return callback(null, r.task);
+      }
     });
   };
 
@@ -2371,15 +2375,16 @@ Query = (function() {
 
   Query.prototype.run = function(callback) {
     var _this = this;
-    return Query.get(this.get_path, function(r) {
+    return Query.get(this.get_path, function(err, r) {
       var tasks;
+      if (err) return callback(err, r);
       tasks = r.map(function(t) {
         return t.task;
       });
       tasks = tasks.filter(_this.check_constraints, _this);
       if (_this.ordering) tasks = _this.apply_ordering(tasks);
       if (_this.limited) tasks = tasks.slice(0, _this.limited);
-      return callback(tasks);
+      return callback(null, tasks);
     });
   };
 
@@ -2429,8 +2434,12 @@ Projects = (function() {
   */
 
   Projects.getProject = function(id, callback) {
-    return this.get("projects/" + id + ".json", function(r) {
-      return callback(r.project);
+    return this.get("projects/" + id + ".json", function(err, r) {
+      if (err) {
+        return callback(err, r);
+      } else {
+        return callback(null, r.project);
+      }
     });
   };
 
@@ -2439,10 +2448,14 @@ Projects = (function() {
   */
 
   Projects.getProjects = function(callback) {
-    return this.get('projects.json', function(r) {
-      return callback(r.map(function(p) {
-        return p.project;
-      }));
+    return this.get('projects.json', function(err, r) {
+      if (err) {
+        return callback(err, r);
+      } else {
+        return callback(null, r.map(function(p) {
+          return p.project;
+        }));
+      }
     });
   };
 

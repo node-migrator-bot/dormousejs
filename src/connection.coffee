@@ -137,15 +137,15 @@ handleResponse = (res, callback) ->
   res.on 'data', (buf) ->
     data += buf
   res.on 'end', () ->
-    callback parseResponse data if callback
+    parseResponse data, callback if callback
   res.on 'error', (err) ->
     console.log 'HTTP error', res.statusCode, data, err
 
-parseResponse = (raw_response) ->
+parseResponse = (raw_response, callback) ->
   try
-    return JSON.parse raw_response
-  catch syntax_error
-    console.log 'Response JSON parsing error:', syntax_error
-  raw_response
+    callback null, JSON.parse raw_response
+  catch err
+    console.error 'Response JSON parsing error:', err if console
+    callback err, raw_response
 
 exports.Connection = Connection

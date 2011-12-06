@@ -26,27 +26,29 @@ class Projects extends Connection
   @param id of project to fetch
   ###
   @getProject: (id, callback) ->
-    @get "projects/#{id}.json", (r) ->
-      callback r.project
+    @get "projects/#{id}.json", (err, r) ->
+      if err then callback err, r
+      else callback null, r.project
 
   ###
   Get all projects from Dormouse
   ###
   @getProjects: (callback) ->
-    @get 'projects.json', (r) ->
-      callback r.map (p) ->
+    @get 'projects.json', (err, r) ->
+      if err then callback err, r
+      else callback null, r.map (p) ->
         p.project
 
   @createProject: (project_info, callback) ->
     post_path = 'projects.json'
-    return this.post post_path, {}, project_info, callback
+    this.post post_path, {}, project_info, callback
 
   @editProject: (project, callback) ->
     put_path = path.join 'projects', "#{project.id}.json"
-    return this.put put_path, {}, project, callback
+    this.put put_path, {}, project, callback
 
   @deleteProject: (project, callback) ->
     delete_path = path.join 'projects', "#{project.id}.json"
-    return this.delete delete_path, callback
+    this.delete delete_path, callback
 
 exports.Projects = Projects
