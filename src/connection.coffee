@@ -137,15 +137,22 @@ handleResponse = (res, callback) ->
   res.on 'data', (buf) ->
     data += buf
   res.on 'end', () ->
-    parseResponse data, callback if callback
+    parseResponse res, data, callback if callback
   res.on 'error', (err) ->
     console.log 'HTTP error', res.statusCode, data, err
 
-parseResponse = (raw_response, callback) ->
-  try
-    callback null, JSON.parse raw_response
-  catch err
-    console.error 'Response JSON parsing error:', err if console
-    callback err, raw_response
+parseResponse = (res, raw_response, callback) ->
+  raw_response = raw_response.trim()
+  if res.statusCode is 200 # STATUS: OK
+    if raw_response
+      try
+        callback null, JSON.parse raw_response
+      catch err
+        console.error 'Response JSON parsing error', err if console
+    else
+      callback null, success: true
+  else
+    console.info 'Request failed', raw_response if console
+    callback new Error(raw_response), null
 
 exports.Connection = Connection
