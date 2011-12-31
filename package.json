@@ -16,7 +16,7 @@
   "dependencies": {
     "underscore": "*",
     "async": "*",
-    "http-browserify": "*"
+    "http-browserify": ">=0.0.1"
   },
   "devDependencies": {
     "coffee-script": "*",
