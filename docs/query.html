@@ -1,5 +1,32 @@
-<!DOCTYPE html>  <html> <head>   <title>query.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="assembler.html">                 assembler.coffee               </a>                                           <a class="source" href="connection.html">                 connection.coffee               </a>                                           <a class="source" href="libutils.html">                 libutils.coffee               </a>                                           <a class="source" href="mixin.html">                 mixin.coffee               </a>                                           <a class="source" href="projects.html">                 projects.coffee               </a>                                           <a class="source" href="query.html">                 query.coffee               </a>                                           <a class="source" href="tasks.html">                 tasks.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               query.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="nv">_ = </span><span class="nx">require</span> <span class="s1">&#39;underscore&#39;</span>
-<span class="nv">Connection = </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./connection&#39;</span><span class="p">).</span><span class="nx">Connection</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Task top level properties</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">top_level =</span>
+<!DOCTYPE html>  <html> <head>   <title>query.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="assembler.html">                 assembler.coffee               </a>                                           <a class="source" href="connection.html">                 connection.coffee               </a>                                           <a class="source" href="libutils.html">                 libutils.coffee               </a>                                           <a class="source" href="mixin.html">                 mixin.coffee               </a>                                           <a class="source" href="projects.html">                 projects.coffee               </a>                                           <a class="source" href="query.html">                 query.coffee               </a>                                           <a class="source" href="tasks.html">                 tasks.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               query.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <h3>Query for tasks</h3>
+
+<p>Rich mechanism to specify exactly which tasks you would like,
+using property comparisons, limits and other constraints.</p>
+
+<p>A <code>Query</code> object is usually obtained using <code>$dm.getTasks()</code>.
+Then one applies constraints one-by-one using the object.
+These can be daisy-chained, or not.
+Finally, the query is run against the server when <code>.run(callback)</code> is
+invoked on that object.</p>
+
+<p>A simple fetch of 10 tasks ordered by their <code>id</code> is</p>
+
+<pre><code>q = $dm.getTasks()
+q.order_by('id')
+ .limit(10)
+ .run(cb)
+</code></pre>
+
+<p>Where <code>cb</code> could have the form</p>
+
+<pre><code>function cb(err, tasks) {
+  if (err) {
+    ...
+  }
+  ...
+}
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>Requirements</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">_ = </span><span class="nx">require</span> <span class="s1">&#39;underscore&#39;</span>
+<span class="nv">Connection = </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./connection&#39;</span><span class="p">).</span><span class="nx">Connection</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Task top level properties</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">top_level =</span>
   <span class="nv">id: </span><span class="kc">true</span>
   <span class="nv">name: </span><span class="kc">true</span>
   <span class="nv">project_id: </span><span class="kc">true</span>
@@ -9,32 +36,71 @@
   <span class="nv">created_at: </span><span class="kc">true</span>
   <span class="nv">updated_at: </span><span class="kc">true</span>
   <span class="nv">expires_at: </span><span class="kc">true</span>
-  <span class="nv">responses: </span><span class="kc">true</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <ul>
-<li>Query for tasks</li>
-<li>Rich query mechanism</li>
-</ul>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">Query</span> <span class="k">extends</span> <span class="nx">Connection</span>
+  <span class="nv">responses: </span><span class="kc">true</span>
+
+<span class="k">class</span> <span class="nx">Query</span> <span class="k">extends</span> <span class="nx">Connection</span>
 
   <span class="nv">constructor: </span><span class="o">-&gt;</span>
     <span class="vi">@get_path = </span><span class="s1">&#39;tasks.json&#39;</span>
     <span class="vi">@constraints = </span><span class="p">[]</span>
     <span class="vi">@ordering = </span><span class="kc">false</span>
-    <span class="vi">@limited = </span><span class="kc">false</span>
+    <span class="vi">@limited = </span><span class="kc">false</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Check for equality of any property, usually in <code>task.parameters</code></p>
 
-  <span class="nv">eq: </span><span class="nf">(prop, value) -&gt;</span>
+<pre><code>q.eq('project_id', 100)
+</code></pre>
+
+<p>Top level properties like <code>id</code> and <code>project_id</code> are treated separated,
+but by default the property is assumed to come from the <code>task.parameters</code>
+dictionary</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">eq: </span><span class="nf">(prop, value) -&gt;</span>
     <span class="nx">@constraints</span><span class="p">.</span><span class="nx">push</span> <span class="nv">op: </span><span class="s1">&#39;eq&#39;</span><span class="p">,</span> <span class="nv">prop: </span><span class="nx">prop</span><span class="p">,</span> <span class="nv">value: </span><span class="nx">value</span>
-    <span class="k">this</span>
+    <span class="k">this</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Synonym for <code>q.eq(...)</code></p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">where: </span><span class="nx">Query</span><span class="o">::</span><span class="nx">eq</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Inequailty of a property in <code>task.parameters</code>, else behaves as <code>q.eq(...)</code></p>
 
-  <span class="nv">where: </span><span class="nx">Query</span><span class="o">::</span><span class="nx">eq</span>
-
-  <span class="nv">ne: </span><span class="nf">(prop, value) -&gt;</span>
+<pre><code>q.ne('transscription_type', 'math')
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">ne: </span><span class="nf">(prop, value) -&gt;</span>
     <span class="nx">@constraints</span><span class="p">.</span><span class="nx">push</span> <span class="nv">op: </span><span class="s1">&#39;ne&#39;</span><span class="p">,</span> <span class="nv">prop: </span><span class="nx">prop</span><span class="p">,</span> <span class="nv">value: </span><span class="nx">value</span>
-    <span class="k">this</span>
+    <span class="k">this</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Check if the task has been answered</p>
 
-  <span class="nv">iscomplete: </span><span class="nf">(value) -&gt;</span>
+<pre><code>q.iscomplete(false)
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">iscomplete: </span><span class="nf">(value) -&gt;</span>
     <span class="nx">@constraints</span><span class="p">.</span><span class="nx">push</span> <span class="nv">op: </span><span class="s1">&#39;iscomplete&#39;</span><span class="p">,</span> <span class="nv">prop: </span><span class="s1">&#39;responses&#39;</span><span class="p">,</span> <span class="nv">value: </span><span class="nx">value</span>
-    <span class="k">this</span>
+    <span class="k">this</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Sort the array of tasks returned through the callback.
+Uses the same property resolution as <code>q.eq(...)</code></p>
 
-  <span class="nv">check_constraints: </span><span class="nf">(task) -&gt;</span>
+<pre><code>q.order_by('template_id')
+</code></pre>
+
+<p>For a random ordering</p>
+
+<pre><code>q.order_by('?')
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">order_by: </span><span class="nf">(o) -&gt;</span>
+    <span class="vi">@ordering = </span><span class="nx">o</span>
+    <span class="k">this</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Limit the array of tasks returned to <code>l</code> tasks</p>
+
+<pre><code>q.limit(10)
+</code></pre>
+
+<p>Even if one sets <code>q.limit(1)</code>, an array of tasks is passed to the callback,
+in that case with 1 task</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">limit: </span><span class="nf">(l) -&gt;</span>
+    <span class="vi">@limited = </span><span class="nx">l</span>
+    <span class="k">this</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>Run the query against the server,
+then return the tasks matching all the constraints through the <code>callback</code>
+parameter.
+See the initial description for a simple example of <code>q.run(...)</code></p>
+
+<p>The <code>err</code> argument in the callback is only ever non-null if there was an
+error with the task fetching.
+It goes without saying that the result of the fetch cannot be trusted if
+there was an error.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">run: </span><span class="nf">(callback) -&gt;</span>
+    <span class="nx">Query</span><span class="p">.</span><span class="nx">get</span> <span class="nx">@get_path</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="o">=&gt;</span>
+      <span class="k">return</span> <span class="nx">callback</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">r</span> <span class="k">if</span> <span class="nx">err</span>
+      <span class="nv">tasks = </span><span class="nx">r</span><span class="p">.</span><span class="nx">map</span> <span class="nf">(t) -&gt;</span>
+        <span class="nx">t</span><span class="p">.</span><span class="nx">task</span>
+      <span class="nv">tasks = </span><span class="nx">tasks</span><span class="p">.</span><span class="nx">filter</span> <span class="nx">@check_constraints</span><span class="p">,</span> <span class="k">this</span>
+      <span class="k">if</span> <span class="nx">@ordering</span>
+        <span class="nv">tasks = </span><span class="nx">@apply_ordering</span> <span class="nx">tasks</span>
+      <span class="k">if</span> <span class="nx">@limited</span>
+        <span class="nv">tasks = </span><span class="nx">tasks</span><span class="p">.</span><span class="nx">slice</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">@limited</span>
+      <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">tasks</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <h3>Private methods</h3>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>Check each constraint</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">check_constraints: </span><span class="nf">(task) -&gt;</span>
     <span class="nx">@constraints</span><span class="p">.</span><span class="nx">every</span> <span class="nf">(c) -&gt;</span>
       <span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nx">prop</span> <span class="k">of</span> <span class="nx">top_level</span>
         <span class="nv">task_value = </span><span class="nx">task</span><span class="p">[</span><span class="nx">c</span><span class="p">.</span><span class="nx">prop</span><span class="p">]</span>
@@ -46,39 +112,14 @@
         <span class="k">when</span> <span class="s1">&#39;iscomplete&#39;</span>
           <span class="nv">complete = </span><span class="nx">task_value</span> <span class="o">and</span> <span class="nx">task_value</span><span class="p">.</span><span class="nx">length</span>
           <span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nx">value</span> <span class="k">then</span> <span class="nx">complete</span> <span class="k">else</span> <span class="o">not</span> <span class="nx">complete</span>
-        <span class="k">else</span>
-          <span class="nx">task_value</span> <span class="o">is</span> <span class="nx">c</span><span class="p">.</span><span class="nx">value</span>
-
-  <span class="nv">order_by: </span><span class="nf">(o) -&gt;</span>
-    <span class="vi">@ordering = </span><span class="nx">o</span>
-    <span class="k">this</span>
-
-  <span class="nv">apply_ordering: </span><span class="nf">(tasks) -&gt;</span>
+        <span class="k">else</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>assumption that operation is <code>eq</code></p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nx">task_value</span> <span class="o">is</span> <span class="nx">c</span><span class="p">.</span><span class="nx">value</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <p>Apply the ordering given by <code>q.order_by(...)</code></p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">apply_ordering: </span><span class="nf">(tasks) -&gt;</span>
     <span class="k">if</span> <span class="nx">@ordering</span> <span class="o">is</span> <span class="s1">&#39;?&#39;</span>
       <span class="nx">_</span><span class="p">.</span><span class="nx">shuffle</span> <span class="nx">tasks</span>
     <span class="k">else</span>
+      <span class="nv">top_level_prop = </span><span class="nx">@ordering</span> <span class="k">of</span> <span class="nx">top_level</span>
       <span class="nx">_</span><span class="p">.</span><span class="nx">sortBy</span> <span class="nx">tasks</span><span class="p">,</span> <span class="nf">(task) -&gt;</span>
-        <span class="k">if</span> <span class="nx">@ordering</span> <span class="k">of</span> <span class="nx">top_level</span>
-          <span class="nx">task</span><span class="p">[</span><span class="nx">@ordering</span><span class="p">]</span>
-        <span class="k">else</span>
-          <span class="nx">task</span><span class="p">.</span><span class="nx">parameters</span><span class="p">[</span><span class="nx">@ordering</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nx">top_level_prop</span> <span class="k">then</span> <span class="nx">task</span><span class="p">[</span><span class="nx">@ordering</span><span class="p">]</span> <span class="k">else</span> <span class="nx">task</span><span class="p">.</span><span class="nx">parameters</span><span class="p">[</span><span class="nx">@ordering</span><span class="p">]</span>
       <span class="p">,</span> <span class="k">this</span>
-
-  <span class="nv">limit: </span><span class="nf">(l) -&gt;</span>
-    <span class="vi">@limited = </span><span class="nx">l</span>
-    <span class="k">this</span>
-
-  <span class="nv">run: </span><span class="nf">(callback) -&gt;</span>
-    <span class="nx">Query</span><span class="p">.</span><span class="nx">get</span> <span class="nx">@get_path</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">r</span><span class="p">)</span> <span class="o">=&gt;</span>
-      <span class="k">return</span> <span class="nx">callback</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">r</span> <span class="k">if</span> <span class="nx">err</span>
-      <span class="nv">tasks = </span><span class="nx">r</span><span class="p">.</span><span class="nx">map</span> <span class="nf">(t) -&gt;</span>
-        <span class="nx">t</span><span class="p">.</span><span class="nx">task</span>
-      <span class="nv">tasks = </span><span class="nx">tasks</span><span class="p">.</span><span class="nx">filter</span> <span class="nx">@check_constraints</span><span class="p">,</span> <span class="k">this</span>
-      <span class="k">if</span> <span class="nx">@ordering</span>
-        <span class="nv">tasks = </span><span class="nx">@apply_ordering</span> <span class="nx">tasks</span>
-      <span class="k">if</span> <span class="nx">@limited</span>
-        <span class="nv">tasks = </span><span class="nx">tasks</span><span class="p">.</span><span class="nx">slice</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">@limited</span>
-      <span class="nx">callback</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">tasks</span>
 
 <span class="nv">exports.Query = </span><span class="nx">Query</span>
 
