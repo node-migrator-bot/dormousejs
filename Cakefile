@@ -33,7 +33,7 @@ task 'wrapup', "wrap the 'dormouse' module and its dependancies into dist/dormou
 
 task 'runserver', 'run the test code node.js server', (options) ->
   compile_files ->
-    server = spawn 'coffee', ['example/server.coffee']
+    server = spawn 'coffee', [ 'example/server.coffee' ]
     server.stdout.on 'data', (data) ->
       console.log data.toString().trim()
     server.stderr.on 'data', (data) ->
@@ -42,7 +42,12 @@ task 'runserver', 'run the test code node.js server', (options) ->
       process.exit code
 
 task 'docs', 'build docs for .coffee files using docco', (options) ->
-  docco = spawn "docco #{coffeelib}/*.coffee"
+  srcfiles = []
+  files = fs.readdirSync "#{coffeelib}"
+  for file in files
+    if '.coffee' is path.extname file
+      srcfiles.push path.join coffeelib, file
+  docco = spawn 'docco', srcfiles
   docco.stdout.on 'data', (data) ->
     console.log data.toString().trim()
   docco.stderr.on 'data', (data) ->

@@ -9,8 +9,10 @@
   <span class="nv">created_at: </span><span class="kc">true</span>
   <span class="nv">updated_at: </span><span class="kc">true</span>
   <span class="nv">expires_at: </span><span class="kc">true</span>
-  <span class="nv">responses: </span><span class="kc">true</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h1>#</h1>             </td>             <td class="code">               <div class="highlight"><pre><span class="o">*</span> <span class="nx">Query</span> <span class="k">for</span> <span class="nx">tasks</span>
-<span class="o">*</span> <span class="nx">Rich</span> <span class="nx">query</span> <span class="nx">mechanism</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <h1>#</h1>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">Query</span> <span class="k">extends</span> <span class="nx">Connection</span>
+  <span class="nv">responses: </span><span class="kc">true</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <ul>
+<li>Query for tasks</li>
+<li>Rich query mechanism</li>
+</ul>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">Query</span> <span class="k">extends</span> <span class="nx">Connection</span>
 
   <span class="nv">constructor: </span><span class="o">-&gt;</span>
     <span class="vi">@get_path = </span><span class="s1">&#39;tasks.json&#39;</span>

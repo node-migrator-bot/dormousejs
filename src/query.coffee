@@ -15,11 +15,8 @@ top_level =
   expires_at: true
   responses: true
 
-###
-* Query for tasks
-* Rich query mechanism
-###
-
+# * Query for tasks
+# * Rich query mechanism
 class Query extends Connection
 
   constructor: ->
