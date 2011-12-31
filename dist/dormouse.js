@@ -334,10 +334,6 @@ Tasks = require('./tasks').Tasks;
 
 Projects = require('./projects').Projects;
 
-/*
-Top level Dormouse
-*/
-
 Dormouse = (function() {
 
   function Dormouse() {}
@@ -361,8 +357,8 @@ module.exports = Dormouse;
 });
 
 require.define("/node_modules/dormouse/lib/mixin.js", function (require, module, exports, __dirname, __filename) {
-    var implements;
-var __slice = Array.prototype.slice;
+    var implements,
+  __slice = Array.prototype.slice;
 
 implements = function() {
   var classes, getter, klass, prop, setter, _i, _len;
@@ -407,19 +403,10 @@ http = require('http-browserify');
 
 libutils = require('./libutils');
 
-/*
-Base Connection
-*/
-
 Connection = (function() {
   var api_key, host, port;
 
   function Connection() {}
-
-  /*
-    Assumption that it is getting JSON
-    @param options serialized in GET params
-  */
 
   Connection.get = function(get_path, options, callback) {
     var req;
@@ -441,11 +428,6 @@ Connection = (function() {
     });
     return req.end();
   };
-
-  /*
-    @param options appended to URL
-    @param body dumped in POST body
-  */
 
   Connection.post = function(post_path, options, body, callback) {
     var raw_body, raw_length, req;
@@ -470,11 +452,6 @@ Connection = (function() {
     return req.end(raw_body);
   };
 
-  /*
-    @param options appended to URL
-    @param body dumped in body
-  */
-
   Connection.put = function(put_path, options, body, callback) {
     var raw_body, raw_length, req;
     put_path = libutils.formatUrl({
@@ -497,10 +474,6 @@ Connection = (function() {
     });
     return req.end(raw_body);
   };
-
-  /*
-    @param options is optional
-  */
 
   Connection["delete"] = function(delete_path, options, callback) {
     var req;
@@ -610,8 +583,8 @@ require.define("/node_modules/dormouse/node_modules/underscore/package.json", fu
 });
 
 require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", function (require, module, exports, __dirname, __filename) {
-    //     Underscore.js 1.2.2
-//     (c) 2011 Jeremy Ashkenas, DocumentCloud Inc.
+    //     Underscore.js 1.2.3
+//     (c) 2009-2011 Jeremy Ashkenas, DocumentCloud Inc.
 //     Underscore is freely distributable under the MIT license.
 //     Portions of Underscore are inspired or borrowed from Prototype,
 //     Oliver Steele's Functional, and John Resig's Micro-Templating.
@@ -637,6 +610,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
 
   // Create quick reference variables for speed access to core prototypes.
   var slice            = ArrayProto.slice,
+      concat           = ArrayProto.concat,
       unshift          = ArrayProto.unshift,
       toString         = ObjProto.toString,
       hasOwnProperty   = ObjProto.hasOwnProperty;
@@ -679,7 +653,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
   }
 
   // Current version.
-  _.VERSION = '1.2.2';
+  _.VERSION = '1.2.3';
 
   // Collection Functions
   // --------------------
@@ -719,7 +693,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
   // **Reduce** builds up a single result from a list of values, aka `inject`,
   // or `foldl`. Delegates to **ECMAScript 5**'s native `reduce` if available.
   _.reduce = _.foldl = _.inject = function(obj, iterator, memo, context) {
-    var initial = memo !== void 0;
+    var initial = arguments.length > 2;
     if (obj == null) obj = [];
     if (nativeReduce && obj.reduce === nativeReduce) {
       if (context) iterator = _.bind(iterator, context);
@@ -733,20 +707,22 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
         memo = iterator.call(context, memo, value, index, list);
       }
     });
-    if (!initial) throw new TypeError("Reduce of empty array with no initial value");
+    if (!initial) throw new TypeError('Reduce of empty array with no initial value');
     return memo;
   };
 
   // The right-associative version of reduce, also known as `foldr`.
   // Delegates to **ECMAScript 5**'s native `reduceRight` if available.
   _.reduceRight = _.foldr = function(obj, iterator, memo, context) {
+    var initial = arguments.length > 2;
     if (obj == null) obj = [];
     if (nativeReduceRight && obj.reduceRight === nativeReduceRight) {
       if (context) iterator = _.bind(iterator, context);
-      return memo !== void 0 ? obj.reduceRight(iterator, memo) : obj.reduceRight(iterator);
+      return initial ? obj.reduceRight(iterator, memo) : obj.reduceRight(iterator);
     }
-    var reversed = (_.isArray(obj) ? obj.slice() : _.toArray(obj)).reverse();
-    return _.reduce(reversed, iterator, memo, context);
+    var reversed = _.toArray(obj).reverse();
+    if (context && !initial) iterator = _.bind(iterator, context);
+    return initial ? _.reduce(reversed, iterator, memo, context) : _.reduce(reversed, iterator);
   };
 
   // Return the first value which passes a truth test. Aliased as `detect`.
@@ -801,7 +777,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
   // Delegates to **ECMAScript 5**'s native `some` if available.
   // Aliased as `any`.
   var any = _.some = _.any = function(obj, iterator, context) {
-    iterator = iterator || _.identity;
+    iterator || (iterator = _.identity);
     var result = false;
     if (obj == null) return result;
     if (nativeSome && obj.some === nativeSome) return obj.some(iterator, context);
@@ -1014,10 +990,11 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
     });
   };
 
-  // Take the difference between one array and another.
+  // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
-  _.difference = function(array, other) {
-    return _.filter(array, function(value){ return !_.include(other, value); });
+  _.difference = function(array) {
+    var rest = _.flatten(slice.call(arguments, 1));
+    return _.filter(array, function(value){ return !_.include(rest, value); });
   };
 
   // Zip together multiple lists into a single array -- elements that share
@@ -1044,7 +1021,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
       return array[i] === item ? i : -1;
     }
     if (nativeIndexOf && array.indexOf === nativeIndexOf) return array.indexOf(item);
-    for (i = 0, l = array.length; i < l; i++) if (array[i] === item) return i;
+    for (i = 0, l = array.length; i < l; i++) if (i in array && array[i] === item) return i;
     return -1;
   };
 
@@ -1053,7 +1030,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
     if (array == null) return -1;
     if (nativeLastIndexOf && array.lastIndexOf === nativeLastIndexOf) return array.lastIndexOf(item);
     var i = array.length;
-    while (i--) if (array[i] === item) return i;
+    while (i--) if (i in array && array[i] === item) return i;
     return -1;
   };
 
@@ -1191,7 +1168,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
   // conditionally execute the original function.
   _.wrap = function(func, wrapper) {
     return function() {
-      var args = [func].concat(slice.call(arguments));
+      var args = concat.apply([func], arguments);
       return wrapper.apply(this, args);
     };
   };
@@ -1199,9 +1176,9 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
   // Returns a function that is the composition of a list of functions, each
   // consuming the return value of the function that follows.
   _.compose = function() {
-    var funcs = slice.call(arguments);
+    var funcs = arguments;
     return function() {
-      var args = slice.call(arguments);
+      var args = arguments;
       for (var i = funcs.length - 1; i >= 0; i--) {
         args = [funcs[i].apply(this, args)];
       }
@@ -1289,8 +1266,8 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
     if (a._chain) a = a._wrapped;
     if (b._chain) b = b._wrapped;
     // Invoke a custom `isEqual` method if one is provided.
-    if (_.isFunction(a.isEqual)) return a.isEqual(b);
-    if (_.isFunction(b.isEqual)) return b.isEqual(a);
+    if (a.isEqual && _.isFunction(a.isEqual)) return a.isEqual(b);
+    if (b.isEqual && _.isFunction(b.isEqual)) return b.isEqual(a);
     // Compare `[[Class]]` names.
     var className = toString.call(a);
     if (className != toString.call(b)) return false;
@@ -1299,13 +1276,11 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
       case '[object String]':
         // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
         // equivalent to `new String("5")`.
-        return String(a) == String(b);
+        return a == String(b);
       case '[object Number]':
-        a = +a;
-        b = +b;
         // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
         // other numeric values.
-        return a != a ? b != b : (a == 0 ? 1 / a == 1 / b : a == b);
+        return a != +a ? b != +b : (a == 0 ? 1 / a == 1 / b : a == +b);
       case '[object Date]':
       case '[object Boolean]':
         // Coerce dates and booleans to numeric primitive values. Dates are compared by their
@@ -1345,7 +1320,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
       }
     } else {
       // Objects with different constructors are not equivalent.
-      if ("constructor" in a != "constructor" in b || a.constructor != b.constructor) return false;
+      if ('constructor' in a != 'constructor' in b || a.constructor != b.constructor) return false;
       // Deep compare objects.
       for (var key in a) {
         if (hasOwnProperty.call(a, key)) {
@@ -1398,11 +1373,10 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
   };
 
   // Is a given variable an arguments object?
-  if (toString.call(arguments) == '[object Arguments]') {
-    _.isArguments = function(obj) {
-      return toString.call(obj) == '[object Arguments]';
-    };
-  } else {
+  _.isArguments = function(obj) {
+    return toString.call(obj) == '[object Arguments]';
+  };
+  if (!_.isArguments(arguments)) {
     _.isArguments = function(obj) {
       return !!(obj && hasOwnProperty.call(obj, 'callee'));
     };
@@ -1527,7 +1501,10 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
          .replace(/\t/g, '\\t')
          + "');}return __p.join('');";
     var func = new Function('obj', '_', tmpl);
-    return data ? func(data, _) : function(data) { return func(data, _) };
+    if (data) return func(data, _);
+    return function(data) {
+      return func.call(this, data, _);
+    };
   };
 
   // The OOP Wrapper
@@ -1599,12 +1576,12 @@ require.define("/node_modules/dormouse/node_modules/http-browserify/browser.js",
 var EventEmitter = require('events').EventEmitter;
 var Request = require('./lib/request');
 
-if (typeof window === 'undefined') {
-    throw new Error('no window object present');
-}
-
 http.request = function (params, cb) {
-    var req = Request.create(params);
+    if (!params) params = {};
+    if (!params.host) params.host = window.location.host.split(':')[0];
+    if (!params.port) params.port = window.location.port;
+    
+    var req = new Request(new xhrHttp, params);
     if (cb) req.on('response', cb);
     return req;
 };
@@ -1615,6 +1592,42 @@ http.get = function (params, cb) {
     req.end();
     return req;
 };
+
+var xhrHttp = (function () {
+    if (typeof window === 'undefined') {
+        throw new Error('no window object present');
+    }
+    else if (window.XMLHttpRequest) {
+        return window.XMLHttpRequest;
+    }
+    else if (window.ActiveXObject) {
+        var axs = [
+            'Msxml2.XMLHTTP.6.0',
+            'Msxml2.XMLHTTP.3.0',
+            'Microsoft.XMLHTTP'
+        ];
+        for (var i = 0; i < axs.length; i++) {
+            try {
+                var ax = new(window.ActiveXObject)(axs[i]);
+                return function () {
+                    if (ax) {
+                        var ax_ = ax;
+                        ax = null;
+                        return ax_;
+                    }
+                    else {
+                        return new(window.ActiveXObject)(axs[i]);
+                    }
+                };
+            }
+            catch (e) {}
+        }
+        throw new Error('ajax not supported in this browser')
+    }
+    else {
+        throw new Error('ajax not supported in this browser');
+    }
+})();
 
 });
 
@@ -1724,7 +1737,7 @@ EventEmitter.prototype.addListener = function(type, listener) {
       if (m && m > 0 && this._events[type].length > m) {
         this._events[type].warned = true;
         console.error('(node) warning: possible EventEmitter memory ' +
-                      'leak detected. NaN listeners added. ' +
+                      'leak detected. %d listeners added. ' +
                       'Use emitter.setMaxListeners() to increase limit.',
                       this._events[type].length);
         console.trace();
@@ -1797,33 +1810,38 @@ require.define("/node_modules/dormouse/node_modules/http-browserify/lib/request.
     var EventEmitter = require('events').EventEmitter;
 var Response = require('./response');
 
-var Request = module.exports = function() {};
+var Request = module.exports = function (xhr, params) {
+    var self = this;
+    self.xhr = xhr;
+    self.body = '';
+    
+    var uri = params.host + ':' + params.port + (params.path || '/');
+    
+    xhr.open(params.method || 'GET', 'http://' + uri, true);
+    
+    if (params.headers) {
+        Object.keys(params.headers).forEach(function (key) {
+            var value = params.headers[key];
+            if (Array.isArray(value)) {
+                value.forEach(function (v) {
+                    xhr.setRequestHeader(key, v);
+                });
+            }
+            else xhr.setRequestHeader(key, value)
+        });
+    }
+    
+    var res = new Response;
+    res.on('ready', function () {
+        self.emit('response', res);
+    });
+    
+    xhr.onreadystatechange = function () {
+        res.handle(xhr);
+    };
+};
 
 Request.prototype = new EventEmitter;
-
-Request.create = function(params) {
-    if (!params) params = {};
-
-    var req;
-    if(params.host && window.XDomainRequest) { // M$ IE XDR - use when host is set and XDR present
-      req = new XdrRequest(params);
-    } else {                                   // Everybody else
-      req = new XhrRequest(params);
-    }
-    return req;
-}
-
-Request.prototype.init = function(params) {
-    if (!params.host) params.host = window.location.host.split(':')[0];
-    if (!params.port) params.port = window.location.port;
-    
-    this.body = '';
-    if(!/^\//.test(params.path)) params.path = '/' + params.path;
-    this.uri = params.host + ':' + params.port + (params.path || '/');
-    this.xhr = new this.xhrClass;
-
-    this.xhr.open(params.method || 'GET', 'http://' + this.uri, true);
-};
 
 Request.prototype.setHeader = function (key, value) {
     if ((Array.isArray && Array.isArray(value))
@@ -1844,122 +1862,6 @@ Request.prototype.write = function (s) {
 Request.prototype.end = function (s) {
     if (s !== undefined) this.write(s);
     this.xhr.send(this.body);
-};
-
-
-// XhrRequest
-
-var XhrRequest = function(params) {
-    var self = this;
-    self.init(params);
-    var xhr = this.xhr;
-    
-    if(params.headers) {
-        Object.keys(params.headers).forEach(function (key) {
-            var value = params.headers[key];
-            if (Array.isArray(value)) {
-                value.forEach(function (v) {
-                    xhr.setRequestHeader(key, v);
-                });
-            }
-            else xhr.setRequestHeader(key, value)
-        });
-    }
-  
-    xhr.onreadystatechange = function () {
-        res.handle(xhr);
-    };
-    
-    var res = new Response;
-    res.on('ready', function () {
-        self.emit('response', res);
-    });
-};
-
-XhrRequest.prototype = new Request;
-
-XhrRequest.prototype.xhrClass = function() {
-    if (window.XMLHttpRequest) {
-        return window.XMLHttpRequest;
-    }
-    else if (window.ActiveXObject) {
-        var axs = [
-            'Msxml2.XMLHTTP.6.0',
-            'Msxml2.XMLHTTP.3.0',
-            'Microsoft.XMLHTTP'
-        ];
-        for (var i = 0; i < axs.length; i++) {
-            try {
-                var ax = new(window.ActiveXObject)(axs[i]);
-                return function () {
-                    if (ax) {
-                        var ax_ = ax;
-                        ax = null;
-                        return ax_;
-                    }
-                    else {
-                        return new(window.ActiveXObject)(axs[i]);
-                    }
-                };
-            }
-            catch (e) {}
-        }
-        throw new Error('ajax not supported in this browser')
-    }
-    else {
-        throw new Error('ajax not supported in this browser');
-    }
-}();
-
-
-
-// XdrRequest
-
-var XdrRequest = function(params) {
-    var self = this;
-    self.init(params);
-    var xhr = this.xhr;
-
-    self.headers = {};
-
-    var res = new XdrResponse();
-
-    xhr.onprogress = function() {
-        xhr.readyState = 2;
-        res.contentType = xhr.contentType; // There, that's all the headers you get
-        res.handle(xhr);
-    }
-    xhr.onerror = function() {
-        xhr.readyState = 3;
-        xhr.error = "Who the fuck knows? IE doesn't care!";
-        res.handle(xhr);
-    };
-    xhr.onload = function() {
-        xhr.readyState = 4;
-        res.handle(xhr);
-    };
-
-    res.on('ready', function () {
-        self.emit('response', res);
-    });
-};
-
-XdrRequest.prototype = new Request;
-
-XdrRequest.prototype.xhrClass = window.XDomainRequest;
-
-
-
-// XdrResponse
-
-var XdrResponse = function() {
-    this.offset = 0;
-};
-
-XdrResponse.prototype = new Response();
-
-XdrResponse.prototype.getAllResponseHeaders = function() {
-  return 'Content-Type: ' + this.contentType;
 };
 
 });
@@ -2068,13 +1970,8 @@ Response.prototype.write = function (res) {
 });
 
 require.define("/node_modules/dormouse/lib/libutils.js", function (require, module, exports, __dirname, __filename) {
-    
-/*
-utils for simplify detecting types and stuff
-*/
-
-var libutils, _;
-var __hasProp = Object.prototype.hasOwnProperty;
+    var libutils, _,
+  __hasProp = Object.prototype.hasOwnProperty;
 
 _ = require('underscore');
 
@@ -2096,14 +1993,6 @@ libutils.isArray = function(obj) {
 libutils.toArray = function(array_like) {
   return Array.prototype.slice.call(array_like);
 };
-
-/*
-format of urlObj:
-{
-  path: '/some/relative/path' [no host]
-  query: javascript object to append as params
-}
-*/
 
 libutils.formatUrl = function(urlObj) {
   var eq, pairs, qs, query, sep, url;
@@ -2130,33 +2019,9 @@ libutils.formatUrl = function(urlObj) {
 });
 
 require.define("/node_modules/dormouse/lib/tasks.js", function (require, module, exports, __dirname, __filename) {
-    
-/*
-
-Task structure on API
-
-{
-  id: 1234,
-  name: "ManReduce-Step-1",
-* project_id: 11,
-* template_id: 7,
-* duplication: 1,
-* replication: 1,
-  created_at: "2011-10-14T14:02:47Z",
-  updated_at: "2011-10-14T14:02:47Z",
-  expires_at: "",
-* eligibility: {
-    communities: [],
-    predicate: null
-  },
-* parameters: {
-    question: "blah"
-  }
-}
-*/
-
-var Connection, Query, Tasks, _;
-var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+    var Connection, Query, Tasks, _,
+  __hasProp = Object.prototype.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
 Connection = require('./connection').Connection;
 
@@ -2168,23 +2033,13 @@ _.templateSettings = {
   interpolate: /\{\{(.+?)\}\}/g
 };
 
-/*
-* Tasks mixin for Dormouse
-* basic API operations
-*/
+Tasks = (function(_super) {
 
-Tasks = (function() {
-
-  __extends(Tasks, Connection);
+  __extends(Tasks, _super);
 
   function Tasks() {
     Tasks.__super__.constructor.apply(this, arguments);
   }
-
-  /*
-    Fetch a task from Dormouse
-    @param id of task
-  */
 
   Tasks.getTask = function(id, callback) {
     return this.get("tasks/" + id + ".json", function(err, r) {
@@ -2195,10 +2050,6 @@ Tasks = (function() {
       }
     });
   };
-
-  /*
-    Fetches all tasks from Dormouse
-  */
 
   Tasks.getTasks = function(callback) {
     var q;
@@ -2218,16 +2069,8 @@ Tasks = (function() {
     return template(context);
   };
 
-  /*
-    @param task_info = object with the following required fields
-        project_id. template_id, parameters
-      and the following optional fields
-        expires_at, name, eligibility, replication, duplication
-    @callback { status: 'created', location: 1234 }
-  */
-
   Tasks.createTask = function(task_info, callback) {
-    var field, post_path, required_fields, _i, _len, _ref, _ref2, _ref3;
+    var field, post_path, required_fields, _i, _len;
     required_fields = ['project_id', 'template_id', 'parameters'];
     for (_i = 0, _len = required_fields.length; _i < _len; _i++) {
       field = required_fields[_i];
@@ -2235,14 +2078,14 @@ Tasks = (function() {
         throw new Error("Required field for task creation: " + field);
       }
     }
-    if ((_ref = task_info.eligibility) == null) {
+    if (task_info.eligibility == null) {
       task_info.eligibility = {
         predicate: null,
         communities: []
       };
     }
-    if ((_ref2 = task_info.replication) == null) task_info.replication = 1;
-    if ((_ref3 = task_info.duplication) == null) task_info.duplication = 1;
+    if (task_info.replication == null) task_info.replication = 1;
+    if (task_info.duplication == null) task_info.duplication = 1;
     post_path = 'tasks.json';
     return this.post(post_path, {}, {
       'task': task_info
@@ -2263,15 +2106,16 @@ Tasks = (function() {
 
   return Tasks;
 
-})();
+})(Connection);
 
 exports.Tasks = Tasks;
 
 });
 
 require.define("/node_modules/dormouse/lib/query.js", function (require, module, exports, __dirname, __filename) {
-    var Connection, Query, top_level, _;
-var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+    var Connection, Query, top_level, _,
+  __hasProp = Object.prototype.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
 _ = require('underscore');
 
@@ -2290,14 +2134,9 @@ top_level = {
   responses: true
 };
 
-/*
-* Query for tasks
-* Rich query mechanism
-*/
+Query = (function(_super) {
 
-Query = (function() {
-
-  __extends(Query, Connection);
+  __extends(Query, _super);
 
   function Query() {
     this.get_path = 'tasks.json';
@@ -2366,11 +2205,13 @@ Query = (function() {
   };
 
   Query.prototype.apply_ordering = function(tasks) {
+    var top_level_prop;
     if (this.ordering === '?') {
       return _.shuffle(tasks);
     } else {
+      top_level_prop = this.ordering in top_level;
       return _.sortBy(tasks, function(task) {
-        if (this.ordering in top_level) {
+        if (top_level_prop) {
           return task[this.ordering];
         } else {
           return task.parameters[this.ordering];
@@ -2401,48 +2242,28 @@ Query = (function() {
 
   return Query;
 
-})();
+})(Connection);
 
 exports.Query = Query;
 
 });
 
 require.define("/node_modules/dormouse/lib/projects.js", function (require, module, exports, __dirname, __filename) {
-    
-/*
-
-Project structure on API
-
-{
-  id: '1234',
-  template: '2561'
-}
-*/
-
-var Connection, Projects, path;
-var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+    var Connection, Projects, path,
+  __hasProp = Object.prototype.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
 path = require('path');
 
 Connection = require('./connection').Connection;
 
-/*
-* Projects mixin for Dormouse
-* basic API operations
-*/
+Projects = (function(_super) {
 
-Projects = (function() {
-
-  __extends(Projects, Connection);
+  __extends(Projects, _super);
 
   function Projects() {
     Projects.__super__.constructor.apply(this, arguments);
   }
-
-  /*
-    Get all projects from Dormouse
-    @param id of project to fetch
-  */
 
   Projects.getProject = function(id, callback) {
     return this.get("projects/" + id + ".json", function(err, r) {
@@ -2453,10 +2274,6 @@ Projects = (function() {
       }
     });
   };
-
-  /*
-    Get all projects from Dormouse
-  */
 
   Projects.getProjects = function(callback) {
     return this.get('projects.json', function(err, r) {
@@ -2490,7 +2307,7 @@ Projects = (function() {
 
   return Projects;
 
-})();
+})(Connection);
 
 exports.Projects = Projects;
 

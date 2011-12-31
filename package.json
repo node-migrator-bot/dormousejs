@@ -13,14 +13,17 @@
     "lib": "./lib",
     "src": "./src"
   },
+  "engines": {
+    "node": "~0.6.6"
+  },
   "dependencies": {
-    "underscore": "*",
-    "async": "*",
+    "underscore": "~1.2.3",
+    "async": "~0.1.15",
     "http-browserify": ">=0.0.1"
   },
   "devDependencies": {
-    "coffee-script": "*",
-    "browserify": "*",
-    "docco": "*"
+    "coffee-script": "~1.2.0",
+    "browserify": "~1.8.1",
+    "docco": "~0.3.0"
   }
 }
