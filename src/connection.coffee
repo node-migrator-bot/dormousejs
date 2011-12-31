@@ -5,17 +5,15 @@ http = require 'http-browserify'
 
 libutils = require './libutils'
 
-###
-Base Connection
-###
+#### Connection for us all
+# Used as a base class that provides simple `.get()` and `.post()` access
+# to the relevant http methods
+#
+# Inspiration from Ruby's `httparty`
 class Connection
 
-  # --- static methods
-
-  ###
-  Assumption that it is getting JSON
-  @param options serialized in GET params
-  ###
+  # Assumption that it is getting JSON
+  # @param options serialized in GET params
   @get: (get_path, options, callback) ->
     if typeof options is 'function'
       callback = options
@@ -30,13 +28,10 @@ class Connection
       path: get_path
     , (res) ->
       handleResponse res, callback
-    # END http.request
     req.end() # sends the request
 
-  ###
-  @param options appended to URL
-  @param body dumped in POST body
-  ###
+  # @param options appended to URL
+  # @param body dumped in POST body
   @post: (post_path, options, body, callback) ->
     post_path = libutils.formatUrl
       path: post_path
@@ -53,13 +48,10 @@ class Connection
         'Content-Length': raw_length
     , (res) ->
       handleResponse res, callback
-    # END http.request
     req.end raw_body
 
-  ###
-  @param options appended to URL
-  @param body dumped in body
-  ###
+  # @param options appended to URL
+  # @param body dumped in body
   @put: (put_path, options, body, callback) ->
     put_path = libutils.formatUrl
       path: put_path
@@ -76,12 +68,9 @@ class Connection
         'Content-Length': raw_length
     , (res) ->
       handleResponse res, callback
-    # END http.request
     req.end raw_body
 
-  ###
-  @param options is optional
-  ###
+  # @param options is optional
   @delete: (delete_path, options, callback) ->
     delete_path = libutils.formatUrl
       path: delete_path
@@ -93,7 +82,6 @@ class Connection
       path: delete_path
     , (res) ->
       handleResponse res, callback
-    # END http.request
     req.end()
 
   host = 'dormou.se'
@@ -102,7 +90,6 @@ class Connection
     if setter
       matched = setter.match /^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/
       if matched
-        # protocol = matched[2] || 'http'
         host = matched[3] || 'dormou.se'
         port = matched[5] || 80
       else
@@ -127,7 +114,8 @@ class Connection
       throw new Error 'You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)'
     api_key
 
-# --- private methods
+#### Private methods
+# No one can access these from the outside
 
 appendAPIKey = (options) ->
   return _.extend options, api_key: Connection.api_key()

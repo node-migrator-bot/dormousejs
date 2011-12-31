@@ -21,20 +21,28 @@
 # - set `$dm.server` and `$dm.api_key` to access dormouse
 # - use the `$dm` object
 
+#### And now for code
+
+# Requirements
 require './mixin'
 Connection = require('./connection').Connection
 Tasks = require('./tasks').Tasks
 Projects = require('./projects').Projects
 
-# Top level Dormouse
-
+# This is accessed through `window.$dm` in the browser and
+# `require('dormouse')` in node.js
+#
+# To see what other methods are available on the `dormouse` object
+# look at **tasks.coffee** and **projects.coffee**
 class Dormouse
+  # Tasks, Projects are *mixins*
   @implements Tasks, Projects
-  # Tasks, Projects are mixins
 
+  # get or set the `dormouse` server to connect to
   @server: () ->
     Connection.server.apply Connection, arguments
 
+  # get or set the `dormouse` api_key to identify the developer of the app
   @api_key: () ->
     Connection.api_key.apply Connection, arguments
 

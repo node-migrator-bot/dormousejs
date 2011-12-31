@@ -1,38 +1,33 @@
+#### Project manipulation methods
+# Want to get project information or create a new one?
+#
+# Look no further.
 
-###
+#### Project structure on API
+#
+#     {
+#       id: '1234',
+#       template: '2561'
+#     }
 
-Project structure on API
-
-{
-  id: '1234',
-  template: '2561'
-}
-
-###
+#### And now for code
 
 path = require 'path'
 Connection = require('./connection').Connection
 
-###
-* Projects mixin for Dormouse
-* basic API operations
-###
+# * Projects mixin for Dormouse
+# * basic API operations
 class Projects extends Connection
 
-  # --- static methods
 
-  ###
-  Get all projects from Dormouse
-  @param id of project to fetch
-  ###
+  # Get all projects from Dormouse
+  # @param id of project to fetch
   @getProject: (id, callback) ->
     @get "projects/#{id}.json", (err, r) ->
       if err then callback err, r
       else callback null, r.project
 
-  ###
-  Get all projects from Dormouse
-  ###
+  # Get all projects from Dormouse
   @getProjects: (callback) ->
     @get 'projects.json', (err, r) ->
       if err then callback err, r

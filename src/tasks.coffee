@@ -1,56 +1,50 @@
+#### Task Manipulation Methods
+# Here you can see the methods on `dormouse` pertaining to tasks
+#
+#### Task structure on API
+# The starred properties are required to create a new task
+#
+#     {
+#       id: 1234,
+#       name: "ManReduce-Step-1",
+#     * project_id: 11,
+#     * template_id: 7,
+#       duplication: 1,
+#       replication: 1,
+#       created_at: "2011-10-14T14:02:47Z",
+#       updated_at: "2011-10-14T14:02:47Z",
+#       expires_at: "",
+#       eligibility: {
+#         communities: [],
+#         predicate: null
+#       },
+#     * parameters: {
+#         question: "blah"
+#       }
+#     }
 
-###
-
-Task structure on API
-
-{
-  id: 1234,
-  name: "ManReduce-Step-1",
-* project_id: 11,
-* template_id: 7,
-* duplication: 1,
-* replication: 1,
-  created_at: "2011-10-14T14:02:47Z",
-  updated_at: "2011-10-14T14:02:47Z",
-  expires_at: "",
-* eligibility: {
-    communities: [],
-    predicate: null
-  },
-* parameters: {
-    question: "blah"
-  }
-}
-
-###
-
+# Connection and Query needed.
 Connection = require('./connection').Connection
 Query = require('./query').Query
 
-_ = require 'underscore' # for templating
+# for templating
+_ = require 'underscore'
 _.templateSettings =
   interpolate : /\{\{(.+?)\}\}/g
 
-###
-* Tasks mixin for Dormouse
-* basic API operations
-###
+# * Tasks mixin for Dormouse
+# * basic API operations
 class Tasks extends Connection
 
-  # --- static methods
-
-  ###
-  Fetch a task from Dormouse
-  @param id of task
-  ###
+  # Fetch a task from Dormouse
+  # @param id of task
   @getTask: (id, callback) ->
     @get "tasks/#{id}.json", (err, r) ->
       if err then callback err, r
       else callback null, r.task
 
-  ###
-  Fetches all tasks from Dormouse
-  ###
+  # Fetches all tasks from Dormouse.
+  # Look at **query.coffee** for the methods of the returned object
   @getTasks: (callback) ->
     q = new Query()
     if callback and typeof callback is 'function'
@@ -65,13 +59,15 @@ class Tasks extends Connection
       context[prop] = task[prop]
     template context
 
-  ###
-  @param task_info = object with the following required fields
-      project_id. template_id, parameters
-    and the following optional fields
-      expires_at, name, eligibility, replication, duplication
-  @callback { status: 'created', location: 1234 }
-  ###
+  # @param task_info = object with the following required fields
+  #
+  #     project_id. template_id, parameters
+  #
+  # and the following optional fields
+  #
+  #     expires_at, name, eligibility, replication, duplication
+  #
+  # @callback `{ status: 'created', location: 1234 }`
   @createTask: (task_info, callback) ->
     required_fields = [ 'project_id', 'template_id', 'parameters' ]
     for field in required_fields

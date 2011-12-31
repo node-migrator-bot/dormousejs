@@ -1,7 +1,4 @@
-
-###
-utils for simplify detecting types and stuff
-###
+# Utils to simplify detecting types and stuff
 
 _ = require 'underscore'
 
@@ -18,13 +15,14 @@ libutils.isArray = (obj) ->
 libutils.toArray = (array_like) ->
   return Array.prototype.slice.call array_like
 
-###
-format of urlObj:
-{
-  path: '/some/relative/path' [no host]
-  query: javascript object to append as params
-}
-###
+# Append key, value pairs from an object in querystring form on the url
+#
+# Format of urlObj:
+#
+#     {
+#       path: '/some/relative/path' [no host]
+#       query: javascript object to append as params
+#     }
 libutils.formatUrl = (urlObj) ->
   query = urlObj.query || {}
   sep = '&'
