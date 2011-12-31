@@ -41,6 +41,15 @@ task 'runserver', 'run the test code node.js server', (options) ->
     server.on 'exit', (code, signal) ->
       process.exit code
 
+task 'docs', 'build docs for .coffee files using docco', (options) ->
+  docco = spawn "docco #{coffeelib}/*.coffee"
+  docco.stdout.on 'data', (data) ->
+    console.log data.toString().trim()
+  docco.stderr.on 'data', (data) ->
+    console.log data.toString().trim()
+  docco.on 'exit', (code, signal) ->
+    process.exit code
+
 compile_files = (cb) ->
   exec "coffee --compile --lint --bare --output #{jslib} #{coffeelib}", (err, stdo, stde) ->
     if (err)
