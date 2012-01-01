@@ -1,7 +1,9 @@
 # Utils to simplify detecting types and stuff
 
+# Just one requirement
 _ = require 'underscore'
 
+# Trick to namespace a functional module
 libutils = exports
 
 libutils.isEmpty = (obj) ->
@@ -23,6 +25,7 @@ libutils.toArray = (array_like) ->
 #       path: '/some/relative/path' [no host]
 #       query: javascript object to append as params
 #     }
+#
 libutils.formatUrl = (urlObj) ->
   query = urlObj.query || {}
   sep = '&'
