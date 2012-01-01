@@ -1,4 +1,3 @@
-#### Task Manipulation Methods
 # Here you can see the methods on `dormouse` pertaining to tasks
 #
 #### Task structure on API
@@ -19,24 +18,38 @@
 #         predicate: null
 #       },
 #     * parameters: {
-#         question: "blah"
+#         question: "blah",
+#         type: "abc"
 #       }
 #     }
+#
+#### Template formatting
+# Templates follow {{ [mustache.js](http://mustache.github.com/) }} style.
+# Uses the `task.parameters` object as a context for the template,
+# but copies over a few top level properties before doing so.
+#
+# A simple template example is
+#
+#     <p>Here is {{ name }} task</p>
+#     <p>It is of {{ type }} type</p>
+#
+
+#### And now for code
 
 # Connection and Query needed.
 Connection = require('./connection').Connection
 Query = require('./query').Query
 
-# for templating
+# Templating settings
 _ = require 'underscore'
 _.templateSettings =
   interpolate : /\{\{(.+?)\}\}/g
 
-# * Tasks mixin for Dormouse
-# * basic API operations
+# Mixin for Dormouse with methods to manipulate tasks
 class Tasks extends Connection
 
   # Fetch a task from Dormouse
+  #
   # @param id of task
   @getTask: (id, callback) ->
     @get "tasks/#{id}.json", (err, r) ->
@@ -44,13 +57,18 @@ class Tasks extends Connection
       else callback null, r.task
 
   # Fetches all tasks from Dormouse.
-  # Look at **query.coffee** for the methods of the returned object
+  #
+  # Look at **query.coffee** for the structure of the returned object
   @getTasks: (callback) ->
     q = new Query()
     if callback and typeof callback is 'function'
       q.run callback
     q
 
+  # Render the `task` in HTML assumpting that `snippet` is a raw HTML template.
+  #
+  # Makes no allowances for escaped HTML, it will be returned as escaped too.
+  # You can safely use `document.body.innerHTML` here.
   @render: (snippet, task) ->
     template = _.template snippet
     context = {}
@@ -59,13 +77,8 @@ class Tasks extends Connection
       context[prop] = task[prop]
     template context
 
-  # @param task_info = object with the following required fields
-  #
-  #     project_id. template_id, parameters
-  #
-  # and the following optional fields
-  #
-  #     expires_at, name, eligibility, replication, duplication
+  # @param task_info object following the format outlined in the task structure
+  # section
   #
   # @callback `{ status: 'created', location: 1234 }`
   @createTask: (task_info, callback) ->
