@@ -14,7 +14,7 @@
 # - Connects to specifiable dormouse server
 # - queues tasks
 # - receives responses
-# - Includes a task Query API
+# - Includes a [task query API](query.html)
 # - Rendering of task templates using the {{ [mustache.js](http://mustache.github.com/) }} style
 
 #### First steps
