@@ -13,7 +13,7 @@
     "src": "./src"
   },
   "dependencies": {
-    "underscore": "~1.2.3",
+    "underscore": "~1.2.4",
     "async": "~0.1.15",
     "http-browserify": ">=0.0.1"
   },

@@ -115,7 +115,11 @@ require.alias = function (from, to) {
     }
     var basedir = path.dirname(res);
     
-    var keys = Object_keys(require.modules);
+    var keys = (Object.keys || function (obj) {
+        var res = [];
+        for (var key in obj) res.push(key)
+        return res;
+    })(require.modules);
     
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
@@ -160,17 +164,34 @@ require.define = function (filename, fn) {
     };
 };
 
-var Object_keys = Object.keys || function (obj) {
-    var res = [];
-    for (var key in obj) res.push(key)
-    return res;
-};
-
 if (typeof process === 'undefined') process = {};
 
-if (!process.nextTick) process.nextTick = function (fn) {
-    setTimeout(fn, 0);
-};
+if (!process.nextTick) process.nextTick = (function () {
+    var queue = [];
+    var canPost = typeof window !== 'undefined'
+        && window.postMessage && window.addEventListener
+    ;
+    
+    if (canPost) {
+        window.addEventListener('message', function (ev) {
+            if (ev.source === window && ev.data === 'browserify-tick') {
+                ev.stopPropagation();
+                if (queue.length > 0) {
+                    var fn = queue.shift();
+                    fn();
+                }
+            }
+        }, true);
+    }
+    
+    return function (fn) {
+        if (canPost) {
+            queue.push(fn);
+            window.postMessage('browserify-tick', '*');
+        }
+        else setTimeout(fn, 0);
+    };
+})();
 
 if (!process.title) process.title = 'browser';
 
@@ -182,7 +203,7 @@ if (!process.binding) process.binding = function (name) {
 if (!process.cwd) process.cwd = function () { return '.' };
 
 require.define("path", function (require, module, exports, __dirname, __filename) {
-    function filter (xs, fn) {
+function filter (xs, fn) {
     var res = [];
     for (var i = 0; i < xs.length; i++) {
         if (fn(xs[i], i, xs)) res.push(xs[i]);
@@ -320,11 +341,11 @@ exports.extname = function(path) {
 });
 
 require.define("/node_modules/dormouse/package.json", function (require, module, exports, __dirname, __filename) {
-    module.exports = {"main":"lib/assembler"}
+module.exports = {"main":"lib/assembler"}
 });
 
 require.define("/node_modules/dormouse/lib/assembler.js", function (require, module, exports, __dirname, __filename) {
-    var Connection, Dormouse, Projects, Tasks;
+var Connection, Dormouse, Projects, Tasks;
 
 require('./mixin');
 
@@ -357,7 +378,7 @@ module.exports = Dormouse;
 });
 
 require.define("/node_modules/dormouse/lib/mixin.js", function (require, module, exports, __dirname, __filename) {
-    var implements,
+var implements,
   __slice = Array.prototype.slice;
 
 implements = function() {
@@ -393,7 +414,7 @@ if (Object.defineProperty) {
 });
 
 require.define("/node_modules/dormouse/lib/connection.js", function (require, module, exports, __dirname, __filename) {
-    var Connection, appendAPIKey, handleResponse, http, libutils, parseResponse, path, _;
+var Connection, appendAPIKey, handleResponse, http, libutils, parseResponse, path, _;
 
 path = require('path');
 
@@ -579,12 +600,12 @@ exports.Connection = Connection;
 });
 
 require.define("/node_modules/dormouse/node_modules/underscore/package.json", function (require, module, exports, __dirname, __filename) {
-    module.exports = {"main":"underscore.js"}
+module.exports = {"main":"underscore.js"}
 });
 
 require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", function (require, module, exports, __dirname, __filename) {
-    //     Underscore.js 1.2.3
-//     (c) 2009-2011 Jeremy Ashkenas, DocumentCloud Inc.
+//     Underscore.js 1.2.4
+//     (c) 2009-2012 Jeremy Ashkenas, DocumentCloud Inc.
 //     Underscore is freely distributable under the MIT license.
 //     Portions of Underscore are inspired or borrowed from Prototype,
 //     Oliver Steele's Functional, and John Resig's Micro-Templating.
@@ -610,7 +631,6 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
 
   // Create quick reference variables for speed access to core prototypes.
   var slice            = ArrayProto.slice,
-      concat           = ArrayProto.concat,
       unshift          = ArrayProto.unshift,
       toString         = ObjProto.toString,
       hasOwnProperty   = ObjProto.hasOwnProperty;
@@ -653,7 +673,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
   }
 
   // Current version.
-  _.VERSION = '1.2.3';
+  _.VERSION = '1.2.4';
 
   // Collection Functions
   // --------------------
@@ -687,6 +707,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
     each(obj, function(value, index, list) {
       results[results.length] = iterator.call(context, value, index, list);
     });
+    if (obj.length === +obj.length) results.length = obj.length;
     return results;
   };
 
@@ -803,7 +824,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
   _.invoke = function(obj, method) {
     var args = slice.call(arguments, 2);
     return _.map(obj, function(value) {
-      return (method.call ? method || value : value[method]).apply(value, args);
+      return (_.isFunction(method) ? method || value : value[method]).apply(value, args);
     });
   };
 
@@ -1168,7 +1189,7 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
   // conditionally execute the original function.
   _.wrap = function(func, wrapper) {
     return function() {
-      var args = concat.apply([func], arguments);
+      var args = [func].concat(slice.call(arguments, 0));
       return wrapper.apply(this, args);
     };
   };
@@ -1477,6 +1498,11 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
     escape      : /<%-([\s\S]+?)%>/g
   };
 
+  // When customizing `templateSettings`, if you don't want to define an
+  // interpolation, evaluation or escaping regex, we need one that is
+  // guaranteed not to match.
+  var noMatch = /.^/;
+
   // JavaScript micro-templating, similar to John Resig's implementation.
   // Underscore templating handles arbitrary delimiters, preserves whitespace,
   // and correctly escapes quotes within interpolated code.
@@ -1486,15 +1512,16 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
       'with(obj||{}){__p.push(\'' +
       str.replace(/\\/g, '\\\\')
          .replace(/'/g, "\\'")
-         .replace(c.escape, function(match, code) {
+         .replace(c.escape || noMatch, function(match, code) {
            return "',_.escape(" + code.replace(/\\'/g, "'") + "),'";
          })
-         .replace(c.interpolate, function(match, code) {
+         .replace(c.interpolate || noMatch, function(match, code) {
            return "'," + code.replace(/\\'/g, "'") + ",'";
          })
-         .replace(c.evaluate || null, function(match, code) {
+         .replace(c.evaluate || noMatch, function(match, code) {
            return "');" + code.replace(/\\'/g, "'")
-                              .replace(/[\r\n\t]/g, ' ') + ";__p.push('";
+                              .replace(/[\r\n\t]/g, ' ')
+                              .replace(/\\\\/g, '\\') + ";__p.push('";
          })
          .replace(/\r/g, '\\r')
          .replace(/\n/g, '\\n')
@@ -1505,6 +1532,11 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
     return function(data) {
       return func.call(this, data, _);
     };
+  };
+
+  // Add a "chain" function, which will delegate to the wrapper.
+  _.chain = function(obj) {
+    return _(obj).chain();
   };
 
   // The OOP Wrapper
@@ -1539,8 +1571,11 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
   each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
     var method = ArrayProto[name];
     wrapper.prototype[name] = function() {
-      method.apply(this._wrapped, arguments);
-      return result(this._wrapped, this._chain);
+      var wrapped = this._wrapped;
+      method.apply(wrapped, arguments);
+      var length = wrapped.length;
+      if ((name == 'shift' || name == 'splice') && length === 0) delete wrapped[0];
+      return result(wrapped, this._chain);
     };
   });
 
@@ -1568,11 +1603,11 @@ require.define("/node_modules/dormouse/node_modules/underscore/underscore.js", f
 });
 
 require.define("/node_modules/dormouse/node_modules/http-browserify/package.json", function (require, module, exports, __dirname, __filename) {
-    module.exports = {"main":"index.js","browserify":"browser.js"}
+module.exports = {"main":"index.js","browserify":"browser.js"}
 });
 
 require.define("/node_modules/dormouse/node_modules/http-browserify/browser.js", function (require, module, exports, __dirname, __filename) {
-    var http = module.exports;
+var http = module.exports;
 var EventEmitter = require('events').EventEmitter;
 var Request = require('./lib/request');
 
@@ -1632,7 +1667,7 @@ var xhrHttp = (function () {
 });
 
 require.define("events", function (require, module, exports, __dirname, __filename) {
-    if (!process.EventEmitter) process.EventEmitter = function () {};
+if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
 var isArray = typeof Array.isArray === 'function'
@@ -1807,7 +1842,7 @@ EventEmitter.prototype.listeners = function(type) {
 });
 
 require.define("/node_modules/dormouse/node_modules/http-browserify/lib/request.js", function (require, module, exports, __dirname, __filename) {
-    var EventEmitter = require('events').EventEmitter;
+var EventEmitter = require('events').EventEmitter;
 var Response = require('./response');
 
 var Request = module.exports = function (xhr, params) {
@@ -1817,7 +1852,11 @@ var Request = module.exports = function (xhr, params) {
     
     var uri = params.host + ':' + params.port + (params.path || '/');
     
-    xhr.open(params.method || 'GET', 'http://' + uri, true);
+    xhr.open(
+        params.method || 'GET',
+        (params.scheme || 'http') + '://' + uri,
+        true
+    );
     
     if (params.headers) {
         Object.keys(params.headers).forEach(function (key) {
@@ -1867,7 +1906,7 @@ Request.prototype.end = function (s) {
 });
 
 require.define("/node_modules/dormouse/node_modules/http-browserify/lib/response.js", function (require, module, exports, __dirname, __filename) {
-    var EventEmitter = require('events').EventEmitter;
+var EventEmitter = require('events').EventEmitter;
 
 var Response = module.exports = function (res) {
     this.offset = 0;
@@ -1970,7 +2009,7 @@ Response.prototype.write = function (res) {
 });
 
 require.define("/node_modules/dormouse/lib/libutils.js", function (require, module, exports, __dirname, __filename) {
-    var libutils, _,
+var libutils, _,
   __hasProp = Object.prototype.hasOwnProperty;
 
 _ = require('underscore');
@@ -2019,7 +2058,7 @@ libutils.formatUrl = function(urlObj) {
 });
 
 require.define("/node_modules/dormouse/lib/tasks.js", function (require, module, exports, __dirname, __filename) {
-    var Connection, Query, Tasks, _,
+var Connection, Query, Tasks, _,
   __hasProp = Object.prototype.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -2113,7 +2152,7 @@ exports.Tasks = Tasks;
 });
 
 require.define("/node_modules/dormouse/lib/query.js", function (require, module, exports, __dirname, __filename) {
-    var Connection, Query, top_level, _,
+var Connection, Query, top_level, _,
   __hasProp = Object.prototype.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
@@ -2174,6 +2213,31 @@ Query = (function(_super) {
     return this;
   };
 
+  Query.prototype.order_by = function(o) {
+    this.ordering = o;
+    return this;
+  };
+
+  Query.prototype.limit = function(l) {
+    this.limited = l;
+    return this;
+  };
+
+  Query.prototype.run = function(callback) {
+    var _this = this;
+    return Query.get(this.get_path, function(err, r) {
+      var tasks;
+      if (err) return callback(err, r);
+      tasks = r.map(function(t) {
+        return t.task;
+      });
+      tasks = tasks.filter(_this.check_constraints, _this);
+      if (_this.ordering) tasks = _this.apply_ordering(tasks);
+      if (_this.limited) tasks = tasks.slice(0, _this.limited);
+      return callback(null, tasks);
+    });
+  };
+
   Query.prototype.check_constraints = function(task) {
     return this.constraints.every(function(c) {
       var complete, task_value;
@@ -2199,11 +2263,6 @@ Query = (function(_super) {
     });
   };
 
-  Query.prototype.order_by = function(o) {
-    this.ordering = o;
-    return this;
-  };
-
   Query.prototype.apply_ordering = function(tasks) {
     var top_level_prop;
     if (this.ordering === '?') {
@@ -2220,26 +2279,6 @@ Query = (function(_super) {
     }
   };
 
-  Query.prototype.limit = function(l) {
-    this.limited = l;
-    return this;
-  };
-
-  Query.prototype.run = function(callback) {
-    var _this = this;
-    return Query.get(this.get_path, function(err, r) {
-      var tasks;
-      if (err) return callback(err, r);
-      tasks = r.map(function(t) {
-        return t.task;
-      });
-      tasks = tasks.filter(_this.check_constraints, _this);
-      if (_this.ordering) tasks = _this.apply_ordering(tasks);
-      if (_this.limited) tasks = tasks.slice(0, _this.limited);
-      return callback(null, tasks);
-    });
-  };
-
   return Query;
 
 })(Connection);
@@ -2249,7 +2288,7 @@ exports.Query = Query;
 });
 
 require.define("/node_modules/dormouse/lib/projects.js", function (require, module, exports, __dirname, __filename) {
-    var Connection, Projects, path,
+var Connection, Projects, path,
   __hasProp = Object.prototype.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
