@@ -129,9 +129,11 @@ handleResponse = (res, callback) ->
   res.on 'error', (err) ->
     console.log 'HTTP error', res.statusCode, data, err
 
+successful_statuses = [ 200, 201, 202 ] # STATUS: OK, CREATED, ACCEPTED
+
 parseResponse = (res, raw_response, callback) ->
   raw_response = raw_response.trim()
-  if res.statusCode is 200 # STATUS: OK
+  if res.statusCode in successful_statuses
     if raw_response
       try
         callback null, JSON.parse raw_response
