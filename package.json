@@ -1,7 +1,7 @@
 {
   "name": "dormouse",
   "description": "Javascript API for Dormouse",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Zahan Malkani <zahanm@gmail.com> (http://zahanm.com)",
   "homepage": "http://dormou.se",
   "repository": {
