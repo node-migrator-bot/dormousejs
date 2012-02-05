@@ -94,11 +94,11 @@ class Tasks extends Connection
     this.post post_path, {}, { 'task': task_info }, callback
 
   @answerTask: (task_id, answer_info, callback) ->
-    put_path = "tasks/#{task_id}/answer.json"
-    this.put put_path, {}, answer_info, callback
+    post_path = "/api/v1/tasks/#{task_id}/responses.json"
+    this.post post_path, {}, { 'response': answer_info }, callback
 
   @deleteTask: (task_id, callback) ->
-    delete_path =  "tasks/#{task_id}.json"
+    delete_path =  "/api/v1/tasks/#{task_id}.json"
     this.delete delete_path, callback
 
 exports.Tasks = Tasks

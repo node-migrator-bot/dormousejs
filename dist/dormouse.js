@@ -2162,14 +2162,16 @@ Tasks = (function(_super) {
   };
 
   Tasks.answerTask = function(task_id, answer_info, callback) {
-    var put_path;
-    put_path = "tasks/" + task_id + "/answer.json";
-    return this.put(put_path, {}, answer_info, callback);
+    var post_path;
+    post_path = "/api/v1/tasks/" + task_id + "/responses.json";
+    return this.post(post_path, {}, {
+      'response': answer_info
+    }, callback);
   };
 
   Tasks.deleteTask = function(task_id, callback) {
     var delete_path;
-    delete_path = "tasks/" + task_id + ".json";
+    delete_path = "/api/v1/tasks/" + task_id + ".json";
     return this["delete"](delete_path, callback);
   };
 
