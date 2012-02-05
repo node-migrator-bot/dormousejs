@@ -28,6 +28,7 @@
 
 # Requirements
 require './mixin'
+Store = require('./store').Store
 Connection = require('./connection').Connection
 Tasks = require('./tasks').Tasks
 Projects = require('./projects').Projects
@@ -38,15 +39,7 @@ Projects = require('./projects').Projects
 # To see what other methods are available on the `dormouse` object
 # look at **tasks.coffee** and **projects.coffee**
 class Dormouse
-  # Tasks, Projects are *mixins*
-  @implements Tasks, Projects
-
-  # get or set the `dormouse` server to connect to
-  @server: () ->
-    Connection.server.apply Connection, arguments
-
-  # get or set the `dormouse` api_key to identify the developer of the app
-  @api_key: () ->
-    Connection.api_key.apply Connection, arguments
+  # Store, Tasks, Projects are *mixins*
+  @implements Store, Tasks, Projects
 
 module.exports = Dormouse

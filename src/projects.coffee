@@ -19,7 +19,6 @@ Connection = require('./connection').Connection
 # * basic API operations
 class Projects extends Connection
 
-
   # Get all projects from Dormouse
   # @param id of project to fetch
   @getProject: (id, callback) ->

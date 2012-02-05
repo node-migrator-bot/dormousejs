@@ -345,9 +345,11 @@ module.exports = {"main":"lib/assembler"}
 });
 
 require.define("/node_modules/dormouse/lib/assembler.js", function (require, module, exports, __dirname, __filename) {
-var Connection, Dormouse, Projects, Tasks;
+var Connection, Dormouse, Projects, Store, Tasks;
 
 require('./mixin');
+
+Store = require('./store').Store;
 
 Connection = require('./connection').Connection;
 
@@ -359,15 +361,7 @@ Dormouse = (function() {
 
   function Dormouse() {}
 
-  Dormouse.implements(Tasks, Projects);
-
-  Dormouse.server = function() {
-    return Connection.server.apply(Connection, arguments);
-  };
-
-  Dormouse.api_key = function() {
-    return Connection.api_key.apply(Connection, arguments);
-  };
+  Dormouse.implements(Store, Tasks, Projects);
 
   return Dormouse;
 
@@ -413,8 +407,62 @@ if (Object.defineProperty) {
 
 });
 
+require.define("/node_modules/dormouse/lib/store.js", function (require, module, exports, __dirname, __filename) {
+var Store;
+
+Store = (function() {
+  var api_key, host, port;
+
+  function Store() {}
+
+  Store.server = function(setter) {
+    var host, matched, port;
+    if (setter) {
+      matched = setter.match(/^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/);
+      if (matched) {
+        host = matched[3] || 'dormou.se';
+        port = matched[5] || 80;
+      } else {
+        throw new Error('Improperly formatted url passed to Dormouse.server(...)');
+      }
+    }
+    return "http://" + host + ":" + port + "/";
+  };
+
+  host = 'dormou.se';
+
+  Store.host = function(setter) {
+    if (setter) host = setter;
+    return host;
+  };
+
+  port = 80;
+
+  Store.port = function(setter) {
+    if (setter) port = setter;
+    return port;
+  };
+
+  api_key = '';
+
+  Store.api_key = function(setter) {
+    if (setter) api_key = setter;
+    if (!api_key) {
+      throw new Error('You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)');
+    }
+    return api_key;
+  };
+
+  return Store;
+
+})();
+
+exports.Store = Store;
+
+});
+
 require.define("/node_modules/dormouse/lib/connection.js", function (require, module, exports, __dirname, __filename) {
-var Connection, appendAPIKey, handleResponse, http, libutils, parseResponse, path, successful_statuses, _,
+var Connection, Store, appendAPIKey, handleResponse, http, libutils, parseResponse, path, successful_statuses, _,
   __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 path = require('path');
@@ -423,12 +471,15 @@ _ = require('underscore');
 
 http = require('http-browserify');
 
+Store = require('./store').Store;
+
 libutils = require('./libutils');
 
 Connection = (function() {
-  var api_key, host, port;
 
   function Connection() {}
+
+  Connection.implements(Store);
 
   Connection.get = function(get_path, options, callback) {
     var req;
@@ -512,44 +563,6 @@ Connection = (function() {
       return handleResponse(res, callback);
     });
     return req.end();
-  };
-
-  host = 'dormou.se';
-
-  port = 80;
-
-  Connection.server = function(setter) {
-    var matched;
-    if (setter) {
-      matched = setter.match(/^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/);
-      if (matched) {
-        host = matched[3] || 'dormou.se';
-        port = matched[5] || 80;
-      } else {
-        throw new Error('Improperly formatted url passed to Dormouse.server(...)');
-      }
-    }
-    return "http://" + host + ":" + port + "/";
-  };
-
-  Connection.host = function(setter) {
-    if (setter) host = setter;
-    return host;
-  };
-
-  Connection.port = function(setter) {
-    if (setter) port = setter;
-    return port;
-  };
-
-  api_key = '';
-
-  Connection.api_key = function(setter) {
-    if (setter) api_key = setter;
-    if (!api_key) {
-      throw new Error('You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)');
-    }
-    return api_key;
   };
 
   return Connection;

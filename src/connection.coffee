@@ -3,6 +3,7 @@ path = require 'path'
 _ = require 'underscore'
 http = require 'http-browserify'
 
+Store = require('./store').Store
 libutils = require './libutils'
 
 #### Connection for us all
@@ -11,6 +12,8 @@ libutils = require './libutils'
 #
 # Inspiration from Ruby's `httparty`
 class Connection
+  # mixins
+  @implements Store
 
   # Assumption that it is getting JSON
   # @param options serialized in GET params
@@ -83,36 +86,6 @@ class Connection
     , (res) ->
       handleResponse res, callback
     req.end()
-
-  host = 'dormou.se'
-  port = 80
-  @server: (setter) ->
-    if setter
-      matched = setter.match /^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/
-      if matched
-        host = matched[3] || 'dormou.se'
-        port = matched[5] || 80
-      else
-        throw new Error 'Improperly formatted url passed to Dormouse.server(...)'
-    "http://#{host}:#{port}/"
-
-  @host: (setter) ->
-    if setter
-      host = setter
-    host
-
-  @port: (setter) ->
-    if setter
-      port = setter
-    port
-
-  api_key = ''
-  @api_key: (setter) ->
-    if setter
-      api_key = setter
-    unless api_key
-      throw new Error 'You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)'
-    api_key
 
 #### Private methods
 # No one can access these from the outside
