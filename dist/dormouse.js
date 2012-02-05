@@ -2179,11 +2179,13 @@ exports.Tasks = Tasks;
 });
 
 require.define("/node_modules/dormouse/lib/query.js", function (require, module, exports, __dirname, __filename) {
-var Connection, Query, top_level, _,
+var Connection, Query, Store, top_level, _,
   __hasProp = Object.prototype.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
 _ = require('underscore');
+
+Store = require('./store').Store;
 
 Connection = require('./connection').Connection;
 
@@ -2205,7 +2207,9 @@ Query = (function(_super) {
   __extends(Query, _super);
 
   function Query() {
-    this.get_path = 'tasks.json';
+    var project_id;
+    project_id = Store.project_id();
+    this.get_path = "/api/v1/projects/" + project_id + "/tasks.json";
     this.constraints = [];
     this.ordering = false;
     this.limited = false;
@@ -2232,11 +2236,7 @@ Query = (function(_super) {
   };
 
   Query.prototype.iscomplete = function(value) {
-    this.constraints.push({
-      op: 'iscomplete',
-      prop: 'responses',
-      value: value
-    });
+    if (!value) this.get_path = this.get_path.replace(/\.json$/, '/open.json');
     return this;
   };
 
@@ -2261,13 +2261,17 @@ Query = (function(_super) {
       tasks = tasks.filter(_this.check_constraints, _this);
       if (_this.ordering) tasks = _this.apply_ordering(tasks);
       if (_this.limited) tasks = tasks.slice(0, _this.limited);
-      return callback(null, tasks);
+      if (tasks.length) {
+        return callback(null, tasks);
+      } else {
+        return callback('No tasks matching constraints', null);
+      }
     });
   };
 
   Query.prototype.check_constraints = function(task) {
     return this.constraints.every(function(c) {
-      var complete, task_value;
+      var task_value;
       if (c.prop in top_level) {
         task_value = task[c.prop];
       } else {
@@ -2276,14 +2280,6 @@ Query = (function(_super) {
       switch (c.op) {
         case 'ne':
           return task_value !== c.value;
-        case 'iscomplete':
-          complete = task_value && task_value.length;
-          if (c.value) {
-            return complete;
-          } else {
-            return !complete;
-          }
-          break;
         default:
           return task_value === c.value;
       }

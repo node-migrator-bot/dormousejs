@@ -56,7 +56,7 @@ class Tasks extends Connection
       if err then callback err, r
       else callback null, r.task
 
-  # Fetches all tasks from Dormouse.
+  # Fetches all tasks for the current project from Dormouse.
   #
   # Look at **query.coffee** for the structure of the returned object
   @getTasks: (callback) ->

@@ -27,6 +27,8 @@
 
 # Requirements
 _ = require 'underscore'
+
+Store = require('./store').Store
 Connection = require('./connection').Connection
 
 # Task top level properties
@@ -45,7 +47,8 @@ top_level =
 class Query extends Connection
 
   constructor: ->
-    @get_path = 'tasks.json'
+    project_id = Store.project_id()
+    @get_path = "/api/v1/projects/#{project_id}/tasks.json"
     @constraints = []
     @ordering = false
     @limited = false
@@ -77,7 +80,8 @@ class Query extends Connection
   #     q.iscomplete(false)
   #
   iscomplete: (value) ->
-    @constraints.push op: 'iscomplete', prop: 'responses', value: value
+    if not value
+      @get_path = @get_path.replace /\.json$/, '/open.json'
     this
 
   # Sort the array of tasks returned through the callback.
@@ -122,7 +126,10 @@ class Query extends Connection
         tasks = @apply_ordering tasks
       if @limited
         tasks = tasks.slice 0, @limited
-      callback null, tasks
+      if tasks.length
+        callback null, tasks
+      else
+        callback 'No tasks matching constraints', null
 
   #### Private methods
 
@@ -136,9 +143,6 @@ class Query extends Connection
       switch c.op
         when 'ne'
           task_value isnt c.value
-        when 'iscomplete'
-          complete = task_value and task_value.length
-          if c.value then complete else not complete
         else
           # assumption that operation is `eq`
           task_value is c.value
