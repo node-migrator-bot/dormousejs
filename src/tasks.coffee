@@ -36,7 +36,8 @@
 
 #### And now for code
 
-# Connection and Query needed.
+# Store, Connection and Query needed.
+Store = require('./store').Store
 Connection = require('./connection').Connection
 Query = require('./query').Query
 
@@ -52,7 +53,7 @@ class Tasks extends Connection
   #
   # @param id of task
   @getTask: (id, callback) ->
-    @get "tasks/#{id}.json", (err, r) ->
+    @get "/api/v1/tasks/#{id}.json", (err, r) ->
       if err then callback err, r
       else callback null, r.task
 
@@ -88,7 +89,8 @@ class Tasks extends Connection
     task_info.eligibility ?= predicate: null, communities: []
     task_info.replication ?= 1
     task_info.duplication ?= 1
-    post_path = 'tasks.json'
+    project_id = Store.project_id()
+    post_path = "/api/v1/projects/#{project_id}/tasks.json"
     this.post post_path, {}, { 'task': task_info }, callback
 
   @answerTask: (task_id, answer_info, callback) ->

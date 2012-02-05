@@ -2085,9 +2085,11 @@ libutils.formatUrl = function(urlObj) {
 });
 
 require.define("/node_modules/dormouse/lib/tasks.js", function (require, module, exports, __dirname, __filename) {
-var Connection, Query, Tasks, _,
+var Connection, Query, Store, Tasks, _,
   __hasProp = Object.prototype.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+Store = require('./store').Store;
 
 Connection = require('./connection').Connection;
 
@@ -2108,7 +2110,7 @@ Tasks = (function(_super) {
   }
 
   Tasks.getTask = function(id, callback) {
-    return this.get("tasks/" + id + ".json", function(err, r) {
+    return this.get("/api/v1/tasks/" + id + ".json", function(err, r) {
       if (err) {
         return callback(err, r);
       } else {
@@ -2136,7 +2138,7 @@ Tasks = (function(_super) {
   };
 
   Tasks.createTask = function(task_info, callback) {
-    var field, post_path, required_fields, _i, _len;
+    var field, post_path, project_id, required_fields, _i, _len;
     required_fields = ['project_id', 'template_id', 'parameters'];
     for (_i = 0, _len = required_fields.length; _i < _len; _i++) {
       field = required_fields[_i];
@@ -2152,7 +2154,8 @@ Tasks = (function(_super) {
     }
     if (task_info.replication == null) task_info.replication = 1;
     if (task_info.duplication == null) task_info.duplication = 1;
-    post_path = 'tasks.json';
+    project_id = Store.project_id();
+    post_path = "/api/v1/projects/" + project_id + "/tasks.json";
     return this.post(post_path, {}, {
       'task': task_info
     }, callback);
