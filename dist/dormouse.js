@@ -408,15 +408,20 @@ if (Object.defineProperty) {
 });
 
 require.define("/node_modules/dormouse/lib/store.js", function (require, module, exports, __dirname, __filename) {
-var Store;
+var Store, api_key, host, port;
+
+host = 'dormou.se';
+
+port = 80;
+
+api_key = '';
 
 Store = (function() {
-  var api_key, host, port;
 
   function Store() {}
 
   Store.server = function(setter) {
-    var host, matched, port;
+    var matched;
     if (setter) {
       matched = setter.match(/^((https?):\/\/)?([A-Za-z0-9\.]+)(:(\d+))?\/?$/);
       if (matched) {
@@ -429,21 +434,15 @@ Store = (function() {
     return "http://" + host + ":" + port + "/";
   };
 
-  host = 'dormou.se';
-
   Store.host = function(setter) {
     if (setter) host = setter;
     return host;
   };
 
-  port = 80;
-
   Store.port = function(setter) {
     if (setter) port = setter;
     return port;
   };
-
-  api_key = '';
 
   Store.api_key = function(setter) {
     if (setter) api_key = setter;

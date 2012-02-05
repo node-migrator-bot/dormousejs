@@ -1,6 +1,11 @@
 #### Constant Storage for dormouse
 # Where all the constants are stored, using closures
 
+# beauty of closures
+host = 'dormou.se'
+port = 80
+api_key = ''
+
 class Store
 
   # get or set the `dormouse` server to connect to
@@ -14,20 +19,17 @@ class Store
         throw new Error 'Improperly formatted url passed to Dormouse.server(...)'
     "http://#{host}:#{port}/"
 
-  host = 'dormou.se'
   @host: (setter) ->
     if setter
       host = setter
     host
 
-  port = 80
   @port: (setter) ->
     if setter
       port = setter
     port
 
   # get or set the `dormouse` api_key to identify the developer of the app
-  api_key = ''
   @api_key: (setter) ->
     if setter
       api_key = setter
