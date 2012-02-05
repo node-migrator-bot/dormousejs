@@ -6,8 +6,9 @@
   <script type="text/javascript">
     $dm.server('http://journal.dormou.se:8080');
     $dm.api_key('5e60e715dff55d0ad0f4d807d1cc6dd6d1d044c3');
+    $dm.project_id(1);
     var task_info = {
-      project_id: 20,
+      project_id: 1,
       template_id: 10,
       duplication: 1,
       replication: 1,
@@ -17,15 +18,15 @@
       }
     };
     var q = $dm.getTasks();
-    q.where('project_id', 11);
-    q.where('template_id', 7);
-    q.iscomplete(false);
+    q.where('project_id', 1);
+    q.where('template_id', 2);
+    // q.iscomplete(false);
     q.limit(1);
     q.run(function(err, r) {
       console.log(r);
       var task = r[0];
       var el = document.getElementById('content');
-      el.innerHTML = $dm.render(el.innerHTML, task);
+      // el.innerHTML = $dm.render(el.innerHTML, task);
     });
     // $dm.getTasks(function(err, r) {
     //   console.log(r);

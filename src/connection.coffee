@@ -109,9 +109,10 @@ parseResponse = (res, raw_response, callback) ->
   if res.statusCode in successful_statuses
     if raw_response
       try
-        callback null, JSON.parse raw_response
+        response = JSON.parse raw_response
       catch err
         console.error 'Response JSON parsing error', err if console
+      callback null, response
     else
       callback null, success: true
   else

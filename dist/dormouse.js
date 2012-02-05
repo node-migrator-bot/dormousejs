@@ -408,13 +408,15 @@ if (Object.defineProperty) {
 });
 
 require.define("/node_modules/dormouse/lib/store.js", function (require, module, exports, __dirname, __filename) {
-var Store, api_key, host, port;
+var Store, api_key, host, port, project_id;
 
 host = 'dormou.se';
 
 port = 80;
 
 api_key = '';
+
+project_id = '';
 
 Store = (function() {
 
@@ -450,6 +452,14 @@ Store = (function() {
       throw new Error('You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)');
     }
     return api_key;
+  };
+
+  Store.project_id = function(id) {
+    if (id) project_id = id;
+    if (!project_id) {
+      throw new Error('You cannot make API calls without a project_id. Set it using Dormouse.project_id(...)');
+    }
+    return project_id;
   };
 
   return Store;
@@ -591,15 +601,16 @@ handleResponse = function(res, callback) {
 successful_statuses = [200, 201, 202];
 
 parseResponse = function(res, raw_response, callback) {
-  var _ref;
+  var response, _ref;
   raw_response = raw_response.trim();
   if (_ref = res.statusCode, __indexOf.call(successful_statuses, _ref) >= 0) {
     if (raw_response) {
       try {
-        return callback(null, JSON.parse(raw_response));
+        response = JSON.parse(raw_response);
       } catch (err) {
-        if (console) return console.error('Response JSON parsing error', err);
+        if (console) console.error('Response JSON parsing error', err);
       }
+      return callback(null, response);
     } else {
       return callback(null, {
         success: true

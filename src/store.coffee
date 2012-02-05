@@ -5,6 +5,7 @@
 host = 'dormou.se'
 port = 80
 api_key = ''
+project_id = ''
 
 class Store
 
@@ -36,5 +37,14 @@ class Store
     unless api_key
       throw new Error 'You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)'
     api_key
+
+  # Get or set project_id
+  # optional param: `id` of project
+  @project_id: (id) ->
+    if id
+      project_id = id
+    unless project_id
+      throw new Error 'You cannot make API calls without a project_id. Set it using Dormouse.project_id(...)'
+    project_id
 
 exports.Store = Store
