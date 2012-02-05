@@ -2316,11 +2316,13 @@ exports.Query = Query;
 });
 
 require.define("/node_modules/dormouse/lib/projects.js", function (require, module, exports, __dirname, __filename) {
-var Connection, Projects, path,
+var Connection, Projects, Store, path,
   __hasProp = Object.prototype.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
 
 path = require('path');
+
+Store = require('./store').Store;
 
 Connection = require('./connection').Connection;
 
@@ -2332,8 +2334,14 @@ Projects = (function(_super) {
     Projects.__super__.constructor.apply(this, arguments);
   }
 
-  Projects.getProject = function(id, callback) {
-    return this.get("projects/" + id + ".json", function(err, r) {
+  Projects.getProject = function(callback) {
+    var project_id;
+    project_id = Store.project_id();
+    return this.getProjectFromID(project_id, callback);
+  };
+
+  Projects.getProjectFromID = function(id, callback) {
+    return this.get("/api/v1/projects/" + id + ".json", function(err, r) {
       if (err) {
         return callback(err, r);
       } else {
@@ -2342,33 +2350,15 @@ Projects = (function(_super) {
     });
   };
 
-  Projects.getProjects = function(callback) {
-    return this.get('projects.json', function(err, r) {
-      if (err) {
-        return callback(err, r);
-      } else {
-        return callback(null, r.map(function(p) {
-          return p.project;
-        }));
-      }
-    });
-  };
-
-  Projects.createProject = function(project_info, callback) {
-    var post_path;
-    post_path = 'projects.json';
-    return this.post(post_path, {}, project_info, callback);
-  };
-
   Projects.editProject = function(project, callback) {
     var put_path;
-    put_path = path.join('projects', "" + project.id + ".json");
+    put_path = "/api/v1/projects/" + project.id + ".json";
     return this.put(put_path, {}, project, callback);
   };
 
   Projects.deleteProject = function(project, callback) {
     var delete_path;
-    delete_path = path.join('projects', "" + project.id + ".json");
+    delete_path = "/api/v1/projects/" + project.id + ".json";
     return this["delete"](delete_path, callback);
   };
 

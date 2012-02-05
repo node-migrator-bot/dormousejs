@@ -17,6 +17,9 @@
         mode: "text"
       }
     };
+    $dm.getProject(function(err, r) {
+      err ? console.error(err) : console.log(r);
+    });
     var q = $dm.getTasks();
     q.where('template_id', 2);
     // q.iscomplete(false);
