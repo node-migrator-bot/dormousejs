@@ -1,4 +1,4 @@
-#### Constant Storage for dormouse
+#### Constants storage for dormouse
 # Where all the constants are stored, using closures
 
 # beauty of closures
@@ -7,6 +7,7 @@ port = 80
 api_key = ''
 project_id = ''
 
+# Just a dummy class with setters logic
 class Store
 
   # get or set the `dormouse` server to connect to

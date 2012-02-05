@@ -27,7 +27,6 @@
 
 # Requirements
 _ = require 'underscore'
-
 Store = require('./store').Store
 Connection = require('./connection').Connection
 
