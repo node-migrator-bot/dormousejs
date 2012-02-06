@@ -19,7 +19,7 @@ class Store
         port = matched[5] || 80
       else
         throw new Error 'Improperly formatted url passed to Dormouse.server(...)'
-    "http://#{host}:#{port}/"
+    "http://#{host}:#{port}"
 
   @host: (setter) ->
     if setter
