@@ -6,6 +6,7 @@ host = 'dormou.se'
 port = 80
 api_key = ''
 project_id = ''
+access_token = ''
 
 # Just a dummy class with setters logic
 class Store
@@ -22,30 +23,30 @@ class Store
     "http://#{host}:#{port}"
 
   @host: (setter) ->
-    if setter
-      host = setter
+    host = setter if setter
     host
 
   @port: (setter) ->
-    if setter
-      port = setter
+    port = setter if setter
     port
 
   # get or set the `dormouse` api_key to identify the developer of the app
   @api_key: (setter) ->
-    if setter
-      api_key = setter
-    unless api_key
-      throw new Error 'You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)'
+    api_key = setter if setter
+    throw new Error 'You cannot make API calls without an api_key. Set it using Dormouse.api_key(...)' unless api_key
     api_key
 
   # Get or set project_id
   # optional param: `id` of project
-  @project_id: (id) ->
-    if id
-      project_id = id
-    unless project_id
-      throw new Error 'You cannot make API calls without a project_id. Set it using Dormouse.project_id(...)'
+  @project_id: (setter) ->
+    project_id = setter if setter
+    throw new Error 'You cannot make some API calls without a project_id. Set it using Dormouse.project_id(...)' unless project_id
     project_id
+
+  # Used in oauth flow
+  @access_token: (setter) ->
+    access_token = setter if setter
+    throw new Error 'You cannot make some API calls without a project_id. Set it using Dormouse.project_id(...)' unless access_token
+    access_token
 
 exports.Store = Store
