@@ -10,6 +10,9 @@ Connection = require('./connection').Connection
 # Dummy class with some getter methods
 class Authentication extends Connection
 
+  @is_authenticated: () ->
+    Boolean Store.access_token()
+
   # Returns a login url on the dormouse site
   @login_url: (client_server) ->
     dm_server = Store.server()
