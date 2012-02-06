@@ -33,17 +33,19 @@ class Authentication extends Connection
       api_key = Store.api_key()
       parsed_url url.parse req.url, true
       code = parsed_url.query['code']
+      conosle.info code
       @get '/oauth/access_token.json', {
         project_id: project_id
         api_key: api_key
         code: code
       }, (r) ->
         Store.access_token r['access_token']
+        console.info Store.access_token()
         @get '/api/v1/users/current.json', {
           access_token : Store.access_token()
           }, (r) ->
             Store.user r['user']
-            console.info Store.access_token(), Store.user()
+            console.info Store.user()
             res.redirect '/'
 
 exports.Authentication = Authentication
