@@ -15,7 +15,13 @@ class Authentication extends Connection
     dm_server = Store.server()
     project_id = Store.project_id()
     "#{dm_server}/api/v1/plugins/new_session?project_id=#{project_id}&redirect_uri=http://#{client_server}/authenticate"
-  
+
+  # Returns a signup url on the dormouse site
+  @signup_url: (client_server) ->
+    dm_server = Store.server()
+    project_id = Store.project_id()
+    "#{dm_server}/api/v1/plugins/new_account?project_id=#{project_id}&redirect_uri=http://#{client_server}/authenticate"
+
   # passed in an `express` app, will setup paths to handle the auth
   # *must be done server-side*
   @setup_auth: (app) ->
