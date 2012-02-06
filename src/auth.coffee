@@ -27,7 +27,7 @@ class Authentication extends Connection
 
   # passed in an `express` app, will setup paths to handle the auth
   # *must be done server-side*
-  @setup_auth: (app) ->
+  @setup_auth: (app, server_store) ->
     app.get '/authenticate', (req, res) ->
       project_id = Store.project_id()
       api_key = Store.api_key()
@@ -39,12 +39,18 @@ class Authentication extends Connection
         api_key: api_key
         code: code
       }, (r) ->
-        Store.access_token r['access_token']
+        if server_store
+          server_store.access_token = r['access_token']
+        else
+          Store.access_token r['access_token']
         console.info Store.access_token()
         @get '/api/v1/users/current.json', {
           access_token : Store.access_token()
           }, (r) ->
-            Store.user r['user']
+            if server_store
+              server_store.user = r['user']
+            else
+              Store.user r['user']
             console.info Store.user()
             res.redirect '/'
 
