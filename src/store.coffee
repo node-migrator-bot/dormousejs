@@ -4,9 +4,10 @@
 # beauty of closures
 host = 'dormou.se'
 port = 80
-api_key = ''
-project_id = ''
-access_token = ''
+api_key = null
+project_id = null
+access_token = null
+user = null
 
 # Just a dummy class with setters logic
 class Store
@@ -46,7 +47,13 @@ class Store
   # Used in oauth flow
   @access_token: (setter) ->
     access_token = setter if setter
-    throw new Error 'You cannot make some API calls without a project_id. Set it using Dormouse.project_id(...)' unless access_token
+    throw new Error 'You cannot make some API calls without a access_token. Set it using Dormouse.access_token(...)' unless access_token
     access_token
+
+  # Used in oauth flow
+  @user: (setter) ->
+    user = setter if setter
+    throw new Error 'You cannot make some API calls without a user. Set it using Dormouse.user(...)' unless user
+    user
 
 exports.Store = Store

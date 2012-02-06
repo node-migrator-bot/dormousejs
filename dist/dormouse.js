@@ -408,17 +408,19 @@ if (Object.defineProperty) {
 });
 
 require.define("/node_modules/dormouse/lib/store.js", function (require, module, exports, __dirname, __filename) {
-var Store, access_token, api_key, host, port, project_id;
+var Store, access_token, api_key, host, port, project_id, user;
 
 host = 'dormou.se';
 
 port = 80;
 
-api_key = '';
+api_key = null;
 
-project_id = '';
+project_id = null;
 
-access_token = '';
+access_token = null;
+
+user = null;
 
 Store = (function() {
 
@@ -467,9 +469,17 @@ Store = (function() {
   Store.access_token = function(setter) {
     if (setter) access_token = setter;
     if (!access_token) {
-      throw new Error('You cannot make some API calls without a project_id. Set it using Dormouse.project_id(...)');
+      throw new Error('You cannot make some API calls without a access_token. Set it using Dormouse.access_token(...)');
     }
     return access_token;
+  };
+
+  Store.user = function(setter) {
+    if (setter) user = setter;
+    if (!user) {
+      throw new Error('You cannot make some API calls without a user. Set it using Dormouse.user(...)');
+    }
+    return user;
   };
 
   return Store;
@@ -498,8 +508,6 @@ Connection = (function() {
 
   function Connection() {}
 
-  Connection.implements(Store);
-
   Connection.get = function(get_path, options, callback) {
     var req;
     if (typeof options === 'function') {
@@ -512,8 +520,8 @@ Connection = (function() {
     });
     req = http.request({
       method: 'GET',
-      host: Connection.host(),
-      port: Connection.port(),
+      host: Store.host(),
+      port: Store.port(),
       path: get_path
     }, function(res) {
       return handleResponse(res, callback);
@@ -531,8 +539,8 @@ Connection = (function() {
     raw_length = typeof Buffer !== "undefined" && Buffer !== null ? Buffer.byteLength(raw_body) : raw_body.length;
     req = http.request({
       method: 'POST',
-      host: Connection.host(),
-      port: Connection.port(),
+      host: Store.host(),
+      port: Store.port(),
       path: post_path,
       headers: {
         'Content-Type': 'application/json',
@@ -554,8 +562,8 @@ Connection = (function() {
     raw_length = typeof Buffer !== "undefined" && Buffer !== null ? Buffer.byteLength(raw_body) : raw_body.length;
     req = http.request({
       method: 'PUT',
-      host: Connection.host(),
-      port: Connection.port(),
+      host: Store.host(),
+      port: Store.port(),
       path: put_path,
       headers: {
         'Content-Type': 'application/json',
@@ -575,8 +583,8 @@ Connection = (function() {
     });
     req = http.request({
       method: 'DELETE',
-      host: Connection.host(),
-      port: Connection.port(),
+      host: Store.host(),
+      port: Store.port(),
       path: delete_path
     }, function(res) {
       return handleResponse(res, callback);

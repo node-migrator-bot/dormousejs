@@ -12,8 +12,6 @@ libutils = require './libutils'
 #
 # Inspiration from Ruby's `httparty`
 class Connection
-  # mixins
-  @implements Store
 
   # Assumption that it is getting JSON
   # @param options serialized in GET params
@@ -26,8 +24,8 @@ class Connection
       query: appendAPIKey options
     req = http.request
       method: 'GET'
-      host: Connection.host()
-      port: Connection.port()
+      host: Store.host()
+      port: Store.port()
       path: get_path
     , (res) ->
       handleResponse res, callback
@@ -43,8 +41,8 @@ class Connection
     raw_length = if Buffer? then Buffer.byteLength(raw_body) else raw_body.length
     req = http.request
       method: 'POST'
-      host: Connection.host()
-      port: Connection.port()
+      host: Store.host()
+      port: Store.port()
       path: post_path
       headers:
         'Content-Type': 'application/json'
@@ -63,8 +61,8 @@ class Connection
     raw_length = if Buffer? then Buffer.byteLength(raw_body) else raw_body.length
     req = http.request
       method: 'PUT'
-      host: Connection.host()
-      port: Connection.port()
+      host: Store.host()
+      port: Store.port()
       path: put_path
       headers:
         'Content-Type': 'application/json'
@@ -80,8 +78,8 @@ class Connection
       query: appendAPIKey options
     req = http.request
       method: 'DELETE'
-      host: Connection.host()
-      port: Connection.port()
+      host: Store.host()
+      port: Store.port()
       path: delete_path
     , (res) ->
       handleResponse res, callback
