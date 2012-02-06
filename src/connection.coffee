@@ -21,7 +21,7 @@ class Connection
       options = {}
     get_path = libutils.formatUrl
       path: get_path
-      query: appendAPIKey options
+      query: signRequest options
     req = http.request
       method: 'GET'
       host: Store.host()
@@ -36,7 +36,7 @@ class Connection
   @post: (post_path, options, body, callback) ->
     post_path = libutils.formatUrl
       path: post_path
-      query: appendAPIKey options
+      query: signRequest options
     raw_body = JSON.stringify body
     raw_length = if Buffer? then Buffer.byteLength(raw_body) else raw_body.length
     req = http.request
@@ -56,7 +56,7 @@ class Connection
   @put: (put_path, options, body, callback) ->
     put_path = libutils.formatUrl
       path: put_path
-      query: appendAPIKey options
+      query: signRequest options
     raw_body = JSON.stringify body
     raw_length = if Buffer? then Buffer.byteLength(raw_body) else raw_body.length
     req = http.request
@@ -75,7 +75,7 @@ class Connection
   @delete: (delete_path, options, callback) ->
     delete_path = libutils.formatUrl
       path: delete_path
-      query: appendAPIKey options
+      query: signRequest options
     req = http.request
       method: 'DELETE'
       host: Store.host()
@@ -88,8 +88,13 @@ class Connection
 #### Private methods
 # No one can access these from the outside
 
-appendAPIKey = (options) ->
-  return _.extend options, api_key: Connection.api_key()
+signRequest = (options) ->
+  if 'access_token' of options or 'api_key' of options
+    options
+  else if Store.access_token()
+    _.extend options, access_token: Store.access_token()
+  else
+    _.extend options, api_key: Store.api_key()
 
 handleResponse = (res, callback) ->
   data = ''
