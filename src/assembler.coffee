@@ -30,6 +30,7 @@
 require './mixin'
 Store = require('./store').Store
 Connection = require('./connection').Connection
+Authentication = require('./auth').Authentication
 Tasks = require('./tasks').Tasks
 Projects = require('./projects').Projects
 
@@ -39,7 +40,7 @@ Projects = require('./projects').Projects
 # To see what other methods are available on the `dormouse` object
 # look at **tasks.coffee** and **projects.coffee**
 class Dormouse
-  # Store, Tasks, Projects are *mixins*
-  @implements Store, Tasks, Projects
+  # Store, Authentication, Tasks, Projects are *mixins*
+  @implements Store, Authentication, Tasks, Projects
 
 module.exports = Dormouse

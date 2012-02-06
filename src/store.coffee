@@ -47,7 +47,6 @@ class Store
   # Used in oauth flow
   @access_token: (setter) ->
     access_token = setter if setter
-    throw new Error 'You cannot make some API calls without a access_token. Set it using Dormouse.access_token(...)' unless access_token
     access_token
 
   # Used in oauth flow

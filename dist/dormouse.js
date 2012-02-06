@@ -345,13 +345,15 @@ module.exports = {"main":"lib/assembler"}
 });
 
 require.define("/node_modules/dormouse/lib/assembler.js", function (require, module, exports, __dirname, __filename) {
-var Connection, Dormouse, Projects, Store, Tasks;
+var Authentication, Connection, Dormouse, Projects, Store, Tasks;
 
 require('./mixin');
 
 Store = require('./store').Store;
 
 Connection = require('./connection').Connection;
+
+Authentication = require('./auth').Authentication;
 
 Tasks = require('./tasks').Tasks;
 
@@ -361,7 +363,7 @@ Dormouse = (function() {
 
   function Dormouse() {}
 
-  Dormouse.implements(Store, Tasks, Projects);
+  Dormouse.implements(Store, Authentication, Tasks, Projects);
 
   return Dormouse;
 
@@ -468,9 +470,6 @@ Store = (function() {
 
   Store.access_token = function(setter) {
     if (setter) access_token = setter;
-    if (!access_token) {
-      throw new Error('You cannot make some API calls without a access_token. Set it using Dormouse.access_token(...)');
-    }
     return access_token;
   };
 
@@ -491,7 +490,7 @@ exports.Store = Store;
 });
 
 require.define("/node_modules/dormouse/lib/connection.js", function (require, module, exports, __dirname, __filename) {
-var Connection, Store, appendAPIKey, handleResponse, http, libutils, parseResponse, path, successful_statuses, _,
+var Connection, Store, handleResponse, http, libutils, parseResponse, path, signRequest, successful_statuses, _,
   __indexOf = Array.prototype.indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 path = require('path');
@@ -516,7 +515,7 @@ Connection = (function() {
     }
     get_path = libutils.formatUrl({
       path: get_path,
-      query: appendAPIKey(options)
+      query: signRequest(options)
     });
     req = http.request({
       method: 'GET',
@@ -533,7 +532,7 @@ Connection = (function() {
     var raw_body, raw_length, req;
     post_path = libutils.formatUrl({
       path: post_path,
-      query: appendAPIKey(options)
+      query: signRequest(options)
     });
     raw_body = JSON.stringify(body);
     raw_length = typeof Buffer !== "undefined" && Buffer !== null ? Buffer.byteLength(raw_body) : raw_body.length;
@@ -556,7 +555,7 @@ Connection = (function() {
     var raw_body, raw_length, req;
     put_path = libutils.formatUrl({
       path: put_path,
-      query: appendAPIKey(options)
+      query: signRequest(options)
     });
     raw_body = JSON.stringify(body);
     raw_length = typeof Buffer !== "undefined" && Buffer !== null ? Buffer.byteLength(raw_body) : raw_body.length;
@@ -579,7 +578,7 @@ Connection = (function() {
     var req;
     delete_path = libutils.formatUrl({
       path: delete_path,
-      query: appendAPIKey(options)
+      query: signRequest(options)
     });
     req = http.request({
       method: 'DELETE',
@@ -596,10 +595,18 @@ Connection = (function() {
 
 })();
 
-appendAPIKey = function(options) {
-  return _.extend(options, {
-    api_key: Connection.api_key()
-  });
+signRequest = function(options) {
+  if ('access_token' in options || 'api_key' in options) {
+    return options;
+  } else if (Store.access_token()) {
+    return _.extend(options, {
+      access_token: Store.access_token()
+    });
+  } else {
+    return _.extend(options, {
+      api_key: Store.api_key()
+    });
+  }
 };
 
 handleResponse = function(res, callback) {
@@ -2099,6 +2106,69 @@ libutils.formatUrl = function(urlObj) {
   if (!url.match(/^\//)) url = '/' + url;
   return url;
 };
+
+});
+
+require.define("/node_modules/dormouse/lib/auth.js", function (require, module, exports, __dirname, __filename) {
+var Authentication, Connection, Store, url,
+  __hasProp = Object.prototype.hasOwnProperty,
+  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+
+url = require('url');
+
+Store = require('./store').Store;
+
+Connection = require('./connection').Connection;
+
+Authentication = (function(_super) {
+
+  __extends(Authentication, _super);
+
+  function Authentication() {
+    Authentication.__super__.constructor.apply(this, arguments);
+  }
+
+  Authentication.login_url = function(client_server) {
+    var dm_server, project_id;
+    dm_server = Store.server();
+    project_id = Store.project_id();
+    return "" + dm_server + "/api/v1/plugins/new_session?project_id=" + project_id + "&redirect_uri=http://" + client_server + "/authenticate";
+  };
+
+  Authentication.setup_auth = function(app) {
+    return app.get('/authenticate', function(req, res) {
+      var api_key, code, project_id;
+      project_id = Store.project_id();
+      api_key = Store.api_key();
+      parsed_url(url.parse(req.url, true));
+      code = parsed_url.query['code'];
+      return this.get('/oauth/access_token.json', {
+        project_id: project_id,
+        api_key: api_key,
+        code: code
+      }, function(r) {
+        Store.access_token(r['access_token']);
+        return this.get('/api/v1/users/current.json', {
+          access_token: Store.access_token()
+        }, function(r) {
+          Store.user(r['user']);
+          console.info(Store.access_token(), Store.user());
+          return res.redirect('/');
+        });
+      });
+    });
+  };
+
+  return Authentication;
+
+})(Connection);
+
+exports.Authentication = Authentication;
+
+});
+
+require.define("url", function (require, module, exports, __dirname, __filename) {
+// todo
 
 });
 
