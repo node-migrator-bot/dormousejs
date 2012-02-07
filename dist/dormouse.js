@@ -2189,7 +2189,11 @@ Tasks = (function(_super) {
     Tasks.__super__.constructor.apply(this, arguments);
   }
 
-  Tasks.getTask = function(id, callback) {
+  Tasks.getTask = function(id, options, callback) {
+    if (options && typeof options === 'function') {
+      callback = options;
+      options = {};
+    }
     return this.get("/api/v1/tasks/" + id + ".json", function(err, r) {
       if (err) {
         return callback(err, r);
@@ -2298,6 +2302,7 @@ Query = (function(_super) {
     this.constraints = [];
     this.ordering = false;
     this.limited = false;
+    this.options = {};
   }
 
   Query.prototype.eq = function(prop, value) {
@@ -2335,9 +2340,14 @@ Query = (function(_super) {
     return this;
   };
 
+  Query.prototype.authenticate = function(token) {
+    this.options['access_token'] = token;
+    return this;
+  };
+
   Query.prototype.run = function(callback) {
     var _this = this;
-    return Query.get(this.get_path, function(err, r) {
+    return Query.get(this.get_path, this.options, function(err, r) {
       var tasks;
       if (err) return callback(err, r);
       tasks = r.map(function(t) {

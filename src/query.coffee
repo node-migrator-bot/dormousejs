@@ -51,6 +51,7 @@ class Query extends Connection
     @constraints = []
     @ordering = false
     @limited = false
+    @options = {}
 
   # Check for equality of any property, usually in `task.parameters`
   #
@@ -106,6 +107,15 @@ class Query extends Connection
     @limited = l
     this
 
+  # Set the `access_token` to be passed to dormouse to authenticate as a user
+  #
+  #     q.authenticate('332fq43rqdafs')
+  #
+  # Useful for the example shown of identifying a user
+  authenticate: (token) ->
+    @options['access_token'] = token
+    this
+
   # Run the query against the server,
   # then return the tasks matching all the constraints through the `callback`
   # parameter.
@@ -116,7 +126,7 @@ class Query extends Connection
   # It goes without saying that the result of the fetch cannot be trusted if
   # there was an error.
   run: (callback) ->
-    Query.get @get_path, (err, r) =>
+    Query.get @get_path, @options, (err, r) =>
       return callback err, r if err
       tasks = r.map (t) ->
         t.task

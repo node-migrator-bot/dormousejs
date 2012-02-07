@@ -52,7 +52,10 @@ class Tasks extends Connection
   # Fetch a task from Dormouse
   #
   # @param id of task
-  @getTask: (id, callback) ->
+  @getTask: (id, options, callback) ->
+    if options and typeof options is 'function'
+      callback = options
+      options = {}
     @get "/api/v1/tasks/#{id}.json", (err, r) ->
       if err then callback err, r
       else callback null, r.task
