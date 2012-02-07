@@ -642,7 +642,10 @@ parseResponse = function(res, raw_response, callback) {
       });
     }
   } else {
-    if (console) console.info('Request failed', raw_response);
+    if (console) {
+      console.info('Req failed', raw_response, 'code', res.statusCode);
+      console.info('Fetch path', res.connection._httpMessage.path);
+    }
     return callback(new Error(raw_response), null);
   }
 };

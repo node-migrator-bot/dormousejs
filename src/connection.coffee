@@ -105,7 +105,8 @@ handleResponse = (res, callback) ->
   res.on 'error', (err) ->
     console.log 'HTTP error', res.statusCode, data, err
 
-successful_statuses = [ 200, 201, 202 ] # STATUS: OK, CREATED, ACCEPTED
+# STATUS: OK, CREATED, ACCEPTED
+successful_statuses = [ 200, 201, 202 ]
 
 parseResponse = (res, raw_response, callback) ->
   raw_response = raw_response.trim()
@@ -119,7 +120,10 @@ parseResponse = (res, raw_response, callback) ->
     else
       callback null, success: true
   else
-    console.info 'Request failed', raw_response if console
+    if console
+      console.info 'Req failed', raw_response, 'code', res.statusCode
+      # XXX private api
+      console.info 'Fetch path', res.connection._httpMessage.path
     callback new Error(raw_response), null
 
 exports.Connection = Connection
