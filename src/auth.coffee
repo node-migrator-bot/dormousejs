@@ -29,6 +29,10 @@ class Authentication
     dm_server = Store.server()
     project_id = Store.project_id()
     "#{dm_server}/api/v1/plugins/new_account?project_id=#{project_id}&redirect_uri=http://#{client_server}/authenticate"
+  
+  # logout url
+  @logout_url: (client_server) ->
+    "http://#{client_server}/logout"
 
   # Setup an app _server side_ to listen for the `/authenticate` call
   #
@@ -55,5 +59,10 @@ class Authentication
           # TODO error checking
           req.session.user = r['user']
           res.redirect '/'
+    
+    app.get '/logout', (req, res) ->
+      req.session.access_token = null
+      req.session.user = null
+      res.redirect '/'
 
 exports.Authentication = Authentication

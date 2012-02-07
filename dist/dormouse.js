@@ -2137,8 +2137,12 @@ Authentication = (function() {
     return "" + dm_server + "/api/v1/plugins/new_account?project_id=" + project_id + "&redirect_uri=http://" + client_server + "/authenticate";
   };
 
+  Authentication.logout_url = function(client_server) {
+    return "http://" + client_server + "/logout";
+  };
+
   Authentication.setup_auth = function(app) {
-    return app.get('/authenticate', function(req, res) {
+    app.get('/authenticate', function(req, res) {
       var api_key, code, project_id;
       project_id = Store.project_id();
       api_key = Store.api_key();
@@ -2156,6 +2160,11 @@ Authentication = (function() {
           return res.redirect('/');
         });
       });
+    });
+    return app.get('/logout', function(req, res) {
+      req.session.access_token = null;
+      req.session.user = null;
+      return res.redirect('/');
     });
   };
 
