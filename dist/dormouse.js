@@ -2110,21 +2110,15 @@ libutils.formatUrl = function(urlObj) {
 });
 
 require.define("/node_modules/dormouse/lib/auth.js", function (require, module, exports, __dirname, __filename) {
-var Authentication, Connection, Store,
-  __hasProp = Object.prototype.hasOwnProperty,
-  __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+var Authentication, Connection, Store;
 
 Store = require('./store').Store;
 
 Connection = require('./connection').Connection;
 
-Authentication = (function(_super) {
+Authentication = (function() {
 
-  __extends(Authentication, _super);
-
-  function Authentication() {
-    Authentication.__super__.constructor.apply(this, arguments);
-  }
+  function Authentication() {}
 
   Authentication.login_url = function(client_server) {
     var dm_server, project_id;
@@ -2146,19 +2140,16 @@ Authentication = (function(_super) {
       project_id = Store.project_id();
       api_key = Store.api_key();
       code = req.query['code'];
-      conosle.info(code);
-      return this.get('/oauth/access_token.json', {
+      return Connection.get('/oauth/access_token.json', {
         project_id: project_id,
         api_key: api_key,
         code: code
       }, function(err, r) {
         req.session.access_token = r['access_token'];
-        console.info(req.session.access_token);
-        return this.get('/api/v1/users/current.json', {
+        return Connection.get('/api/v1/users/current.json', {
           access_token: req.session.access_token
         }, function(err, r) {
           req.session.user = r['user'];
-          console.info(req.session.user);
           return res.redirect('/');
         });
       });
@@ -2167,7 +2158,7 @@ Authentication = (function(_super) {
 
   return Authentication;
 
-})(Connection);
+})();
 
 exports.Authentication = Authentication;
 
