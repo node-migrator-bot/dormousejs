@@ -56,7 +56,7 @@ class Tasks extends Connection
     if options and typeof options is 'function'
       callback = options
       options = {}
-    @get "/api/v1/tasks/#{id}.json", (err, r) ->
+    Tasks.get "/api/v1/tasks/#{id}.json", (err, r) ->
       if err then callback err, r
       else callback null, r.task
 
@@ -94,14 +94,14 @@ class Tasks extends Connection
     task_info.duplication ?= 1
     project_id = Store.project_id()
     post_path = "/api/v1/projects/#{project_id}/tasks.json"
-    @post post_path, {}, { 'task': task_info }, callback
+    Tasks.post post_path, {}, { 'task': task_info }, callback
 
   @answerTask: (task_id, answer_info, callback) ->
     post_path = "/api/v1/tasks/#{task_id}/responses.json"
-    @post post_path, {}, { 'response': answer_info }, callback
+    Tasks.post post_path, {}, { 'response': answer_info }, callback
 
   @deleteTask: (task_id, callback) ->
     delete_path =  "/api/v1/tasks/#{task_id}.json"
-    @delete delete_path, callback
+    Tasks.delete delete_path, callback
 
 exports.Tasks = Tasks

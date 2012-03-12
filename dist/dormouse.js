@@ -2206,7 +2206,7 @@ Tasks = (function(_super) {
       callback = options;
       options = {};
     }
-    return this.get("/api/v1/tasks/" + id + ".json", function(err, r) {
+    return Tasks.get("/api/v1/tasks/" + id + ".json", function(err, r) {
       if (err) {
         return callback(err, r);
       } else {
@@ -2252,7 +2252,7 @@ Tasks = (function(_super) {
     if (task_info.duplication == null) task_info.duplication = 1;
     project_id = Store.project_id();
     post_path = "/api/v1/projects/" + project_id + "/tasks.json";
-    return this.post(post_path, {}, {
+    return Tasks.post(post_path, {}, {
       'task': task_info
     }, callback);
   };
@@ -2260,7 +2260,7 @@ Tasks = (function(_super) {
   Tasks.answerTask = function(task_id, answer_info, callback) {
     var post_path;
     post_path = "/api/v1/tasks/" + task_id + "/responses.json";
-    return this.post(post_path, {}, {
+    return Tasks.post(post_path, {}, {
       'response': answer_info
     }, callback);
   };
@@ -2268,7 +2268,7 @@ Tasks = (function(_super) {
   Tasks.deleteTask = function(task_id, callback) {
     var delete_path;
     delete_path = "/api/v1/tasks/" + task_id + ".json";
-    return this["delete"](delete_path, callback);
+    return Tasks["delete"](delete_path, callback);
   };
 
   return Tasks;
