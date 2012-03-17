@@ -2261,7 +2261,9 @@ Tasks = (function(_super) {
     var post_path;
     post_path = "/api/v1/tasks/" + task_id + "/responses.json";
     return Tasks.post(post_path, {}, {
-      'response': answer_info
+      'response': {
+        'response': answer_info
+      }
     }, callback);
   };
 

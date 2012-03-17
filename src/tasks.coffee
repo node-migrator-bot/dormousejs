@@ -98,7 +98,7 @@ class Tasks extends Connection
 
   @answerTask: (task_id, answer_info, callback) ->
     post_path = "/api/v1/tasks/#{task_id}/responses.json"
-    Tasks.post post_path, {}, { 'response': answer_info }, callback
+    Tasks.post post_path, {}, { 'response': { 'response': answer_info } }, callback
 
   @deleteTask: (task_id, callback) ->
     delete_path =  "/api/v1/tasks/#{task_id}.json"
