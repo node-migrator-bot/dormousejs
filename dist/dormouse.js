@@ -2233,6 +2233,12 @@ Tasks = (function(_super) {
     return template(context);
   };
 
+  Tasks.refreshTurkResponses = function(callback) {
+    var post_path;
+    post_path = '/api/v1/tasks/refresh_turkhits.json';
+    return Tasks.post(post_path, {}, {}, callback);
+  };
+
   Tasks.createTask = function(task_info, callback) {
     var field, post_path, project_id, required_fields, _i, _len;
     required_fields = ['project_id', 'template_id', 'parameters'];

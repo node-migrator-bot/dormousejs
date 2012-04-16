@@ -81,6 +81,11 @@ class Tasks extends Connection
       context[prop] = task[prop]
     template context
 
+  # Refresh the Mechanical Turk responses on `dormouse`
+  @refreshTurkResponses: (callback) ->
+    post_path = '/api/v1/tasks/refresh_turkhits.json'
+    Tasks.post post_path, {}, {}, callback
+
   # @param task_info object following the format outlined in the task structure
   # section
   #
