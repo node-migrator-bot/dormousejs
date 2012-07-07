@@ -8,7 +8,7 @@ jslib = 'lib'
 jsdist = 'dist/dormouse.js'
 
 task 'clean', 'clean up assembled and built js', (options) ->
-  fs.unlinkSync jsdist if path.existsSync jsdist
+  fs.unlinkSync jsdist if fs.existsSync jsdist
   files = fs.readdirSync "#{jslib}"
   for file in files
     if '.js' is path.extname file
